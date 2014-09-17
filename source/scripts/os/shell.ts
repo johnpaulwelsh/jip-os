@@ -51,6 +51,12 @@ module TSOS {
                                   "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
+            // date
+            sc = new ShellCommand(this.shellDate,
+                "date",
+                "- Displays the current date and time.");
+            this.commandList[this.commandList.length] = sc;
+
             // man <topic>
             sc = new ShellCommand(this.shellMan,
                                   "man",
@@ -73,6 +79,12 @@ module TSOS {
             sc = new ShellCommand(this.shellPrompt,
                                   "prompt",
                                   "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+
+            // whereami
+            sc = new ShellCommand(this.shellWhereAmI,
+                                  "whereami",
+                                  "- Displays the location of your computer.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -222,6 +234,36 @@ module TSOS {
             _StdOut.resetXY();
         }
 
+        public shellDate(args) {
+            var date  = new Date();
+            var month = date.getMonth() + 1;
+            var day   = date.getDay();
+            var year  = date.getFullYear();
+            var hours = date.getHours();
+            var mins  = date.getMinutes();
+            var secs  = date.getSeconds();
+
+            if(month.toString().length == 1) {
+                month = '0' + month;
+            }
+            if(day.toString().length == 1) {
+                day = '0' + day;
+            }
+            if(hours.toString().length == 1) {
+                hours = '0' + hours;
+            }
+            if(mins.toString().length == 1) {
+                mins = '0' + mins;
+            }
+            if(secs.toString().length == 1) {
+                secs = '0' + secs;
+            }
+
+            _StdOut.putText("Time and date, from TD Bank: " +
+                hours + ":" + mins + ":" + secs + " " +
+                month + "/" + day + "/" + year);
+        }
+
         public shellMan(args) {
             if (args.length > 0) {
                 var topic = args[0];
@@ -277,6 +319,10 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+
+        public shellWhereAmI(args) {
+            _StdOut.putText("Sector 12.");
         }
 
     }
