@@ -62,6 +62,9 @@ var _hardwareClockID = null;
 var _GLaDOS = null;
 var Glados = null;
 
+// For doing web stuff in the 'host' files, but using that data in the 'os' files...
+var _ProgInput = "";
+
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
 };

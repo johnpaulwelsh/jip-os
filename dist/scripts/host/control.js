@@ -109,6 +109,14 @@ var TSOS;
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         };
+
+        Control.getProgramInput = function () {
+            return document.getElementById("taProgramInput").value.trim().split(" ");
+        };
+
+        Control.setStatusMess = function (args) {
+            document.getElementById("statusMess").innerHTML = args;
+        };
         return Control;
     })();
     TSOS.Control = Control;

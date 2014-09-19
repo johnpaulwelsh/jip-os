@@ -111,5 +111,13 @@ module TSOS {
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
+
+        public static getProgramInput(): any {
+            return (<HTMLInputElement>document.getElementById("taProgramInput")).value.trim().split(" ");
+        }
+
+        public static setStatusMess(args): void {
+            document.getElementById("statusMess").innerHTML = args;
+        }
     }
 }
