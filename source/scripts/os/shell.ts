@@ -45,16 +45,29 @@ module TSOS {
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
+            // ascii
+            sc = new ShellCommand(this.shellASCII,
+                                  "ascii",
+                                  "- Displays some ASCII art, courtesy of JP Welsh.");
+            this.commandList[this.commandList.length] = sc;
+
             // cls
             sc = new ShellCommand(this.shellCls,
                                   "cls",
                                   "- Clears the screen and resets the cursor position.");
-            this.commandList[this.commandList.length] = sc;
 
+            this.commandList[this.commandList.length] = sc;
             // date
             sc = new ShellCommand(this.shellDate,
-                "date",
-                "- Displays the current date and time.");
+                                  "date",
+                                  "- Displays the current date and time.");
+
+            this.commandList[this.commandList.length] = sc;
+            // load
+            sc = new ShellCommand(this.shellLoad,
+                                  "load",
+                                  "- Currently, validates program input as hex.");
+
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -73,6 +86,12 @@ module TSOS {
             sc = new ShellCommand(this.shellRot13,
                                   "rot13",
                                   "<string> - Does rot13 obfuscation on <string>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // status <string>
+            sc = new ShellCommand(this.shellStatus,
+                                  "status",
+                                  "<string> - Displays a user-provided status to the console and status bar.");
             this.commandList[this.commandList.length] = sc;
 
             // prompt <string>
@@ -235,33 +254,44 @@ module TSOS {
         }
 
         public shellDate(args) {
-            var date  = new Date();
-            var month = date.getMonth() + 1;
-            var day   = date.getDay();
-            var year  = date.getFullYear();
-            var hours = date.getHours();
-            var mins  = date.getMinutes();
-            var secs  = date.getSeconds();
+            _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
+        }
 
-            if(month.toString().length == 1) {
-                month = '0' + month;
-            }
-            if(day.toString().length == 1) {
-                day = '0' + day;
-            }
-            if(hours.toString().length == 1) {
-                hours = '0' + hours;
-            }
-            if(mins.toString().length == 1) {
-                mins = '0' + mins;
-            }
-            if(secs.toString().length == 1) {
-                secs = '0' + secs;
-            }
+        public shellLoad(args) {
+            // Casting DOM elements === Joseph Stalin
+            var hexCodesList = (<HTMLInputElement>document.getElementById("taProgramInput")).value.trim().split(" ");
+            var regex = new RegExp("^[A-Fa-f0-9]{2}$");
 
-            _StdOut.putText("Time and date, from TD Bank: " +
-                hours + ":" + mins + ":" + secs + " " +
-                month + "/" + day + "/" + year);
+            // If we have any hex codes to check (ensuring the first one isn't blank,
+            // which happens when you split the text from an empty textarea)...
+            if (hexCodesList.length > 0 && hexCodesList[0] != "") {
+                var allValid = true;
+
+                // Loop over each one...
+                for (var i in hexCodesList) {
+                    var hex = hexCodesList[i];
+                    console.log(regex.test(hex));
+
+                    // Checking whether the regex for a valid hex code matches
+                    if (!(regex.test(hex))) {
+                        allValid = false;
+                        break;
+                    }
+                }
+
+                if (allValid) {
+                    _StdOut.putText("Loaded valid hexadecimal program code.");
+                } else {
+                    _StdOut.putText("Not a valid set of hex codes.");
+                }
+
+            } else {
+                _StdOut.putText("No user program input to load.");
+            }
+        }
+
+        public shellASCII(args) {
+            _StdOut.putText("ASCII art coming soon.");
         }
 
         public shellMan(args) {
@@ -276,6 +306,16 @@ module TSOS {
                 }
             } else {
                 _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+            }
+        }
+
+        public shellStatus(args) {
+            if (args.length > 0) {
+                var status = args[0];
+                _StdOut.putText("Status: " + status + ".");
+                document.getElementById("statusMess").innerHTML = status;
+            } else {
+                _StdOut.putText("Usage: status <string>  Please supply a string.");
             }
         }
 
@@ -322,7 +362,7 @@ module TSOS {
         }
 
         public shellWhereAmI(args) {
-            _StdOut.putText("Sector 12.");
+            _StdOut.putText("Tatooine, Tatoo System, Arkanis Sector, Outer Rim Territories.");
         }
 
     }

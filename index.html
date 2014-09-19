@@ -38,8 +38,9 @@
 
 <div id="divMain" style="width:100%;">
 
-   <div id="divButtonBar" style="margin:4px;">
-      <input type="button"
+
+    <div id="divButtonBar" style="margin:4px;">
+        <input type="button"
              id = "btnStartOS"
              name="brnStartOS"
              class="normal_button"
@@ -47,7 +48,7 @@
              tabindex="0"
              onclick="TSOS.Control.hostBtnStartOS_click(this);">
 
-      <input type="button"
+        <input type="button"
              id = "btnHaltOS"
              name="brnHaltOS"
              class="normal_button"
@@ -56,7 +57,7 @@
              tabindex="1"
              onclick="TSOS.Control.hostBtnHaltOS_click(this);">
 
-      <input type="button"
+        <input type="button"
              id = "btnReset"
              name="brnReset"
              class="normal_button"
@@ -64,18 +65,24 @@
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
-   </div>
+    </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
-      <canvas id="display"
+    <div id="divStatusBar" style="margin: 4px; width: 500px; height: 15px; margin-top: 5px;">
+        <label>
+            Time and Date: <span id="spanDateAndTime"></span>, Status: <span id="statusMess"></span>
+        </label>
+    </div>
+
+    <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
+        <canvas id="display"
               width="500px"
               height="500px"
               tabindex="3">
-      </canvas>
-   </div>
+        </canvas>
+    </div>
 
-   <div id="divLog" style="margin-left:520px;">
-      <label>
+    <div id="divLog" style="margin-left:520px;">
+        <label>
          Host Log
          <br>
          <textarea name="taHostLog"
@@ -84,7 +91,7 @@
                    cols="48"
          ></textarea>
       </label>
-   </div>
+    </div>
 
    <div id="divUserProgramInput" style="margin-left:520px;">
       <label>

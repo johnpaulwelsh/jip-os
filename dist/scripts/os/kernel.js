@@ -84,6 +84,9 @@ var TSOS;
             } else {
                 this.krnTrace("Idle");
             }
+
+            // Update the date and time in the status bar
+            document.getElementById("spanDateAndTime").innerHTML = TSOS.Utils.getDateAndTime();
         };
 
         //

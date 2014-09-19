@@ -42,6 +42,34 @@ var TSOS;
             }
             return retVal;
         };
+
+        Utils.getDateAndTime = function () {
+            var date = new Date();
+            var month = (date.getMonth() + 1).toString();
+            var day = date.getDay().toString();
+            var year = date.getFullYear().toString();
+            var hours = date.getHours().toString();
+            var mins = date.getMinutes().toString();
+            var secs = date.getSeconds().toString();
+
+            if (month.length == 1) {
+                month = '0' + month;
+            }
+            if (day.length == 1) {
+                day = '0' + day;
+            }
+            if (hours.length == 1) {
+                hours = '0' + hours;
+            }
+            if (mins.length == 1) {
+                mins = '0' + mins;
+            }
+            if (secs.length == 1) {
+                secs = '0' + secs;
+            }
+
+            return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
+        };
         return Utils;
     })();
     TSOS.Utils = Utils;
