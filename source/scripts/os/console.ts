@@ -30,6 +30,10 @@ module TSOS {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         }
 
+        private clearScreenBSOD(): void {
+            _DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+        }
+
         private clearLine(): void {
             _DrawingContext.fillRect(0,
                                      this.currentYPosition - this.currentFontSize,
@@ -152,6 +156,13 @@ module TSOS {
             }
         }
 
+        public bsodReset(): void {
+            // _DrawingContext has already been changed to blue fillStyle in control.ts
+            this.clearScreenBSOD();
+            _StdOut.putText("You dinked it up. Congratulations.");
+            _Kernel.krnShutdown();
+        }
+
         public putText(text): void {
             // My first inclination here was to write two functions: putChar() and putString().
             // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
@@ -166,7 +177,7 @@ module TSOS {
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
             }
-         }
+        }
 
         public advanceLine(): void {
             this.currentXPosition = 0;

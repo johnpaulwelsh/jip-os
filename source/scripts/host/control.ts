@@ -128,6 +128,11 @@ module TSOS {
             document.getElementById("statusMess").innerHTML = args;
         }
 
+        public static setBSODContext(): void {
+            _DrawingContext.fillStyle = "#0000FF";
+            _StdOut.bsodReset();
+        }
+
 //        public static increaseCanvasHeight(): void {
 //            var canvas = document.getElementById("display");
 //            var wrapper = document.getElementById("divConsole");

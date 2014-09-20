@@ -33,6 +33,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
+            // bsod
+            sc = new TSOS.ShellCommand(this.shellBSOD, "bsod", "- Tests the Blue Screen of Death screen.");
+            this.commandList[this.commandList.length] = sc;
+
             // crawl
             sc = new TSOS.ShellCommand(this.shellCrawl, "crawl", "<number> - Displays the Star Wars opening crawl for the <number>th movie (1-6).");
             this.commandList[this.commandList.length] = sc;
@@ -223,6 +227,10 @@ var TSOS;
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+        };
+
+        Shell.prototype.shellBSOD = function (args) {
+            TSOS.Control.setBSODContext();
         };
 
         Shell.prototype.shellCls = function (args) {

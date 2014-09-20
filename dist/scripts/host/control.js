@@ -125,6 +125,11 @@ var TSOS;
         Control.setStatusMess = function (args) {
             document.getElementById("statusMess").innerHTML = args;
         };
+
+        Control.setBSODContext = function () {
+            _DrawingContext.fillStyle = "#0000FF";
+            _StdOut.bsodReset();
+        };
         return Control;
     })();
     TSOS.Control = Control;

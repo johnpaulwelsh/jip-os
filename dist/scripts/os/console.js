@@ -29,6 +29,10 @@ var TSOS;
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         };
 
+        Console.prototype.clearScreenBSOD = function () {
+            _DrawingContext.fillRect(0, 0, _Canvas.width, _Canvas.height);
+        };
+
         Console.prototype.clearLine = function () {
             _DrawingContext.fillRect(0, this.currentYPosition - this.currentFontSize, _Canvas.width, this.currentFontSize + 6);
 
@@ -129,6 +133,13 @@ var TSOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        Console.prototype.bsodReset = function () {
+            // _DrawingContext has already been changed to blue fillStyle in control.ts
+            this.clearScreenBSOD();
+            _StdOut.putText("You dinked it up. Congratulations.");
+            _Kernel.krnShutdown();
         };
 
         Console.prototype.putText = function (text) {

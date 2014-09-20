@@ -47,6 +47,12 @@ module TSOS {
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
+            // bsod
+            sc = new ShellCommand(this.shellBSOD,
+                                  "bsod",
+                                  "- Tests the Blue Screen of Death screen.");
+            this.commandList[this.commandList.length] = sc;
+
             // crawl
             sc = new ShellCommand(this.shellCrawl,
                                   "crawl",
@@ -248,6 +254,10 @@ module TSOS {
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
+        }
+
+        public shellBSOD(args) {
+            Control.setBSODContext();
         }
 
         public shellCls(args) {
