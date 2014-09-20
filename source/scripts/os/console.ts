@@ -71,25 +71,52 @@ module TSOS {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-                    // ... add the command to the command history ...
-                    _CommandHistory[_CommandHistory.length] = this.buffer;
-                    _CommandHistPointer = _CommandHistory.length;
+                    // ... add the command to the command history (if the command wasn't blank) ...
+                    if (this.buffer.length > 0) {
+                        _CommandHistory[_CommandHistory.length] = this.buffer;
+                        _CommandHistPointer = _CommandHistory.length;
+                    }
                     // ... and reset our buffer.
                     this.buffer = "";
 
                 } else if (chr === String.fromCharCode(8)) { //   Backspace key
 
-                    //if (this.buffer.length > 0) {
                     this.clearCharacter();
-                    //}
+
+                } else if (chr === String.fromCharCode(9)) { //    Tab key
+
+                    var commSoFar = this.buffer;
+                    var regex = new RegExp("^" + commSoFar + "[A-Za-z]+");
+
+                    var commList = _OsShell.commandList;
+
+                    for (var i in commList) {
+                        var c = commList[i].command;
+
+                        if (regex.test(c)) {
+                            this.buffer = c;
+                        }
+
+                        this.clearLine();
+                        this.putText(this.buffer);
+                    }
 
                 } else if (chr === String.fromCharCode(38)) { //   Up arrow key
 
                     this.clearLine();
 
-                    if (_CommandHistory.length > 0) {
-                        this.buffer = _CommandHistory[_CommandHistPointer];
+                    if (_CommandHistory.length > 0 &&
+                            _CommandHistPointer >= 0 &&
+                            _CommandHistPointer <= _CommandHistory.length) {
+
+                        this.buffer = _CommandHistory[_CommandHistPointer - 1];
                         _CommandHistPointer--;
+
+                    } else {
+
+                        this.buffer = "";
+                        _CommandHistPointer = 1;
+
                     }
 
                     this.putText(this.buffer);
@@ -98,11 +125,18 @@ module TSOS {
 
                     this.clearLine();
 
-                    if (_CommandHistory.length > 0) {
-                        this.buffer = _CommandHistory[_CommandHistPointer];
+                    if (_CommandHistory.length > 0 &&
+                            _CommandHistPointer >= 0 &&
+                            _CommandHistPointer <= _CommandHistory.length) {
+
+                        this.buffer = _CommandHistory[_CommandHistPointer - 1];
                         _CommandHistPointer++;
-                    } else if (_CommandHistPointer == 0) {
+
+                    } else {
+
                         this.buffer = "";
+                        _CommandHistPointer = 1;
+
                     }
 
                     this.putText(this.buffer);

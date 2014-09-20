@@ -89,16 +89,13 @@ module TSOS {
 
                 _KernelInputQueue.enqueue(chr);
 
-            } else if (keyCode == 8) {  // backspace
+            } else if (keyCode == 8 ||        // Backspace
+                       keyCode == 38 ||       // Up arrow
+                       keyCode == 40 ||       // Down arrow
+                       keyCode == 9) {        // Tab
 
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-
-            } else if (keyCode == 38 || keyCode == 40) { // Up and down arrows
-
-                chr = String.fromCharCode(keyCode);
-                _KernelInputQueue.enqueue(chr);
-
             }
 
             /*

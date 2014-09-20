@@ -272,7 +272,6 @@ module TSOS {
                 // Loop over each one...
                 for (var i in _ProgInput) {
                     var hex = _ProgInput[i];
-                    console.log(regex.test(hex));
 
                     // Checking whether the regex for a valid hex code matches
                     if (!(regex.test(hex))) {
