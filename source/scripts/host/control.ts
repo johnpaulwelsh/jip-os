@@ -39,7 +39,7 @@ module TSOS {
 
             // I'm sorry Alan, I don't know why the compiler yells at me for this.
             // It still outputs correct JS, so I assume it's a typechecking thing.
-            _DrawingContext.fillStyle = "#DFDBC3";
+            _DrawingContext.fillStyle = "#000000";
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
