@@ -30,6 +30,33 @@ module TSOS {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         }
 
+        private clearLine(): void {
+            _DrawingContext.fillRect(0,
+                                     this.currentYPosition - this.currentFontSize,
+                                     _Canvas.width,
+                                     this.currentFontSize + 6);
+            // the +6 above (and in clearCharacter) is to deal with letters that dip down like 'p' and 'y'
+            this.currentXPosition = 0;
+            _OsShell.putPrompt();
+        }
+
+        private clearCharacter(): void {
+
+            // Find the char that is going to be backspaced
+            var prevChar = this.buffer.charAt(this.buffer.length - 1);
+            // Remove it from the buffer
+            this.buffer = this.buffer.slice(0, -1);
+            // Set the offset based off of the width of prevChar
+            var xOffset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, prevChar);
+            // Set back the current X position to in front of prevChar
+            this.currentXPosition = this.currentXPosition - xOffset;
+
+            _DrawingContext.fillRect(this.currentXPosition,
+                                     this.currentYPosition - this.currentFontSize,
+                                     xOffset,
+                                     this.currentFontSize + 6);
+        }
+
         private resetXY(): void {
             this.currentXPosition = 0;
             this.currentYPosition = this.currentFontSize;
@@ -44,8 +71,42 @@ module TSOS {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
+                    // ... add the command to the command history ...
+                    _CommandHistory[_CommandHistory.length] = this.buffer;
+                    _CommandHistPointer = _CommandHistory.length;
                     // ... and reset our buffer.
                     this.buffer = "";
+
+                } else if (chr === String.fromCharCode(8)) { //   Backspace key
+
+                    //if (this.buffer.length > 0) {
+                    this.clearCharacter();
+                    //}
+
+                } else if (chr === String.fromCharCode(38)) { //   Up arrow key
+
+                    this.clearLine();
+
+                    if (_CommandHistory.length > 0) {
+                        this.buffer = _CommandHistory[_CommandHistPointer];
+                        _CommandHistPointer--;
+                    }
+
+                    this.putText(this.buffer);
+
+                } else if (chr === String.fromCharCode(40)) { //  Down arrow key
+
+                    this.clearLine();
+
+                    if (_CommandHistory.length > 0) {
+                        this.buffer = _CommandHistory[_CommandHistPointer];
+                        _CommandHistPointer++;
+                    } else if (_CommandHistPointer == 0) {
+                        this.buffer = "";
+                    }
+
+                    this.putText(this.buffer);
+
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -76,6 +137,11 @@ module TSOS {
         public advanceLine(): void {
             this.currentXPosition = 0;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+
+//            if (_CanvasHeight <= this.currentYPosition) {
+//                Control.increaseCanvasHeight();
+//            }
+
             // TODO: Handle scrolling. (Project 1)
         }
     }

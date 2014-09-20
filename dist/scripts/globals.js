@@ -64,6 +64,11 @@ var Glados = null;
 
 // For doing web stuff in the 'host' files, but using that data in the 'os' files...
 var _ProgInput = "";
+var _CanvasHeight = null;
+
+// For keeping track of command history...
+var _CommandHistory = [];
+var _CommandHistPointer = 0;
 
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();

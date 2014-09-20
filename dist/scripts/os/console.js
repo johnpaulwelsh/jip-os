@@ -29,6 +29,30 @@ var TSOS;
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         };
 
+        Console.prototype.clearLine = function () {
+            _DrawingContext.fillRect(0, this.currentYPosition - this.currentFontSize, _Canvas.width, this.currentFontSize + 6);
+
+            // the +6 above (and in clearCharacter) is to deal with letters that dip down like 'p' and 'y'
+            this.currentXPosition = 0;
+            _OsShell.putPrompt();
+        };
+
+        Console.prototype.clearCharacter = function () {
+            // Find the char that is going to be backspaced
+            var prevChar = this.buffer.charAt(this.buffer.length - 1);
+
+            // Remove it from the buffer
+            this.buffer = this.buffer.slice(0, -1);
+
+            // Set the offset based off of the width of prevChar
+            var xOffset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, prevChar);
+
+            // Set back the current X position to in front of prevChar
+            this.currentXPosition = this.currentXPosition - xOffset;
+
+            _DrawingContext.fillRect(this.currentXPosition, this.currentYPosition - this.currentFontSize, xOffset, this.currentFontSize + 6);
+        };
+
         Console.prototype.resetXY = function () {
             this.currentXPosition = 0;
             this.currentYPosition = this.currentFontSize;
@@ -45,8 +69,36 @@ var TSOS;
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
 
+                    // ... add the command to the command history ...
+                    _CommandHistory[_CommandHistory.length] = this.buffer;
+                    _CommandHistPointer = _CommandHistory.length;
+
                     // ... and reset our buffer.
                     this.buffer = "";
+                } else if (chr === String.fromCharCode(8)) {
+                    //if (this.buffer.length > 0) {
+                    this.clearCharacter();
+                    //}
+                } else if (chr === String.fromCharCode(38)) {
+                    this.clearLine();
+
+                    if (_CommandHistory.length > 0) {
+                        this.buffer = _CommandHistory[_CommandHistPointer];
+                        _CommandHistPointer--;
+                    }
+
+                    this.putText(this.buffer);
+                } else if (chr === String.fromCharCode(40)) {
+                    this.clearLine();
+
+                    if (_CommandHistory.length > 0) {
+                        this.buffer = _CommandHistory[_CommandHistPointer];
+                        _CommandHistPointer++;
+                    } else if (_CommandHistPointer == 0) {
+                        this.buffer = "";
+                    }
+
+                    this.putText(this.buffer);
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -79,6 +131,9 @@ var TSOS;
         Console.prototype.advanceLine = function () {
             this.currentXPosition = 0;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            //            if (_CanvasHeight <= this.currentYPosition) {
+            //                Control.increaseCanvasHeight();
+            //            }
             // TODO: Handle scrolling. (Project 1)
         };
         return Console;

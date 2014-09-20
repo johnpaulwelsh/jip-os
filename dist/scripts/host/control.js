@@ -32,6 +32,10 @@ var TSOS;
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             TSOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
+            // I'm sorry Alan, I don't know why the compiler yells at me for this.
+            // It still outputs correct JS, so I assume it's a typechecking thing.
+            _DrawingContext.fillStyle = "#DFDBC3";
+
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
             document.getElementById("taHostLog").value = "";
@@ -88,6 +92,10 @@ var TSOS;
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new TSOS.Kernel();
             _Kernel.krnBootstrap();
+
+            var wrapper = document.getElementById("divConsole");
+            wrapper.scrollTop = wrapper.scrollHeight;
+            _CanvasHeight = document.getElementById("display").clientHeight;
         };
 
         Control.hostBtnHaltOS_click = function (btn) {

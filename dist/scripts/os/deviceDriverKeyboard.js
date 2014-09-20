@@ -86,75 +86,21 @@ var TSOS;
 
                 _KernelInputQueue.enqueue(chr);
             } else if (keyCode == 8) {
-                // Take the most recently enqueued item out of the queue
-                // Idea taken from Justin Beal on
-                // http://stackoverflow.com/questions/4808852/remove-the-last-element-in-a-queue
-                var tempQueue = new TSOS.Queue();
-
-                var tempItem;
-                while (!(_KernelInputQueue.isEmpty())) {
-                    tempItem = _KernelInputQueue.dequeue();
-
-                    _StdOut.putText(".");
-
-                    if (!(_KernelInputQueue.isEmpty())) {
-                        tempQueue.enqueue(tempItem);
-                        _StdOut.putText("*");
-                    }
-                }
-
-                _KernelInputQueue = tempQueue;
+                chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
+            } else if (keyCode == 38 || keyCode == 40) {
+                chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
             }
             /*
-            else { // Symbols elsewhere on keyboard... ; : ' " , . < > \ |
+            else { // Symbols elsewhere on keyboard... ' , - . / : = [ \ ] `
             
-            if (!(isShifted)) {
-            if (keyCode == 39                   ||
-            (keyCode >= 44 && keyCode <= 47) ||
-            keyCode == 58                   ||
-            keyCode == 61                   ||
-            (keyCode >= 91 && keyCode <= 93) ||
-            keyCode == 96) {
+            // 222 188 189 190 191 186 187 219 220 221 192
+            
+            if ((keyCode >= 186 && keyCode <= 192)  ||
+            (keyCode >= 219 && keyCode <= 222)) {
             
             chr = String.fromCharCode(keyCode);
-            }
-            
-            } else {
-            switch (keyCode) {
-            case 39:
-            chr = String.fromCharCode(95);
-            break;
-            case 44:
-            chr = String.fromCharCode(43);
-            break;
-            case 45:
-            chr = String.fromCharCode(124);
-            break;
-            case 46:
-            chr = String.fromCharCode(123);
-            break;
-            case 47:
-            chr = String.fromCharCode(125);
-            break;
-            case 58:
-            chr = String.fromCharCode(59);
-            break;
-            case 61:
-            chr = String.fromCharCode(34);
-            break;
-            case 91:
-            chr = String.fromCharCode(60);
-            break;
-            case 92:
-            chr = String.fromCharCode(62);
-            break;
-            case 93:
-            chr = String.fromCharCode(63);
-            break;
-            case 96:
-            chr = String.fromCharCode(126);
-            break;
-            }
             }
             
             _KernelInputQueue.enqueue(chr);

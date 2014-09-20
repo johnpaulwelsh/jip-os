@@ -37,6 +37,10 @@ module TSOS {
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CanvasTextFunctions.enable(_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
+            // I'm sorry Alan, I don't know why the compiler yells at me for this.
+            // It still outputs correct JS, so I assume it's a typechecking thing.
+            _DrawingContext.fillStyle = "#DFDBC3";
+
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("taHostLog")).value="";
@@ -92,6 +96,10 @@ module TSOS {
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new Kernel();
             _Kernel.krnBootstrap();
+
+            var wrapper = document.getElementById("divConsole");
+            wrapper.scrollTop = wrapper.scrollHeight;
+            _CanvasHeight = document.getElementById("display").clientHeight;
         }
 
         public static hostBtnHaltOS_click(btn): void {
@@ -112,12 +120,20 @@ module TSOS {
             // page from its cache, which is not what we want.
         }
 
-        public static getProgramInput(): any {
+        public static getProgramInput(): string[] {
             return (<HTMLInputElement>document.getElementById("taProgramInput")).value.trim().split(" ");
         }
 
         public static setStatusMess(args): void {
             document.getElementById("statusMess").innerHTML = args;
         }
+
+//        public static increaseCanvasHeight(): void {
+//            var canvas = document.getElementById("display");
+//            var wrapper = document.getElementById("divConsole");
+//            canvas.clientHeight += 100;
+//            wrapper.scrollTop = wrapper.scrollHeight;
+//            _CanvasHeight = canvas.clientHeight;
+//        }
     }
 }
