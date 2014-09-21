@@ -33,7 +33,9 @@ var TSOS;
             TSOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
             // I'm sorry Alan, I don't know why the compiler yells at me for this.
-            // It still outputs correct JS, so I assume it's a typechecking thing.
+            // It still outputs correct JS, so I assumed it was because _DrawingContext was never
+            // given a type. However, I tried to put in a type for the variable and everything died,
+            // so I decided to let it be.
             _DrawingContext.fillStyle = "#000000";
 
             // Clear the log text box.
@@ -129,6 +131,24 @@ var TSOS;
         Control.setBSODContext = function () {
             _DrawingContext.fillStyle = "#0000FF";
             _StdOut.bsodReset();
+        };
+
+        Control.increaseCanvasHeight = function () {
+            // Get the div surrounding the canvas.
+            var wrapper = document.getElementById("divConsole");
+
+            // Get the current state of the canvas as an image and save it into an Image object.
+            var currCanvasContent = new Image();
+            currCanvasContent.src = _Canvas.toDataURL("content/png");
+
+            // Increase the height of the canvas, thus wiping its content.
+            _Canvas.height += 100;
+
+            // Draw the old canvas back onto the new canvas.
+            _DrawingContext.drawImage(currCanvasContent, 0, 0);
+
+            // Focus the bottom of the div, so we rest at the bottom of the canvas at all times.
+            wrapper.scrollTop = wrapper.scrollHeight;
         };
         return Control;
     })();

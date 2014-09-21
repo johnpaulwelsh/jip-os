@@ -36,7 +36,7 @@ var TSOS;
         Console.prototype.clearLine = function () {
             _DrawingContext.fillRect(0, this.currentYPosition - this.currentFontSize, _Canvas.width, this.currentFontSize + 6);
 
-            // the +6 above (and in clearCharacter) is to deal with letters that dip down like 'p' and 'y'
+            // the +6 above (and in clearCharacter) is to deal with letters that dip down, like 'p' and 'y'
             this.currentXPosition = 0;
             _OsShell.putPrompt();
         };
@@ -161,11 +161,14 @@ var TSOS;
 
         Console.prototype.advanceLine = function () {
             this.currentXPosition = 0;
+
+            // If we are about to fly off the bottom of the canvas...
+            if (_Canvas.height <= this.currentYPosition) {
+                // Resize the canvas to hold what we will be putting in.
+                TSOS.Control.increaseCanvasHeight();
+            }
+
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
-            //            if (_CanvasHeight <= this.currentYPosition) {
-            //                Control.increaseCanvasHeight();
-            //            }
-            // TODO: Handle scrolling. (Project 1)
         };
         return Console;
     })();
