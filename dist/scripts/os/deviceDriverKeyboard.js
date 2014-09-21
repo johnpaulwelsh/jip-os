@@ -32,6 +32,8 @@ var TSOS;
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
+            debugger;
+
             // Check to see if we even want to deal with the key that was pressed.
             if (((keyCode >= 65) && (keyCode <= 90)) || ((keyCode >= 97) && (keyCode <= 123))) {
                 // Determine the character we want to display.
@@ -48,7 +50,7 @@ var TSOS;
             } else if (((keyCode >= 48) && (keyCode <= 57)) || (keyCode == 32) || (keyCode == 13)) {
                 chr = String.fromCharCode(keyCode);
 
-                // Symbols on number row... ! @ # $ % ^ & * ( )
+                // Symbols on number row...   ! @ # $ % ^ & * ( )
                 if (isShifted) {
                     switch (keyCode) {
                         case 48:
@@ -88,21 +90,49 @@ var TSOS;
             } else if (keyCode == 8 || keyCode == 38 || keyCode == 40 || keyCode == 9) {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
+            } else {
+                // fromCharCode ain't gonna cut it here, because web browsers were built by Satan.
+                // These codes correspond to these symbols...      ; = , - . / ` [ \ ] '
+                var realChar = "";
+
+                switch (keyCode) {
+                    case 186:
+                        realChar = ";";
+                        break;
+                    case 187:
+                        realChar = "=";
+                        break;
+                    case 188:
+                        realChar = ",";
+                        break;
+                    case 189:
+                        realChar = "-";
+                        break;
+                    case 190:
+                        realChar = ".";
+                        break;
+                    case 191:
+                        realChar = "/";
+                        break;
+                    case 192:
+                        realChar = "`";
+                        break;
+                    case 219:
+                        realChar = "[";
+                        break;
+                    case 220:
+                        realChar = "\\";
+                        break;
+                    case 221:
+                        realChar = "]";
+                        break;
+                    case 222:
+                        realChar = "'";
+                        break;
+                }
+
+                _KernelInputQueue.enqueue(realChar);
             }
-            /*
-            else { // Symbols elsewhere on keyboard... ' , - . / : = [ \ ] `
-            
-            // 222 188 189 190 191 186 187 219 220 221 192
-            
-            if ((keyCode >= 186 && keyCode <= 192)  ||
-            (keyCode >= 219 && keyCode <= 222)) {
-            
-            chr = String.fromCharCode(keyCode);
-            }
-            
-            _KernelInputQueue.enqueue(chr);
-            }
-            */
         };
         return DeviceDriverKeyboard;
     })(TSOS.DeviceDriver);
