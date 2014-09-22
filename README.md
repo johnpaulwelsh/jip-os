@@ -3,6 +3,8 @@ TSOS-2014
 
 This is my Fall 2014 Operating Systems class project.
 
+See http://johnpaulwelsh.github.io/jip-os/ for a demonstration.
+
 See http://www.labouseur.com/courses/os/ for details.
 
 See https://github.com/labouseur/TSOS-2014 for full readme.
