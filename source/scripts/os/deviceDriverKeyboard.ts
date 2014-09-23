@@ -46,13 +46,13 @@ module TSOS {
                 _KernelInputQueue.enqueue(chr);
 
             } else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
-                        (keyCode == 32)                     ||   // space
-                        (keyCode == 13)) {                       // enter
+                (keyCode == 32) ||   // space
+                (keyCode == 13)) {                       // enter
 
                 chr = String.fromCharCode(keyCode);
 
                 // Symbols on number row...   ! @ # $ % ^ & * ( )
-                if(isShifted) {
+                if (isShifted) {
                     switch (keyCode) {
                         case 48:
                             chr = String.fromCharCode(41);
@@ -89,13 +89,21 @@ module TSOS {
 
                 _KernelInputQueue.enqueue(chr);
 
-            } else if (keyCode == 8 ||        // Backspace
-                       keyCode == 38 ||       // Up arrow
-                       keyCode == 40 ||       // Down arrow
-                       keyCode == 9) {        // Tab
+            } else if (keyCode == 8 || keyCode == 9) { // Backspace and Tab
 
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
+
+            } else if (keyCode == 38) { // Up arrow
+
+                chr = "uparrow";
+                _KernelInputQueue.enqueue(chr);
+
+            } else if (keyCode == 40) { // Down arrow
+
+                chr = "downarrow";
+                _KernelInputQueue.enqueue(chr);
+
 
             } else { // Symbols elsewhere on keyboard...
 

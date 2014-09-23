@@ -104,7 +104,7 @@ module TSOS {
                         this.putText(this.buffer);
                     }
 
-                } else if (chr === String.fromCharCode(38)) { //   Up arrow key
+                } else if (chr === "uparrow") { //   Up arrow key
 
                     this.clearLine();
 
@@ -124,7 +124,7 @@ module TSOS {
 
                     this.putText(this.buffer);
 
-                } else if (chr === String.fromCharCode(40)) { //  Down arrow key
+                } else if (chr === "downarrow") { //  Down arrow key
 
                     this.clearLine();
 

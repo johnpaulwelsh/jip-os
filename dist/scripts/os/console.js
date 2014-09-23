@@ -99,7 +99,7 @@ var TSOS;
                         this.clearLine();
                         this.putText(this.buffer);
                     }
-                } else if (chr === String.fromCharCode(38)) {
+                } else if (chr === "uparrow") {
                     this.clearLine();
 
                     if (_CommandHistory.length > 0 && _CommandHistPointer >= 0 && _CommandHistPointer <= _CommandHistory.length) {
@@ -111,7 +111,7 @@ var TSOS;
                     }
 
                     this.putText(this.buffer);
-                } else if (chr === String.fromCharCode(40)) {
+                } else if (chr === "downarrow") {
                     this.clearLine();
 
                     if (_CommandHistory.length > 0 && _CommandHistPointer >= 0 && _CommandHistPointer <= _CommandHistory.length) {

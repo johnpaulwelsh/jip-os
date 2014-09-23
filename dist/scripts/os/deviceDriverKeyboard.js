@@ -85,8 +85,14 @@ var TSOS;
                 }
 
                 _KernelInputQueue.enqueue(chr);
-            } else if (keyCode == 8 || keyCode == 38 || keyCode == 40 || keyCode == 9) {
+            } else if (keyCode == 8 || keyCode == 9) {
                 chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
+            } else if (keyCode == 38) {
+                chr = "uparrow";
+                _KernelInputQueue.enqueue(chr);
+            } else if (keyCode == 40) {
+                chr = "downarrow";
                 _KernelInputQueue.enqueue(chr);
             } else {
                 // fromCharCode ain't gonna cut it here, because web browsers were built by Satan.
