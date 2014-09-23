@@ -32,8 +32,6 @@ var TSOS;
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
-            debugger;
-
             // Check to see if we even want to deal with the key that was pressed.
             if (((keyCode >= 65) && (keyCode <= 90)) || ((keyCode >= 97) && (keyCode <= 123))) {
                 // Determine the character we want to display.
@@ -75,13 +73,13 @@ var TSOS;
                             chr = String.fromCharCode(94);
                             break;
                         case 55:
-                            chr = String.fromCharCode(38);
+                            chr = "&";
                             break;
                         case 56:
                             chr = String.fromCharCode(42);
                             break;
                         case 57:
-                            chr = String.fromCharCode(40);
+                            chr = "(";
                             break;
                     }
                 }
