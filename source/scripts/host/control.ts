@@ -135,18 +135,18 @@ module TSOS {
             _StdOut.bsodReset();
         }
 
-        public static increaseCanvasHeight(): void {
-            // Get the div surrounding the canvas.
-            var wrapper = <HTMLElement>document.getElementById("divConsole");
+        public static scrollCanvas(console): void {
             // Get the current state of the canvas as an image and save it into an Image object.
             var currCanvasContent = new Image();
             currCanvasContent.src = _Canvas.toDataURL("content/png");
-            // Increase the height of the canvas, thus wiping its content.
-            _Canvas.height += 100;
-            // Draw the old canvas back onto the new canvas.
-            _DrawingContext.drawImage(currCanvasContent, 0, 0);
-            // Focus the bottom of the div, so we rest at the bottom of the canvas at all times.
-            wrapper.scrollTop = wrapper.scrollHeight;
+            // Wipe the canvas.
+            console.clearScreen();
+            // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
+            _DrawingContext.drawImage(currCanvasContent,     // img
+                                        0, _DefaultFontSize + _FontHeightMargin, // sx, sy
+                                        500, 500,            // swidth, sheight
+                                        0, 0,                // x, y
+                                        500, 500);           // width, height
         }
     }
 }

@@ -181,12 +181,15 @@ var TSOS;
             this.currentXPosition = 0;
 
             // If we are about to fly off the bottom of the canvas...
-            if (_Canvas.height <= this.currentYPosition) {
-                // Resize the canvas to hold what we will be putting in.
-                TSOS.Control.increaseCanvasHeight();
-            }
+            if (this.currentYPosition + _DefaultFontSize >= _CanvasHeight) {
+                debugger;
 
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                // Scroll the canvas by one line's worth.x
+                TSOS.Control.scrollCanvas(this);
+                //this.currentYPosition = _CanvasHeight - (_DefaultFontSize + _FontHeightMargin);
+            } else {
+                this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            }
         };
         return Console;
     })();

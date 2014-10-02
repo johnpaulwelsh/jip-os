@@ -80,9 +80,6 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays the location of your computer.");
             this.commandList[this.commandList.length] = sc;
 
-            sc = new TSOS.ShellCommand(this.shellIncrCanvas, "incr", "- Increases the canvas height.");
-            this.commandList[this.commandList.length] = sc;
-
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -403,10 +400,6 @@ var TSOS;
 
         Shell.prototype.shellWhereAmI = function (args) {
             _StdOut.putText("Tatooine, Tatoo System, Arkanis Sector, Outer Rim Territories.");
-        };
-
-        Shell.prototype.shellIncrCanvas = function (args) {
-            TSOS.Control.increaseCanvasHeight();
         };
         return Shell;
     })();

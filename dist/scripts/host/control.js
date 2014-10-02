@@ -133,22 +133,16 @@ var TSOS;
             _StdOut.bsodReset();
         };
 
-        Control.increaseCanvasHeight = function () {
-            // Get the div surrounding the canvas.
-            var wrapper = document.getElementById("divConsole");
-
+        Control.scrollCanvas = function (console) {
             // Get the current state of the canvas as an image and save it into an Image object.
             var currCanvasContent = new Image();
             currCanvasContent.src = _Canvas.toDataURL("content/png");
 
-            // Increase the height of the canvas, thus wiping its content.
-            _Canvas.height += 100;
+            // Wipe the canvas.
+            console.clearScreen();
 
-            // Draw the old canvas back onto the new canvas.
-            _DrawingContext.drawImage(currCanvasContent, 0, 0);
-
-            // Focus the bottom of the div, so we rest at the bottom of the canvas at all times.
-            wrapper.scrollTop = wrapper.scrollHeight;
+            // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
+            _DrawingContext.drawImage(currCanvasContent, 0, _DefaultFontSize + _FontHeightMargin, 500, 500, 0, 0, 500, 500); // width, height
         };
         return Control;
     })();
