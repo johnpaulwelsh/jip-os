@@ -90,6 +90,7 @@ module TSOS {
 
                     var commSoFar = this.buffer;
                     var regex = new RegExp("^" + commSoFar + "[A-Za-z]+");
+                    var matchingComms = [];
 
                     var commList = _OsShell.commandList;
 
@@ -97,12 +98,30 @@ module TSOS {
                         var c = commList[i].command;
 
                         if (regex.test(c)) {
-                            this.buffer = c;
+                            matchingComms[matchingComms.length] = c;
                         }
-
-                        this.clearLine();
-                        this.putText(this.buffer);
                     }
+
+                    // If we have more than one matching command, suggest all matches on the next line,
+                    // and set up the prompt again with the user's last input retained.
+                    if (matchingComms.length > 1) {
+                        this.advanceLine();
+                        var suggestion = "Did you mean:   ";
+                        for (var comm in matchingComms) {
+                            suggestion += matchingComms[comm] + "   ";
+                        }
+                        this.putText(suggestion);
+                        this.advanceLine();
+                        _OsShell.putPrompt();
+                        this.buffer = commSoFar;
+
+                    // Otherwise, clear the line and put in the only matching command.
+                    } else {
+                        this.buffer = matchingComms[0];
+                        this.clearLine();
+                    }
+
+                    this.putText(this.buffer);
 
                 } else if (chr === "uparrow") { //   Up arrow key
 

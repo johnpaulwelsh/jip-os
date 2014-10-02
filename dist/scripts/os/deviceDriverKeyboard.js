@@ -70,7 +70,7 @@ var TSOS;
                             chr = String.fromCharCode(37);
                             break;
                         case 54:
-                            chr = String.fromCharCode(94);
+                            chr = "^";
                             break;
                         case 55:
                             chr = "&";
