@@ -69,7 +69,8 @@ module TSOS {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
-                // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
+                // Check to see if it's "special" (enter or ctrl-c) or "normal"
+                // (anything else that the keyboard device driver gave us).
                 if (chr === String.fromCharCode(13)) { //     Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
@@ -177,7 +178,7 @@ module TSOS {
         public bsodReset(): void {
             // _DrawingContext has already been changed to blue fillStyle in control.ts
             this.clearScreenBSOD();
-            _StdOut.putText("You dinked it up. Congratulations.");
+            _StdOut.putText("");
             _Kernel.krnShutdown();
         }
 
@@ -189,11 +190,38 @@ module TSOS {
             // decided to write one function and use the term "text" to connote string or char.
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
+                // Find the first space that comes after the first 50 chars. This will be
+                // the real cutoff for the substring we print.
+                var nextEndOfWordAfter45;
+                var currSubstr;
+                if (text.length > 30) debugger;
+
+                if (text.length > 45) {
+                    if ((text.indexOf(" ") != -1)) {
+                        nextEndOfWordAfter45 = text.indexOf(" ", 45);
+                        currSubstr = text.substr(0, nextEndOfWordAfter45);
+                    } else {
+                        nextEndOfWordAfter45 = 0;
+                        currSubstr = text;
+                    }
+                } else {
+                    currSubstr = text;
+                }
+
                 // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                _DrawingContext.drawText(this.currentFont, this.currentFontSize,
+                                         this.currentXPosition, this.currentYPosition,
+                                         currSubstr);
                 // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
+
+                if (text.length > 45) {
+                    this.advanceLine();
+                    // Do a putText again, but with the rest of the string starting with the beginning of the
+                    // next word from the one we just finished printing.
+                    this.putText(text.substr(nextEndOfWordAfter45 + 1));
+                }
             }
         }
 
@@ -202,11 +230,10 @@ module TSOS {
 
             // If we are about to fly off the bottom of the canvas...
             if (this.currentYPosition + _DefaultFontSize >= _CanvasHeight) {
-                debugger;
-                // Scroll the canvas by one line's worth.x
+                // Scroll the canvas by one line's worth.
                 Control.scrollCanvas(this);
-                //this.currentYPosition = _CanvasHeight - (_DefaultFontSize + _FontHeightMargin);
             } else {
+                // Move down to the next line.
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             }
 

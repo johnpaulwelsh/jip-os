@@ -53,6 +53,7 @@ module TSOS {
 
                 // Symbols on number row...   ! @ # $ % ^ & * ( )
                 if (isShifted) {
+                    debugger;
                     switch (keyCode) {
                         case 48:
                             chr = String.fromCharCode(41);
