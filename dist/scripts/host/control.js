@@ -51,6 +51,9 @@ var TSOS;
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+
+            // Sets the CPU display table to all zeroes.
+            this.resetCPUElements();
         };
 
         Control.hostLog = function (msg, source) {
@@ -142,7 +145,21 @@ var TSOS;
             console.clearScreen();
 
             // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
-            _DrawingContext.drawImage(currCanvasContent, 0, _DefaultFontSize + _FontHeightMargin, 500, 500, 0, 0, 500, 500); // width, height
+            var clipY = _DefaultFontSize + _FontHeightMargin;
+            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 500, 0, 0, 500, 500); // width, height
+        };
+
+        Control.resetCPUElements = function () {
+            document.getElementById("tdPID").innerHTML = "0";
+            document.getElementById("tdIR").innerHTML = "0";
+            document.getElementById("tdAccum").innerHTML = "0";
+            document.getElementById("tdXReg").innerHTML = "0";
+            document.getElementById("tdYReg").innerHTML = "0";
+            document.getElementById("tdZFlag").innerHTML = "0";
+        };
+
+        Control.setCPUElementByID = function (id, value) {
+            document.getElementById(id).innerHTML = value;
         };
         return Control;
     })();

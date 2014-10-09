@@ -60,6 +60,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
+            // run <pid>
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "<PID> - Runs a program that has been loaded into memory.");
+            this.commandList[this.commandList.length] = sc;
+
             // trace <on | off>
             sc = new TSOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
@@ -263,7 +267,9 @@ var TSOS;
                 }
 
                 if (allValid) {
-                    _StdOut.putText("Loaded valid hexadecimal program code.");
+                    var splitInput = _ProgInput.split(" ");
+                    _StdOut.putText("PID = " + _NextPID);
+                    _NextPID++;
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }
@@ -343,6 +349,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 }
             } else {
                 _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+            }
+        };
+
+        Shell.prototype.shellRun = function (args) {
+            if (args.length > 0) {
+                _StdOut.putText("Dingo");
+            } else {
+                _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
             }
         };
 

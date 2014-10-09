@@ -74,6 +74,9 @@ var _CanvasHeight: number = null;
 var _CommandHistory: string[] = [];
 var _CommandHistPointer: number = 0;
 
+// For loading and running programs...
+var _NextPID = 0;
+
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();
 };

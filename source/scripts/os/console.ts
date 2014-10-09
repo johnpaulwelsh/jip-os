@@ -192,36 +192,42 @@ module TSOS {
             if (text !== "") {
                 // Find the first space that comes after the first 50 chars. This will be
                 // the real cutoff for the substring we print.
-                var nextEndOfWordAfter45;
-                var currSubstr;
-                if (text.length > 30) debugger;
-
-                if (text.length > 45) {
-                    if ((text.indexOf(" ") != -1)) {
-                        nextEndOfWordAfter45 = text.indexOf(" ", 45);
-                        currSubstr = text.substr(0, nextEndOfWordAfter45);
-                    } else {
-                        nextEndOfWordAfter45 = 0;
-                        currSubstr = text;
-                    }
-                } else {
-                    currSubstr = text;
-                }
-
-                // Draw the text at the current X and Y coordinates.
+//                var nextEndOfWordAfter45;
+//                var currSubstr;
+//                if (text.length > 30) debugger;
+//
+//                if (text.length > 45) {
+//                    if ((text.indexOf(" ") != -1)) {
+//                        nextEndOfWordAfter45 = text.indexOf(" ", 45);
+//                        currSubstr = text.substr(0, nextEndOfWordAfter45);
+//                    } else {
+//                        nextEndOfWordAfter45 = 0;
+//                        currSubstr = text;
+//                    }
+//                } else {
+//                    currSubstr = text;
+//                }
+//
+//                // Draw the text at the current X and Y coordinates.
+//                _DrawingContext.drawText(this.currentFont, this.currentFontSize,
+//                                         this.currentXPosition, this.currentYPosition,
+//                                         currSubstr);
+//                // Move the current X position.
+//                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+//                this.currentXPosition = this.currentXPosition + offset;
+//
+//                if (text.length > 45) {
+//                    this.advanceLine();
+//                    // Do a putText again, but with the rest of the string starting with the beginning of the
+//                    // next word from the one we just finished printing.
+//                    this.putText(text.substr(nextEndOfWordAfter45 + 1));
+//                }
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize,
                                          this.currentXPosition, this.currentYPosition,
-                                         currSubstr);
-                // Move the current X position.
+                                         text);
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
 
-                if (text.length > 45) {
-                    this.advanceLine();
-                    // Do a putText again, but with the rest of the string starting with the beginning of the
-                    // next word from the one we just finished printing.
-                    this.putText(text.substr(nextEndOfWordAfter45 + 1));
-                }
             }
         }
 

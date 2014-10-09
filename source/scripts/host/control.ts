@@ -56,6 +56,9 @@ module TSOS {
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+
+            // Sets the CPU display table to all zeroes.
+            this.resetCPUElements();
         }
 
         public static hostLog(msg: string, source: string = "?"): void {
@@ -142,11 +145,25 @@ module TSOS {
             // Wipe the canvas.
             console.clearScreen();
             // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
-            _DrawingContext.drawImage(currCanvasContent,     // img
-                                        0, _DefaultFontSize + _FontHeightMargin, // sx, sy
-                                        500, 500,            // swidth, sheight
-                                        0, 0,                // x, y
-                                        500, 500);           // width, height
+            var clipY = _DefaultFontSize + _FontHeightMargin;
+            _DrawingContext.drawImage(currCanvasContent, // img
+                                        0, clipY,        // sx, sy
+                                        500, 500,        // swidth, sheight
+                                        0, 0,            // x, y
+                                        500, 500);       // width, height
+        }
+
+        public static resetCPUElements(): void {
+            document.getElementById("tdPID").innerHTML = "0";
+            document.getElementById("tdIR").innerHTML = "0";
+            document.getElementById("tdAccum").innerHTML = "0";
+            document.getElementById("tdXReg").innerHTML = "0";
+            document.getElementById("tdYReg").innerHTML = "0";
+            document.getElementById("tdZFlag").innerHTML = "0";
+        }
+
+        public static setCPUElementByID(id, value): void {
+            document.getElementById(id).innerHTML = value;
         }
     }
 }
