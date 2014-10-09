@@ -268,8 +268,9 @@ var TSOS;
 
                 if (allValid) {
                     var splitInput = _ProgInput.split(" ");
-                    _StdOut.putText("PID = " + _NextPID);
-                    _NextPID++;
+                    var currPCB = new TSOS.ProcessControlBlock();
+                    _StdOut.putText("PID = " + currPCB.pid);
+                    _MemMan.assignProgramToMemory(0, _ProgInput);
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }

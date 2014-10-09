@@ -75,7 +75,10 @@ var _CommandHistory: string[] = [];
 var _CommandHistPointer: number = 0;
 
 // For loading and running programs...
-var _NextPID = 0;
+var _NextPID: number = 0;
+
+var _Memory: any = null;
+var _MemMan: any = null;
 
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();

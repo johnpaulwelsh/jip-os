@@ -51,9 +51,6 @@ var TSOS;
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
-
-            // Sets the CPU display table to all zeroes.
-            this.resetCPUElements();
         };
 
         Control.hostLog = function (msg, source) {
@@ -101,6 +98,19 @@ var TSOS;
             var wrapper = document.getElementById("divConsole");
             wrapper.scrollTop = wrapper.scrollHeight;
             _CanvasHeight = document.getElementById("display").clientHeight;
+
+            // Initializes some memory.
+            // The first parameter will change from 1 to 3 for iProject 3.
+            _Memory = new TSOS.Memory(1, 256);
+
+            // Creates a memory manager.
+            _MemMan = new TSOS.MemoryManager();
+
+            // Sets the CPU display table to all zeroes.
+            this.resetCPUElements();
+
+            // Create the HTML table to show the contents of memory.
+            this.generateMemoryTable(1);
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -149,6 +159,7 @@ var TSOS;
             _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 500, 0, 0, 500, 500); // width, height
         };
 
+        // Sets all the CPU elements to 0.
         Control.resetCPUElements = function () {
             document.getElementById("tdPID").innerHTML = "0";
             document.getElementById("tdIR").innerHTML = "0";
@@ -158,8 +169,36 @@ var TSOS;
             document.getElementById("tdZFlag").innerHTML = "0";
         };
 
-        Control.setCPUElementByID = function (id, value) {
+        // Sets all memory elements to 0.
+        Control.resetMemory = function () {
+            _Memory.clearMem();
+        };
+
+        // Used to update memory and the CPU components.
+        Control.setElementValueByID = function (id, value) {
             document.getElementById(id).innerHTML = value;
+        };
+
+        // Used to build the table that displays memory, because I sure wasn't going to
+        // hard-code 96 rows of a table.
+        Control.generateMemoryTable = function (segments) {
+            var table = document.getElementById("tableMemory");
+
+            for (var i = 0; i < segments; i++) {
+                for (var j = 0; j < 32; j++) {
+                    var tr = document.createElement("tr");
+                    table.appendChild(tr);
+
+                    for (var k = 0; k < 8; k++) {
+                        var td = document.createElement("td");
+
+                        // Put the contents of each unit of memory into the td.
+                        //                        td.innerHTML = _Memory.getMemBlock(i)[j % 8];
+                        td.innerHTML = "0";
+                        tr.appendChild(td);
+                    }
+                }
+            }
         };
         return Control;
     })();

@@ -12,6 +12,10 @@ var TSOS;
         Memory.prototype.initializeMemBlocks = function (size) {
             for (var i in this.memBlocks) {
                 this.memBlocks[i] = new Array(size);
+                var currBlock = this.memBlocks[i];
+                for (var j in currBlock) {
+                    currBlock[j] = "0";
+                }
             }
         };
 

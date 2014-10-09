@@ -56,9 +56,6 @@ module TSOS {
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
-
-            // Sets the CPU display table to all zeroes.
-            this.resetCPUElements();
         }
 
         public static hostLog(msg: string, source: string = "?"): void {
@@ -105,6 +102,17 @@ module TSOS {
             var wrapper = document.getElementById("divConsole");
             wrapper.scrollTop = wrapper.scrollHeight;
             _CanvasHeight = document.getElementById("display").clientHeight;
+
+            // Initializes some memory.
+            // The first parameter will change from 1 to 3 for iProject 3.
+            _Memory = new TSOS.Memory(1, 256);
+            // Creates a memory manager.
+            _MemMan = new TSOS.MemoryManager();
+
+            // Sets the CPU display table to all zeroes.
+            this.resetCPUElements();
+            // Create the HTML table to show the contents of memory.
+            this.generateMemoryTable(1);
         }
 
         public static hostBtnHaltOS_click(btn): void {
@@ -153,6 +161,7 @@ module TSOS {
                                         500, 500);       // width, height
         }
 
+        // Sets all the CPU elements to 0.
         public static resetCPUElements(): void {
             document.getElementById("tdPID").innerHTML = "0";
             document.getElementById("tdIR").innerHTML = "0";
@@ -162,8 +171,39 @@ module TSOS {
             document.getElementById("tdZFlag").innerHTML = "0";
         }
 
-        public static setCPUElementByID(id, value): void {
+        // Sets all memory elements to 0.
+        public static resetMemory(): void {
+            _Memory.clearMem();
+        }
+
+        // Used to update memory and the CPU components.
+        public static setElementValueByID(id, value): void {
             document.getElementById(id).innerHTML = value;
+        }
+
+        // Used to build the table that displays memory, because I sure wasn't going to
+        // hard-code 96 rows of a table.
+        public static generateMemoryTable(segments): void {
+            var table = <HTMLTableElement>document.getElementById("tableMemory");
+
+            // Do this for however many segments of memory we are making.
+            for (var i = 0; i < segments; i++) {
+
+                // There will be 32 rows...
+                for (var j = 0; j < 32; j++) {
+
+                    var tr = document.createElement("tr");
+                    table.appendChild(tr);
+                    // ... and 8 cells per row, to represent 8 bytes.
+                    for (var k = 0; k < 8; k++) {
+                        var td = document.createElement("td");
+                        // Put the contents of each unit of memory into the td.
+//                        td.innerHTML = _Memory.getMemBlock(i)[j % 8];
+                        td.innerHTML = "0";
+                        tr.appendChild(td);
+                    }
+                }
+            }
         }
     }
 }

@@ -23,6 +23,7 @@
     <script type="text/javascript" src="dist/scripts/os/console.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
     <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
     <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
     <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
@@ -109,13 +110,13 @@
         </label>
     </div>
 
-    <div id="divMemoryDisplay">
-        <table>
+    <div id="divMemoryDisplay" style="height: 70px; overflow-y: auto; margin-left: 520px;">
+        <table id="tableMemory">
         </table>
     </div>
 
-    <div id="divCPUComponentsDisplay">
-        <table>
+    <div id="divCPUComponentsDisplay" style="float: left; margin-top: -60px;">
+        <table id="tableCPUComponents">
             <tr style="text-align: center;">
                 <th>PID</th>
                 <th>IR</th>
