@@ -268,7 +268,6 @@ var TSOS;
 
                 // If the code is valid...
                 if (allValid) {
-                    debugger;
                     var currPCB = new TSOS.ProcessControlBlock();
                     _MemMan.assignProgramToMemory(0, _ProgInput);
                     _StdOut.putText("PID = " + currPCB.pid);

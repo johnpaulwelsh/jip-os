@@ -78,6 +78,7 @@ var _CommandHistPointer: number = 0;
 var _NextPID: number = 0;
 
 var _Memory: any = null;
+var _MemTable: any = null;
 var _MemMan: any = null;
 
 var onDocumentLoad = function() {

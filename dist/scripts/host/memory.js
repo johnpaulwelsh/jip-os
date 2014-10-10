@@ -10,7 +10,6 @@ var TSOS;
             this.initializeMemBlocks(this.memBlockSize);
         }
         Memory.prototype.initializeMemBlocks = function (size) {
-            debugger;
             for (var i = 0; i < this.memBlocks.length; i++) {
                 this.memBlocks[i] = new Array(size);
                 var currBlock = this.memBlocks[i];

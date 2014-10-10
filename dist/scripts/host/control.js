@@ -30,7 +30,9 @@ var TSOS;
             _DrawingContext = _Canvas.getContext('2d');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            TSOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
+            // Text functionality is now built in to the HTML5 canvas.
+            // But this is old-school, and fun.
+            TSOS.CanvasTextFunctions.enable(_DrawingContext);
 
             // I'm sorry Alan, I don't know why the compiler yells at me for this.
             // It still outputs correct JS, so I assumed it was because _DrawingContext was never
@@ -182,18 +184,18 @@ var TSOS;
         // Used to build the table that displays memory, because I sure wasn't going to
         // hard-code 96 rows of a table.
         Control.generateMemoryTable = function (segments) {
-            var table = document.getElementById("tableMemory");
+            _MemTable = document.getElementById("tableMemory");
 
             for (var i = 0; i < segments; i++) {
                 for (var j = 0; j < 32; j++) {
                     var tr = document.createElement("tr");
-                    table.appendChild(tr);
+                    _MemTable.appendChild(tr);
 
                     for (var k = 0; k < 8; k++) {
                         var td = document.createElement("td");
 
                         // Put the contents of each unit of memory into the td.
-                        //                        td.innerHTML = _Memory.getMemBlock(i)[j % 8];
+                        //                        td.innerHTML = _Memory.getMemBlock(i)[j];
                         td.innerHTML = "0";
                         tr.appendChild(td);
                     }

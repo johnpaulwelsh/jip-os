@@ -74,6 +74,7 @@ var _CommandHistPointer = 0;
 var _NextPID = 0;
 
 var _Memory = null;
+var _MemTable = null;
 var _MemMan = null;
 
 var onDocumentLoad = function () {

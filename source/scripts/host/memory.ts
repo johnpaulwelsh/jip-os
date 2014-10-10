@@ -15,7 +15,6 @@ module TSOS {
         }
 
         private initializeMemBlocks(size): void {
-            debugger;
             for (var i = 0; i < this.memBlocks.length; i++) {
                 this.memBlocks[i] = new Array(size);
                 var currBlock = this.memBlocks[i];

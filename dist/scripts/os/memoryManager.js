@@ -19,10 +19,13 @@ var TSOS;
                     break;
             }
 
-            // the following stays undefined... help
             var currBlock = _Memory.getMemBlock(blockNum);
+            debugger;
             for (var i = 0; i < code.length; i++) {
                 currBlock[this.baseRegister + i] = code[i];
+                var tableRow = (i / 8);
+                var tableCel = (i % 8);
+                _MemTable.rows[tableRow].cells[tableCel].innerHTML = code[i];
             }
         };
         return MemoryManager;
