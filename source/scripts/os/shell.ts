@@ -299,9 +299,8 @@ module TSOS {
                 // If the code is valid...
                 if (allValid) {
                     var currPCB = new ProcessControlBlock();
-                    _MemMan.assignProgramToMemory(0, _ProgInput);
+                    _MemMan.fillMemoryWithProgram(0, _ProgInput);
                     _StdOut.putText("PID = " + currPCB.pid);
-
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }

@@ -11,27 +11,29 @@ module TSOS {
 
         }
 
-        public assignProgramToMemory(blockNum, code): void {
-            switch (blockNum) {
-                case 0:
-                    this.baseRegister = 0;
-                    break;
-                case 1:
-                    this.baseRegister = 256;
-                    break;
-                case 2:
-                    this.baseRegister = 512;
-                    break;
-            }
+        public fillMemoryWithProgram(blockNum, code): void {
+//            switch (blockNum) {
+//                case 0:
+//                    this.baseRegister = 0;
+//                    break;
+//                case 1:
+//                    this.baseRegister = 256;
+//                    break;
+//                case 2:
+//                    this.baseRegister = 512;
+//                    break;
+//            }
 
-            var currBlock = _Memory.getMemBlock(blockNum);
-            debugger;
             for (var i = 0; i < code.length; i++) {
-                currBlock[this.baseRegister + i] = code[i];
-                var tableRow = (i / 8);
-                var tableCel = (i % 8);
-                _MemTable.rows[tableRow].cells[tableCel].innerHTML = code[i];
+                this.updateMemoryAtLocation(blockNum, i, code[i]);
             }
+        }
+
+        public updateMemoryAtLocation(blockNum, loc, newCode): void {
+            debugger;
+            var currBlock = _Memory.getMemBlock(blockNum);
+            currBlock[loc] = newCode;
+            Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCode);
         }
     }
 }

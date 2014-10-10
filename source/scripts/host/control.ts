@@ -208,5 +208,9 @@ module TSOS {
                 }
             }
         }
+
+        public static updateMemTableAtLoc(tableRow, tableCel, newCode): void {
+            _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        }
     }
 }

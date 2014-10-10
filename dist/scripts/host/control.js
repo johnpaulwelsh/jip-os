@@ -202,6 +202,10 @@ var TSOS;
                 }
             }
         };
+
+        Control.updateMemTableAtLoc = function (tableRow, tableCel, newCode) {
+            _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        };
         return Control;
     })();
     TSOS.Control = Control;

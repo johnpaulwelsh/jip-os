@@ -6,27 +6,17 @@ var TSOS;
     var MemoryManager = (function () {
         function MemoryManager() {
         }
-        MemoryManager.prototype.assignProgramToMemory = function (blockNum, code) {
-            switch (blockNum) {
-                case 0:
-                    this.baseRegister = 0;
-                    break;
-                case 1:
-                    this.baseRegister = 256;
-                    break;
-                case 2:
-                    this.baseRegister = 512;
-                    break;
-            }
-
-            var currBlock = _Memory.getMemBlock(blockNum);
-            debugger;
+        MemoryManager.prototype.fillMemoryWithProgram = function (blockNum, code) {
             for (var i = 0; i < code.length; i++) {
-                currBlock[this.baseRegister + i] = code[i];
-                var tableRow = (i / 8);
-                var tableCel = (i % 8);
-                _MemTable.rows[tableRow].cells[tableCel].innerHTML = code[i];
+                this.updateMemoryAtLocation(blockNum, i, code[i]);
             }
+        };
+
+        MemoryManager.prototype.updateMemoryAtLocation = function (blockNum, loc, newCode) {
+            debugger;
+            var currBlock = _Memory.getMemBlock(blockNum);
+            currBlock[loc] = newCode;
+            TSOS.Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCode);
         };
         return MemoryManager;
     })();

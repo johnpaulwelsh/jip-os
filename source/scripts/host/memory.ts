@@ -33,9 +33,9 @@ module TSOS {
         }
 
         public isEmpty(): boolean {
-            for (var i in this.memBlocks) {
+            for (var i = 0; i < this.memBlocks.length; i++) {
                 var currBlock = this.memBlocks[i];
-                for (var j in currBlock) {
+                for (var j = 0; j < currBlock.length; j++) {
                     if (currBlock[j] != "0") {
                         return false;
                     }
