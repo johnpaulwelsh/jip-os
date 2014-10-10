@@ -266,11 +266,12 @@ var TSOS;
                     }
                 }
 
+                // If the code is valid...
                 if (allValid) {
-                    var splitInput = _ProgInput.split(" ");
+                    debugger;
                     var currPCB = new TSOS.ProcessControlBlock();
-                    _StdOut.putText("PID = " + currPCB.pid);
                     _MemMan.assignProgramToMemory(0, _ProgInput);
+                    _StdOut.putText("PID = " + currPCB.pid);
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }
@@ -355,7 +356,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellRun = function (args) {
             if (args.length > 0) {
-                _StdOut.putText("Dingo");
+                if (_Memory.isEmpty()) {
+                    _StdOut.putText("Nothing is loaded into memory. Try the 'load' command and run again.");
+                    return;
+                }
+
+                _StdOut.putText("Yo");
+                // CPU.isExecuting
+                // Run through memory, find commands, find params for commands, do commands
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
             }

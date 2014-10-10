@@ -15,10 +15,11 @@ module TSOS {
         }
 
         private initializeMemBlocks(size): void {
-            for (var i in this.memBlocks) {
+            debugger;
+            for (var i = 0; i < this.memBlocks.length; i++) {
                 this.memBlocks[i] = new Array(size);
                 var currBlock = this.memBlocks[i];
-                for (var j in currBlock) {
+                for (var j = 0; j < size; j++) {
                     currBlock[j] = "0";
                 }
             }
@@ -30,6 +31,18 @@ module TSOS {
 
         public clearMem(): void {
             this.initializeMemBlocks(this.memBlockSize);
+        }
+
+        public isEmpty(): boolean {
+            for (var i in this.memBlocks) {
+                var currBlock = this.memBlocks[i];
+                for (var j in currBlock) {
+                    if (currBlock[j] != "0") {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

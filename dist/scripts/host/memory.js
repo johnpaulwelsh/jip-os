@@ -10,10 +10,11 @@ var TSOS;
             this.initializeMemBlocks(this.memBlockSize);
         }
         Memory.prototype.initializeMemBlocks = function (size) {
-            for (var i in this.memBlocks) {
+            debugger;
+            for (var i = 0; i < this.memBlocks.length; i++) {
                 this.memBlocks[i] = new Array(size);
                 var currBlock = this.memBlocks[i];
-                for (var j in currBlock) {
+                for (var j = 0; j < size; j++) {
                     currBlock[j] = "0";
                 }
             }
@@ -25,6 +26,18 @@ var TSOS;
 
         Memory.prototype.clearMem = function () {
             this.initializeMemBlocks(this.memBlockSize);
+        };
+
+        Memory.prototype.isEmpty = function () {
+            for (var i in this.memBlocks) {
+                var currBlock = this.memBlocks[i];
+                for (var j in currBlock) {
+                    if (currBlock[j] != "0") {
+                        return false;
+                    }
+                }
+            }
+            return true;
         };
         return Memory;
     })();

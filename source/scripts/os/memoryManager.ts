@@ -24,8 +24,9 @@ module TSOS {
                     break;
             }
 
-            var currBlock = _Memory[blockNum];
-            for (var i in code) {
+            // the following stays undefined... help
+            var currBlock = _Memory.getMemBlock(blockNum);
+            for (var i = 0; i < code.length; i++) {
                 currBlock[this.baseRegister + i] = code[i];
             }
         }
