@@ -142,7 +142,7 @@ var TSOS;
         // Store accumulator into memory (to location denoted by next 2 values)
         Cpu.prototype.storeAccIntoMem = function () {
             var location = this.getNextTwoBytesAndCombine();
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc.toString());
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
         };
 

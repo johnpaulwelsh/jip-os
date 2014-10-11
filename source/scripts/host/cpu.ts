@@ -147,7 +147,7 @@ module TSOS {
         // Store accumulator into memory (to location denoted by next 2 values)
         private storeAccIntoMem(): void {
             var location = this.getNextTwoBytesAndCombine();
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc.toString());
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
         }
 
