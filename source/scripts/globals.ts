@@ -75,11 +75,17 @@ var _CommandHistory: string[] = [];
 var _CommandHistPointer: number = 0;
 
 // For loading and running programs...
-var _NextPID: number = 0;
+var _PID: number = 0;
+// In which block of memory is the program we are currently running? Set to -1 when not running a program.
+var _CurrBlockOfMem: number = -1;
+var _CurrPCB: any = null;
+var _RunningPID: number = -1;
 
 var _Memory: any = null;
 var _MemTable: any = null;
 var _MemMan: any = null;
+
+var _ResidentQueue: any = null;
 
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();

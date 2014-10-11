@@ -163,8 +163,7 @@ var TSOS;
 
         // Sets all the CPU elements to 0.
         Control.resetCPUElements = function () {
-            document.getElementById("tdPID").innerHTML = "0";
-            document.getElementById("tdIR").innerHTML = "0";
+            document.getElementById("tdPC").innerHTML = "0";
             document.getElementById("tdAccum").innerHTML = "0";
             document.getElementById("tdXReg").innerHTML = "0";
             document.getElementById("tdYReg").innerHTML = "0";
@@ -174,11 +173,6 @@ var TSOS;
         // Sets all memory elements to 0.
         Control.resetMemory = function () {
             _Memory.clearMem();
-        };
-
-        // Used to update memory and the CPU components.
-        Control.setElementValueByID = function (id, value) {
-            document.getElementById(id).innerHTML = value;
         };
 
         // Used to build the table that displays memory, because I sure wasn't going to
@@ -196,7 +190,7 @@ var TSOS;
 
                         // Put the contents of each unit of memory into the td.
                         //                        td.innerHTML = _Memory.getMemBlock(i)[j];
-                        td.innerHTML = "0";
+                        td.innerHTML = "00";
                         tr.appendChild(td);
                     }
                 }
@@ -205,6 +199,10 @@ var TSOS;
 
         Control.updateMemTableAtLoc = function (tableRow, tableCel, newCode) {
             _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        };
+
+        Control.setCPUElementByID = function (id, value) {
+            document.getElementById(id).innerHTML = value;
         };
         return Control;
     })();

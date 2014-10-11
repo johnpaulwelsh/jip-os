@@ -166,8 +166,7 @@ module TSOS {
 
         // Sets all the CPU elements to 0.
         public static resetCPUElements(): void {
-            document.getElementById("tdPID").innerHTML = "0";
-            document.getElementById("tdIR").innerHTML = "0";
+            document.getElementById("tdPC").innerHTML = "0";
             document.getElementById("tdAccum").innerHTML = "0";
             document.getElementById("tdXReg").innerHTML = "0";
             document.getElementById("tdYReg").innerHTML = "0";
@@ -177,11 +176,6 @@ module TSOS {
         // Sets all memory elements to 0.
         public static resetMemory(): void {
             _Memory.clearMem();
-        }
-
-        // Used to update memory and the CPU components.
-        public static setElementValueByID(id, value): void {
-            document.getElementById(id).innerHTML = value;
         }
 
         // Used to build the table that displays memory, because I sure wasn't going to
@@ -202,7 +196,7 @@ module TSOS {
                         var td = document.createElement("td");
                         // Put the contents of each unit of memory into the td.
 //                        td.innerHTML = _Memory.getMemBlock(i)[j];
-                        td.innerHTML = "0";
+                        td.innerHTML = "00";
                         tr.appendChild(td);
                     }
                 }
@@ -211,6 +205,10 @@ module TSOS {
 
         public static updateMemTableAtLoc(tableRow, tableCel, newCode): void {
             _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        }
+
+        public static setCPUElementByID(id, value): void {
+            document.getElementById(id).innerHTML = value;
         }
     }
 }

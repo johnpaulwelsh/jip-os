@@ -259,7 +259,7 @@ var TSOS;
                 for (var i in _ProgInput) {
                     var hex = _ProgInput[i];
 
-                    // Checking whether the regex for a valid hex code matches
+                    // Checking whether the regex for a valid hex code matches.
                     if (!(regex.test(hex))) {
                         allValid = false;
                         break;
@@ -268,9 +268,11 @@ var TSOS;
 
                 // If the code is valid...
                 if (allValid) {
-                    var currPCB = new TSOS.ProcessControlBlock();
-                    _MemMan.fillMemoryWithProgram(0, _ProgInput);
-                    _StdOut.putText("PID = " + currPCB.pid);
+                    _Memory.clearMem();
+                    _CurrPCB = new TSOS.ProcessControlBlock();
+                    _CurrBlockOfMem = 0; // hard-coded for now: will be extracted from somewhere else later
+                    _MemMan.fillMemoryWithProgram(_CurrBlockOfMem, _ProgInput);
+                    _StdOut.putText("PID = " + _CurrPCB.PID);
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }
@@ -356,13 +358,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         Shell.prototype.shellRun = function (args) {
             if (args.length > 0) {
                 if (_Memory.isEmpty()) {
-                    _StdOut.putText("Nothing is loaded into memory. Try the 'load' command and run again.");
+                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
                     return;
                 }
 
-                _StdOut.putText("Yo");
-                // CPU.isExecuting
-                // Run through memory, find commands, find params for commands, do commands
+                _CPU.isExecuting = true;
+                _RunningPID = parseInt(args[0]);
+                // When done, set _CurrBlockOfMem back to -1
+                //                _CurrBlockOfMem = -1;
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
             }

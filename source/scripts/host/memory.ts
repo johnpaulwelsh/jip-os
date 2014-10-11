@@ -19,7 +19,7 @@ module TSOS {
                 this.memBlocks[i] = new Array(size);
                 var currBlock = this.memBlocks[i];
                 for (var j = 0; j < size; j++) {
-                    currBlock[j] = "0";
+                    currBlock[j] = "00";
                 }
             }
         }
@@ -36,7 +36,7 @@ module TSOS {
             for (var i = 0; i < this.memBlocks.length; i++) {
                 var currBlock = this.memBlocks[i];
                 for (var j = 0; j < currBlock.length; j++) {
-                    if (currBlock[j] != "0") {
+                    if (currBlock[j] != "00") {
                         return false;
                     }
                 }
