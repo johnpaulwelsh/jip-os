@@ -28,12 +28,7 @@ var TSOS;
             this.isExecuting = isExecuting;
         }
         Cpu.prototype.init = function () {
-            this.PC = 0;
-            this.Acc = 0;
-            this.Xreg = 0;
-            this.Yreg = 0;
-            this.Zflag = 0;
-            this.isExecuting = false;
+            this.resetCPUElements();
         };
 
         Cpu.prototype.cycle = function () {
@@ -41,7 +36,8 @@ var TSOS;
             // we reach the final command of the code.
             _Kernel.krnTrace('CPU cycle');
 
-            // TODO: Accumulate CPU usage and profiling statistics here.
+            debugger;
+
             var command = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC];
 
             switch (command) {
@@ -102,12 +98,12 @@ var TSOS;
                     break;
             }
 
+            this.updateCPUElements();
+
             // We don't want this to happen after we do an FF command
             if (this.isExecuting) {
                 this.PC++;
             }
-
-            this.updateCPUElements();
         };
 
         // load constant (next value) into accumulator
@@ -119,7 +115,7 @@ var TSOS;
         // load accumulator from memory (from location denoted by next 2 values)
         Cpu.prototype.loadAccFromMem = function () {
             var location = this.calculateMemFromTwoBytes(this.getNextTwoBytes());
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, TSOS.Utils.decStrToHexStr(this.Acc));
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
         };
 
@@ -183,7 +179,7 @@ var TSOS;
 
         // increment the next value by 1
         Cpu.prototype.increment = function () {
-            var value = parseInt(TSOS.Utils.hexStrToDecStr(this.getNextByte()));
+            var value = this.getDecOfNextByte();
             value++;
 
             // Put 'value' back into memory
@@ -199,6 +195,11 @@ var TSOS;
         Cpu.prototype.getNextByte = function () {
             var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
             return parseInt(currByte);
+        };
+
+        Cpu.prototype.getDecOfNextByte = function () {
+            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
+            return parseInt(TSOS.Utils.hexStrToDecStr(currByte));
         };
 
         Cpu.prototype.getNextTwoBytes = function () {
@@ -223,14 +224,24 @@ var TSOS;
             TSOS.Control.setCPUElementByID("tdZFlag", this.Zflag);
         };
 
+        Cpu.prototype.resetCPUElements = function () {
+            this.PC = 0;
+            this.Acc = 0;
+            this.Xreg = 0;
+            this.Yreg = 0;
+            this.Zflag = 0;
+            this.isExecuting = false;
+        };
+
         Cpu.prototype.finishRunningProgram = function () {
             _CurrPCB.PC = this.PC;
-            _CurrPCB.Acc = this.Acc;
+            _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;
             _CurrPCB.YReg = this.Yreg;
             _CurrPCB.ZFlag = this.Zflag;
             _CurrPCB.printPCB();
             _RunningPID = -1;
+            _CurrBlockOfMem = -1;
         };
         return Cpu;
     })();

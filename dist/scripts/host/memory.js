@@ -25,6 +25,7 @@ var TSOS;
 
         Memory.prototype.clearMem = function () {
             this.initializeMemBlocks(this.memBlockSize);
+            TSOS.Control.emptyFullMemTable(this.memBlocks.length);
         };
 
         Memory.prototype.isEmpty = function () {

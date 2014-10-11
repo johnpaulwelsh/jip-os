@@ -30,6 +30,7 @@ module TSOS {
 
         public clearMem(): void {
             this.initializeMemBlocks(this.memBlockSize);
+            Control.emptyFullMemTable(this.memBlocks.length);
         }
 
         public isEmpty(): boolean {

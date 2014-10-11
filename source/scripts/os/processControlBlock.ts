@@ -34,6 +34,8 @@ module TSOS {
             _StdOut.putText("Y-Reg = " + this.YReg);
             _StdOut.advanceLine();
             _StdOut.putText("Z-Flag = " + this.ZFlag);
+            _StdOut.advanceLine();
+            _OsShell.putPrompt();
         }
     }
 }

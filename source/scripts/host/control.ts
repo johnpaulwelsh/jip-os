@@ -113,7 +113,7 @@ module TSOS {
             _MemMan = new TSOS.MemoryManager();
 
             // Sets the CPU display table to all zeroes.
-            this.resetCPUElements();
+            this.resetCPUElementsInHTML();
             // Create the HTML table to show the contents of memory.
             this.generateMemoryTable(1);
         }
@@ -165,7 +165,7 @@ module TSOS {
         }
 
         // Sets all the CPU elements to 0.
-        public static resetCPUElements(): void {
+        public static resetCPUElementsInHTML(): void {
             document.getElementById("tdPC").innerHTML = "0";
             document.getElementById("tdAccum").innerHTML = "0";
             document.getElementById("tdXReg").innerHTML = "0";
@@ -205,6 +205,17 @@ module TSOS {
 
         public static updateMemTableAtLoc(tableRow, tableCel, newCode): void {
             _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        }
+
+        // TODO: fix how segments are handled; we only have one for now so it doesn't break anything
+        public static emptyFullMemTable(segments): void {
+            for (var i = 0; i < segments; i++) {
+                for (var j = 0; j < 32; j++) {
+                    for (var k = 0; k < 8; k++) {
+                        this.updateMemTableAtLoc(j, k, "00");
+                    }
+                }
+            }
         }
 
         public static setCPUElementByID(id, value): void {

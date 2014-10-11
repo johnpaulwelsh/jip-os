@@ -268,7 +268,8 @@ var TSOS;
 
                 // If the code is valid...
                 if (allValid) {
-                    _Memory.clearMem();
+                    TSOS.Control.resetMemory();
+                    _CPU.resetCPUElements();
                     _CurrPCB = new TSOS.ProcessControlBlock();
                     _CurrBlockOfMem = 0; // hard-coded for now: will be extracted from somewhere else later
                     _MemMan.fillMemoryWithProgram(_CurrBlockOfMem, _ProgInput);
@@ -359,13 +360,10 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             if (args.length > 0) {
                 if (_Memory.isEmpty()) {
                     _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
-                    return;
+                } else {
+                    _CPU.isExecuting = true;
+                    _RunningPID = parseInt(args[0]);
                 }
-
-                _CPU.isExecuting = true;
-                _RunningPID = parseInt(args[0]);
-                // When done, set _CurrBlockOfMem back to -1
-                //                _CurrBlockOfMem = -1;
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
             }

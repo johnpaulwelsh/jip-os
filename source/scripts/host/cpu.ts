@@ -29,12 +29,7 @@ module TSOS {
         }
 
         public init(): void {
-            this.PC = 0;
-            this.Acc = 0;
-            this.Xreg = 0;
-            this.Yreg = 0;
-            this.Zflag = 0;
-            this.isExecuting = false;
+            this.resetCPUElements();
         }
 
         public cycle(): void {
@@ -43,6 +38,8 @@ module TSOS {
 
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
+
+            debugger;
 
             var command = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC];
 
@@ -104,12 +101,12 @@ module TSOS {
                     break;
             }
 
+            this.updateCPUElements();
+
             // We don't want this to happen after we do an FF command
             if (this.isExecuting) {
                 this.PC++;
             }
-
-            this.updateCPUElements();
         }
 
         // load constant (next value) into accumulator
@@ -121,7 +118,7 @@ module TSOS {
         // load accumulator from memory (from location denoted by next 2 values)
         private loadAccFromMem(): void {
             var location = this.calculateMemFromTwoBytes(this.getNextTwoBytes());
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, Utils.decStrToHexStr(this.Acc));
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
         }
 
@@ -191,7 +188,7 @@ module TSOS {
 
         // increment the next value by 1
         private increment(): void {
-            var value = parseInt(Utils.hexStrToDecStr(this.getNextByte()));
+            var value = this.getDecOfNextByte();
             value++;
             // Put 'value' back into memory
             this.PC += 1;
@@ -207,6 +204,11 @@ module TSOS {
         private getNextByte(): number {
             var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
             return parseInt(currByte);
+        }
+
+        private getDecOfNextByte(): number {
+            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
+            return parseInt(Utils.hexStrToDecStr(currByte));
         }
 
         private getNextTwoBytes(): string[] {
@@ -230,14 +232,24 @@ module TSOS {
             TSOS.Control.setCPUElementByID("tdZFlag", this.Zflag);
         }
 
+        public resetCPUElements(): void {
+            this.PC = 0;
+            this.Acc = 0;
+            this.Xreg = 0;
+            this.Yreg = 0;
+            this.Zflag = 0;
+            this.isExecuting = false;
+        }
+
         public finishRunningProgram(): void {
             _CurrPCB.PC = this.PC;
-            _CurrPCB.Acc = this.Acc;
+            _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;
             _CurrPCB.YReg = this.Yreg;
             _CurrPCB.ZFlag = this.Zflag;
             _CurrPCB.printPCB();
             _RunningPID = -1;
+            _CurrBlockOfMem = -1;
         }
     }
 }
