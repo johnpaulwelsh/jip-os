@@ -28,7 +28,7 @@ var TSOS;
             this.isExecuting = isExecuting;
         }
         Cpu.prototype.init = function () {
-            this.resetCPUElements();
+            this.resetCPUElements(); // this is at the bottom of this file
         };
 
         Cpu.prototype.cycle = function () {
@@ -36,9 +36,9 @@ var TSOS;
             // we reach the final command of the code.
             _Kernel.krnTrace('CPU cycle');
 
-            debugger;
-
+            // TODO: Accumulate CPU usage and profiling statistics here.
             var command = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC];
+            var command = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC);
 
             switch (command) {
                 case "A9":
@@ -106,6 +106,26 @@ var TSOS;
             }
         };
 
+        //
+        // Utility functions for doing opcodes
+        //
+        // Gives back the value that's at the next position in memory as a decimal number.
+        Cpu.prototype.getNextByte = function () {
+            var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+            return TSOS.Utils.hexStrToDecNum(nextByteAsHex);
+        };
+
+        // The values at the next two positions in memory, swapped and combined, is a memory location
+        // represented in hex. This returns that location as a decimal number.
+        Cpu.prototype.getNextTwoBytesAndCombine = function () {
+            var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+            var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
+            return TSOS.Utils.hexStrToDecNum(byteTwo + byteOne);
+        };
+
+        //
+        // Functions for each opcode
+        //
         // load constant (next value) into accumulator
         Cpu.prototype.loadConstIntoAcc = function () {
             this.Acc = this.getNextByte();
@@ -114,33 +134,35 @@ var TSOS;
 
         // load accumulator from memory (from location denoted by next 2 values)
         Cpu.prototype.loadAccFromMem = function () {
-            var location = this.calculateMemFromTwoBytes(this.getNextTwoBytes());
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
+            var location = this.getNextTwoBytesAndCombine();
+            this.Acc = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         };
 
-        // store accumulator into memory (to location denoted by next 2 values)
+        // Store accumulator into memory (to location denoted by next 2 values)
         Cpu.prototype.storeAccIntoMem = function () {
+            var location = this.getNextTwoBytesAndCombine();
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc.toString());
             this.PC += 2;
         };
 
-        // add contents of memory location (next 2 values) to accumulator, store there
+        // Add contents of memory location (next 2 values) to accumulator, store back in accumulator
         Cpu.prototype.addAndStoreIntoAcc = function () {
             this.PC += 2;
         };
 
-        // load constant (next value) into x-reg
+        // Load constant (next value) into x-reg
         Cpu.prototype.loadConstIntoX = function () {
             this.Xreg = this.getNextByte();
             this.PC += 1;
         };
 
-        // load x-reg from memory (location denoted by next 2 values)
+        // Load x-reg from memory (location denoted by next 2 values)
         Cpu.prototype.loadXFromMem = function () {
             this.PC += 2;
         };
 
-        // load constant (next value) into y-reg
+        // Load constant (next value) into y-register
         Cpu.prototype.loadConstIntoY = function () {
             this.Yreg = this.getNextByte();
             this.PC += 1;
@@ -170,7 +192,7 @@ var TSOS;
         // branch x bytes if z-flag == 0 (x is next value)
         Cpu.prototype.branchNotEqual = function () {
             if (this.Zflag == 0) {
-                var branchSpanDec = TSOS.Utils.hexStrToDecStr(this.getNextByte());
+                //var branchSpanDec = Utils.hexStrToDecStr(this.getNextByte());
                 // Does the number represent a negative shift, or does it already force it to be a wrap-around
                 // positive shift?
                 //this.PC =
@@ -179,9 +201,6 @@ var TSOS;
 
         // increment the next value by 1
         Cpu.prototype.increment = function () {
-            var value = this.getDecOfNextByte();
-            value++;
-
             // Put 'value' back into memory
             this.PC += 1;
         };
@@ -190,30 +209,6 @@ var TSOS;
         // if x-reg has a 1, print y-reg value
         // if x-reg has a 2, print string that's in y-reg (it's null-term'd)
         Cpu.prototype.sysCall = function () {
-        };
-
-        Cpu.prototype.getNextByte = function () {
-            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return parseInt(currByte);
-        };
-
-        Cpu.prototype.getDecOfNextByte = function () {
-            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return parseInt(TSOS.Utils.hexStrToDecStr(currByte));
-        };
-
-        Cpu.prototype.getNextTwoBytes = function () {
-            var bytes = [];
-
-            // the additions to this.PC are because of little endian nonsense
-            bytes[0] = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 2];
-            bytes[1] = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return bytes;
-        };
-
-        Cpu.prototype.calculateMemFromTwoBytes = function (bytes) {
-            var fullLocationDec = TSOS.Utils.hexStrToDecStr(bytes[0] + bytes[1]);
-            return parseInt(fullLocationDec);
         };
 
         Cpu.prototype.updateCPUElements = function () {
@@ -233,6 +228,9 @@ var TSOS;
             this.isExecuting = false;
         };
 
+        // Once we are done running a program, we save the CPU's registers into the PCB,
+        // print the PCB, and reset the two globals that specified which program was running,
+        // and which block of memory it was in.
         Cpu.prototype.finishRunningProgram = function () {
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;

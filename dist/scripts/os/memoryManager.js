@@ -27,8 +27,15 @@ var TSOS;
             }
         };
 
+        MemoryManager.prototype.getMemoryFromLocation = function (blockNum, loc) {
+            return _Memory.getMemBlock(blockNum)[loc];
+        };
+
         MemoryManager.prototype.updateMemoryAtLocation = function (blockNum, loc, newCode) {
             var currBlock = _Memory.getMemBlock(blockNum);
+            if (newCode.length < 2) {
+                newCode = "0" + newCode;
+            }
             currBlock[loc] = newCode;
             TSOS.Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCode);
         };

@@ -71,12 +71,12 @@ var TSOS;
             return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
         };
 
-        Utils.decStrToHexStr = function (decStr) {
-            return parseInt(decStr).toString(16);
+        Utils.hexStrToDecNum = function (hexStr) {
+            return parseInt(hexStr, 16);
         };
 
-        Utils.hexStrToDecStr = function (hexStr) {
-            return parseInt(hexStr).toString(10);
+        Utils.decNumToHexStr = function (decNum) {
+            return decNum.toString(16);
         };
         return Utils;
     })();

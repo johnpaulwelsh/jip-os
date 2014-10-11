@@ -72,12 +72,12 @@ module TSOS {
             return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
         }
 
-        public static decStrToHexStr(decStr): string {
-            return parseInt(decStr).toString(16);
+        public static hexStrToDecNum(hexStr): number {
+            return parseInt(hexStr, 16);
         }
 
-        public static hexStrToDecStr(hexStr): string {
-            return parseInt(hexStr).toString(10);
+        public static decNumToHexStr(decNum): string {
+            return decNum.toString(16);
         }
     }
 }

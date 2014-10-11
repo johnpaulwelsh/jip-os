@@ -33,8 +33,15 @@ module TSOS {
             }
         }
 
+        public getMemoryFromLocation(blockNum, loc): string {
+            return _Memory.getMemBlock(blockNum)[loc];
+        }
+
         public updateMemoryAtLocation(blockNum, loc, newCode): void {
             var currBlock = _Memory.getMemBlock(blockNum);
+            if (newCode.length < 2) {
+                newCode = "0" + newCode;
+            }
             currBlock[loc] = newCode;
             Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCode);
         }

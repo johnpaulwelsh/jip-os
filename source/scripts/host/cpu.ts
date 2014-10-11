@@ -29,7 +29,7 @@ module TSOS {
         }
 
         public init(): void {
-            this.resetCPUElements();
+            this.resetCPUElements(); // this is at the bottom of this file
         }
 
         public cycle(): void {
@@ -39,9 +39,8 @@ module TSOS {
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
 
-            debugger;
-
             var command = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC];
+            var command = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC);
 
             switch (command) {
                 case "A9":
@@ -109,6 +108,29 @@ module TSOS {
             }
         }
 
+        //
+        // Utility functions for doing opcodes
+        //
+
+        // Gives back the value that's at the next position in memory as a decimal number.
+        private getNextByte(): number {
+            var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+            return Utils.hexStrToDecNum(nextByteAsHex);
+        }
+
+
+        // The values at the next two positions in memory, swapped and combined, is a memory location
+        // represented in hex. This returns that location as a decimal number.
+        private getNextTwoBytesAndCombine(): number {
+            var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+            var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
+            return Utils.hexStrToDecNum(byteTwo + byteOne); // swapped b/c of little-endian-ness
+        }
+
+        //
+        // Functions for each opcode
+        //
+
         // load constant (next value) into accumulator
         private loadConstIntoAcc(): void {
             this.Acc = this.getNextByte();
@@ -117,36 +139,37 @@ module TSOS {
 
         // load accumulator from memory (from location denoted by next 2 values)
         private loadAccFromMem(): void {
-            var location = this.calculateMemFromTwoBytes(this.getNextTwoBytes());
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
+            var location = this.getNextTwoBytesAndCombine();
+            this.Acc = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         }
 
-        // store accumulator into memory (to location denoted by next 2 values)
+        // Store accumulator into memory (to location denoted by next 2 values)
         private storeAccIntoMem(): void {
-
+            var location = this.getNextTwoBytesAndCombine();
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc.toString());
             this.PC += 2;
         }
 
-        // add contents of memory location (next 2 values) to accumulator, store there
+        // Add contents of memory location (next 2 values) to accumulator, store back in accumulator
         private addAndStoreIntoAcc(): void {
 
             this.PC += 2;
         }
 
-        // load constant (next value) into x-reg
+        // Load constant (next value) into x-reg
         private loadConstIntoX(): void {
             this.Xreg = this.getNextByte();
             this.PC += 1;
         }
 
-        // load x-reg from memory (location denoted by next 2 values)
+        // Load x-reg from memory (location denoted by next 2 values)
         private loadXFromMem(): void {
 
             this.PC += 2;
         }
 
-        // load constant (next value) into y-reg
+        // Load constant (next value) into y-register
         private loadConstIntoY(): void {
             this.Yreg = this.getNextByte();
             this.PC += 1;
@@ -179,7 +202,7 @@ module TSOS {
         // branch x bytes if z-flag == 0 (x is next value)
         private branchNotEqual(): void {
             if (this.Zflag == 0) {
-                var branchSpanDec = Utils.hexStrToDecStr(this.getNextByte());
+                //var branchSpanDec = Utils.hexStrToDecStr(this.getNextByte());
                 // Does the number represent a negative shift, or does it already force it to be a wrap-around
                 // positive shift?
                 //this.PC =
@@ -188,8 +211,6 @@ module TSOS {
 
         // increment the next value by 1
         private increment(): void {
-            var value = this.getDecOfNextByte();
-            value++;
             // Put 'value' back into memory
             this.PC += 1;
         }
@@ -199,29 +220,6 @@ module TSOS {
         // if x-reg has a 2, print string that's in y-reg (it's null-term'd)
         private sysCall(): void {
 
-        }
-
-        private getNextByte(): number {
-            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return parseInt(currByte);
-        }
-
-        private getDecOfNextByte(): number {
-            var currByte = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return parseInt(Utils.hexStrToDecStr(currByte));
-        }
-
-        private getNextTwoBytes(): string[] {
-            var bytes = [];
-            // the additions to this.PC are because of little endian nonsense
-            bytes[0] = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 2];
-            bytes[1] = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC + 1];
-            return bytes;
-        }
-
-        private calculateMemFromTwoBytes(bytes): number {
-            var fullLocationDec = Utils.hexStrToDecStr(bytes[0] + bytes[1]);
-            return parseInt(fullLocationDec);
         }
 
         public updateCPUElements(): void {
@@ -241,6 +239,9 @@ module TSOS {
             this.isExecuting = false;
         }
 
+        // Once we are done running a program, we save the CPU's registers into the PCB,
+        // print the PCB, and reset the two globals that specified which program was running,
+        // and which block of memory it was in.
         public finishRunningProgram(): void {
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;
