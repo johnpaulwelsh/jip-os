@@ -196,7 +196,6 @@ module TSOS {
         private compareToX(): void {
             var location = this.getNextTwoBytesAndCombine();
             var memValue = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
-
             this.Zflag = (memValue == this.Xreg) ? 1 : 0;
             this.PC += 2;
         }
@@ -205,17 +204,13 @@ module TSOS {
         private branchNotEqual(): void {
             if (this.Zflag == 0) {
                 var branchSpan = this.getNextByte();
-                this.PC = 255 - branchSpan;
-                // This is to counteract the ++ that always happens after a clock cycle, since we actually
-                // want to start at the spot we branch to.
-                this.PC--;
+                this.PC = (this.PC + branchSpan) % 255;
             } else {
                 // If the z-flag was 1, then we fall into the next command. But we need to skip over
                 // the byte that represented how far we would branch if we had to, so we do another
                 // incrementation of the PC.
                 this.PC++;
             }
-
         }
 
         // Increment the next value by one
