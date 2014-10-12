@@ -169,41 +169,38 @@ var TSOS;
             // decided to write one function and use the term "text" to connote string or char.
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
-                // Find the first space that comes after the first 45 chars. This will be
-                // the real cutoff for the substring we print.
-                //                var nextEndOfWordAfter45;
-                //                var currSubstr;
-                //                if (text.length > 30) debugger;
-                //
-                //                if (text.length > 45) {
-                //                    if ((text.indexOf(" ") != -1)) {
-                //                        nextEndOfWordAfter45 = text.indexOf(" ", 45);
-                //                        currSubstr = text.substr(0, nextEndOfWordAfter45);
-                //                    } else {
-                //                        nextEndOfWordAfter45 = 0;
-                //                        currSubstr = text;
-                //                    }
-                //                } else {
-                //                    currSubstr = text;
-                //                }
-                //
-                //                // Draw the text at the current X and Y coordinates.
-                //                _DrawingContext.drawText(this.currentFont, this.currentFontSize,
-                //                                         this.currentXPosition, this.currentYPosition,
-                //                                         currSubstr);
-                //                // Move the current X position.
-                //                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                //                this.currentXPosition = this.currentXPosition + offset;
-                //
-                //                if (text.length > 45) {
-                //                    this.advanceLine();
-                //                    // Do a putText again, but with the rest of the string starting with the beginning of the
-                //                    // next word from the one we just finished printing.
-                //                    this.putText(text.substr(nextEndOfWordAfter45 + 1));
-                //                }
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                var currSubStr = "";
+                var nextEndOfWordAfterCutoff = 0;
+                var nextSubStr = "";
+
+                if (text.length >= _StringCutoffLength) {
+                    // If the string has a space after the cutoff point, set NEOFAC to the
+                    // position of the first space that shows up after that cutoff.
+                    var hasSpaceAfterCutoff = text.indexOf(" ", _StringCutoffLength) != -1;
+                    nextEndOfWordAfterCutoff = (hasSpaceAfterCutoff) ? text.indexOf(" ", _StringCutoffLength) : 0;
+
+                    // Make the substring from the beginning to that cutoff, or the whole thing if the cutoff was 0.
+                    currSubStr = (hasSpaceAfterCutoff) ? text.substr(0, nextEndOfWordAfterCutoff) : text;
+                } else {
+                    currSubStr = text;
+                }
+
+                // Draw the text at the current X and Y coordinates.
+                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, currSubStr);
+
+                // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
+
+                // If we still have some text to print that didn't get printed the first time...
+                if (text.length >= _StringCutoffLength && hasSpaceAfterCutoff) {
+                    nextSubStr = text.substr(nextEndOfWordAfterCutoff + 1);
+                    this.advanceLine();
+
+                    // Do a putText again, but with the rest of the string starting with the beginning of the
+                    // next word from the one we just finished printing.
+                    this.putText(nextSubStr);
+                }
             }
         };
 

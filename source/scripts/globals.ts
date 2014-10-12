@@ -92,6 +92,9 @@ var _ResidentQueue: any = null;
 // To allow single-step program execution...
 var _IsSingleStep = false;
 
+// For line wrap...
+var _StringCutoffLength = 40;
+
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();
 };
