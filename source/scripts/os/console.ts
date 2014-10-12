@@ -245,6 +245,9 @@ module TSOS {
         }
 
         public handleSysCallIrq(params): void {
+
+            debugger;
+
             var currXReg = params[0];
             var currYReg = params[1];
 

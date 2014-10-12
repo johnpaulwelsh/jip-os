@@ -29,13 +29,10 @@ module TSOS {
         }
 
         public init(): void {
-            this.resetCPUElements(); // this is at the bottom of this file
+            this.resetCPUElements(); // this is at the bottom of the file
         }
 
         public cycle(): void {
-            // This will only execute when isExecuting is true, so don't worry about that variable until
-            // we reach the final command of the code.
-
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
 
@@ -195,7 +192,7 @@ module TSOS {
         }
 
         // Compare contents of memory to x-reg
-        // Set z-flag to 1 if equal (because they're not not-equal)
+        // Set z-flag to 1 if equal
         private compareToX(): void {
             var location = this.getNextTwoBytesAndCombine();
             var memValue = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
@@ -204,19 +201,29 @@ module TSOS {
             this.PC += 2;
         }
 
-        // Branch x bytes if z-flag == 0 (x is next value)
+        // If z-flag is 0, branch forward the number of bytes represented by the next byte's hex value
         private branchNotEqual(): void {
             if (this.Zflag == 0) {
-                var branchSpan = this.getNextTwoBytesAndCombine();
+                var branchSpan = this.getNextByte();
                 this.PC = 255 - branchSpan;
+                // This is to counteract the ++ that always happens after a clock cycle, since we actually
+                // want to start at the spot we branch to.
+                this.PC--;
+            } else {
+                // If the z-flag was 1, then we fall into the next command. But we need to skip over
+                // the byte that represented how far we would branch if we had to, so we do another
+                // incrementation of the PC.
+                this.PC++;
             }
+
         }
 
         // Increment the next value by one
         private increment(): void {
-            var incrValue = 1 + this.getNextByte();
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, this.PC + 1, incrValue);
-            this.PC += 1;
+            var location = this.getNextTwoBytesAndCombine();
+            var value = 1 + _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
+            this.PC += 2;
         }
 
         // System call:
@@ -250,7 +257,7 @@ module TSOS {
         }
 
         // Once we are done running a program, we save the CPU's registers into the PCB,
-        // print the PCB, and reset the two globals that specified which program was running,
+        // print the PCB, and reset the two globals that specified which program was running
         // and which block of memory it was in.
         public finishRunningProgram(): void {
             _CurrPCB.PC = this.PC;

@@ -221,6 +221,8 @@ var TSOS;
         };
 
         Console.prototype.handleSysCallIrq = function (params) {
+            debugger;
+
             var currXReg = params[0];
             var currYReg = params[1];
 
