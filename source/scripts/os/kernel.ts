@@ -84,7 +84,6 @@ module TSOS {
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
 
-
             // If there are no interrupts then run one CPU cycle if there is anything being processed.
             } else if (_CPU.isExecuting) {
                 _CPU.cycle();

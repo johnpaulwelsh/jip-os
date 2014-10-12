@@ -83,11 +83,14 @@ var _CurrBlockOfMem: number = -1;
 var _CurrPCB: any = null;
 var _RunningPID: number = -1;
 
-var _Memory: any = null;
-var _MemTable: any = null;
-var _MemMan: any = null;
+var _Memory: any = null; // the Memory object
+var _MemTable: any = null; // the HTML table that displays memory
+var _MemMan: any = null; // the Memory Manager object
 
 var _ResidentQueue: any = null;
+
+// To allow single-step program execution...
+var _IsSingleStep = false;
 
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();

@@ -68,6 +68,33 @@
                value="Reset"
                tabindex="2"
                onclick="TSOS.Control.hostBtnReset_click(this);">
+
+        <input type="button"
+                id="btnSingleStepStart"
+                name="btnSingleStepStart"
+                class="normal_button"
+                disabled="disabled"
+                value="Start Single Step"
+                tabindex="3"
+                onclick="TSOS.Control.startSingleStep(this);">
+
+        <input type="button"
+               id="btnSingleStepMakeStep"
+               name="btnSingleStepMakeStep"
+               class="normal_button"
+               disabled="disabled"
+               value="Make Step"
+               tabindex="4"
+               onclick="TSOS.Control.makeSingleStep(this);">
+
+        <input type="button"
+               id="btnSingleStepEnd"
+               name="btnSingleStepEnd"
+               class="normal_button"
+               disabled="disabled"
+               value="End Single Step"
+               tabindex="5"
+               onclick="TSOS.Control.endSingleStep(this);">
     </div>
 
     <div id="divStatusBar" style="margin: 4px; width: 500px; height: 15px; margin-top: 5px;">
@@ -80,7 +107,7 @@
         <canvas id="display"
                 width="500px"
                 height="500px"
-                tabindex="3">
+                tabindex="6">
         </canvas>
     </div>
 
@@ -150,7 +177,8 @@
     Copyright &copy; 2008 - 2014 No Rights Reserved.
     <br>
     Reproduction is prohibited without the express written consent of
-    Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+    Ted Codd, Stevie Ray Vaughan, Ian Fleming, and George Lucas. Actually,
+    we can just skip George Lucas.
 </p>
 
 </body>

@@ -86,6 +86,9 @@ var _MemMan = null;
 
 var _ResidentQueue = null;
 
+// To allow single-step program execution...
+var _IsSingleStep = false;
+
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
 };

@@ -31,6 +31,12 @@ module TSOS {
         // Hardware/Host Clock Pulse
         //
         public static hostClockPulse(): void {
+            // If the CPU is executing and we are in single-step mode, then we stop the CPU from running
+            // on clock ticks. Now we only call hostClockPulse when we click the 'Make Step' button.
+            if (_CPU.isExecuting && _IsSingleStep) {
+                clearInterval(_hardwareClockID);
+            }
+
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.

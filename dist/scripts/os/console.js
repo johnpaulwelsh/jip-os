@@ -169,7 +169,7 @@ var TSOS;
             // decided to write one function and use the term "text" to connote string or char.
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
-                // Find the first space that comes after the first 50 chars. This will be
+                // Find the first space that comes after the first 45 chars. This will be
                 // the real cutoff for the substring we print.
                 //                var nextEndOfWordAfter45;
                 //                var currSubstr;

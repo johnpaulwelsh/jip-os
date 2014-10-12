@@ -88,6 +88,7 @@ module TSOS {
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnSingleStepStart").disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -134,6 +135,34 @@ module TSOS {
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        }
+
+        public static startSingleStep(btn): void {
+            document.getElementById("btnSingleStepStart").disabled = true;
+            document.getElementById("btnSingleStepMakeStep").disabled = false;
+            document.getElementById("btnSingleStepEnd").disabled = false;
+            _IsSingleStep = true;
+        }
+
+        public static makeSingleStep(btn): void {
+            // Also check out the hostClockPulse function in devices.ts
+            // If we are running a program and in single-step mode, and this button is clicked,
+            // we run a clock pulse.
+            if (_CPU.isExecuting && _IsSingleStep) {
+                Devices.hostClockPulse();
+            // Otherwise, set it back so the CPU executes on clock ticks.
+            } else {
+                _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            }
+        }
+
+        public static endSingleStep(btn): void {
+            document.getElementById("btnSingleStepStart").disabled = false;
+            document.getElementById("btnSingleStepMakeStep").disabled = true;
+            document.getElementById("btnSingleStepEnd").disabled = true;
+            _IsSingleStep = false;
+            // Once we are done with single-step mode, set the CPU to execute on clock ticks.
+            _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
         }
 
         public static getProgramInput(): string[] {

@@ -165,10 +165,6 @@ var TSOS;
             '[': { width: 14, points: [[4, 25], [4, -7], [-1, -1], [5, 25], [5, -7], [-1, -1], [4, 25], [11, 25], [-1, -1], [4, -7], [11, -7]] },
             '\\': { width: 14, points: [[0, 21], [14, -3]] },
             ']': { width: 14, points: [[9, 25], [9, -7], [-1, -1], [10, 25], [10, -7], [-1, -1], [3, 25], [10, 25], [-1, -1], [3, -7], [10, -7]] },
-            //'^': { width: 16, points: [[6,15],[8,18],[10,15],[-1,-1],[3,12],[8,17],[13,12],[-1,-1],[8,17],[8,0]] },
-            // I literally don't know how this happened. The above line was drawing an up-arrow instead of a caret.
-            // Alan's code is the below line. Anthony Barranco's code is the below line. How was it not only wrong,
-            // but the correct random numbers to draw a legitimate up-arrow and not nonsense? Kill me please.
             '^': { width: 16, points: [[2, 10], [8, 18], [14, 10]] },
             '_': { width: 16, points: [[0, -2], [16, -2]] },
             '`': { width: 10, points: [[6, 21], [5, 20], [4, 18], [4, 16], [5, 15], [6, 16], [5, 17]] },
