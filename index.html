@@ -92,8 +92,8 @@
                       id  ="taHostLog"
                       rows="26"
                       cols="48"
-                      style="background-color: #909993;"
-                    ></textarea>
+                      style="background-color: #909993;">
+            </textarea>
         </label>
     </div>
 
@@ -110,28 +110,38 @@
         </label>
     </div>
 
-    <div id="divMemoryDisplay" style="height: 300px; overflow-y: auto; margin-left: 780px; margin-top: -500px;">
-        <table id="tableMemory">
-        </table>
+    <div id="divMemoryDisplay" style="height: 338px; width: 230px; overflow-y: auto; margin-left: 800px; margin-top: -500px;">
+        <label>
+            Memory (Scrollable)
+            <br>
+            <table id="tableMemory" style="background-color: #909993;">
+            </table>
+        </label>
     </div>
 
-    <div id="divCPUComponentsDisplay" style="margin-left: 780px; margin-top: 4px;">
-        <table id="tableCPUComponents">
-            <tr style="text-align: center;">
-                <th>PC</th>
-                <th>Accum</th>
-                <th>X-Reg</th>
-                <th>Y-Reg</th>
-                <th>Z-Flag</th>
-            </tr>
-            <tr style="text-align: center;">
-                <td id="tdPC"></td>
-                <td id="tdAccum"></td>
-                <td id="tdXReg"></td>
-                <td id="tdYReg"></td>
-                <td id="tdZFlag"></td>
-            </tr>
-        </table>
+    <div id="divCPUComponentsDisplay" style="width: 250px; margin-left: 800px; margin-top: 20px;">
+
+        <label>
+            CPU Information
+            <br>
+            <table id="tableCPUComponents" style="background-color: #909993;">
+                <tr style="text-align: center;">
+                    <th>PC</th>
+                    <th>Accum</th>
+                    <th>X-Reg</th>
+                    <th>Y-Reg</th>
+                    <th>Z-Flag</th>
+                </tr>
+                <tr style="text-align: center;">
+                    <td id="tdPC"></td>
+                    <td id="tdAccum"></td>
+                    <td id="tdXReg"></td>
+                    <td id="tdYReg"></td>
+                    <td id="tdZFlag"></td>
+                </tr>
+            </table>
+        </label>
+
     </div>
 </div>
 
