@@ -160,9 +160,14 @@ module TSOS {
             document.getElementById("btnSingleStepStart").disabled = false;
             document.getElementById("btnSingleStepMakeStep").disabled = true;
             document.getElementById("btnSingleStepEnd").disabled = true;
+            this.changeSingleStepStatusVisibility("none");
             _IsSingleStep = false;
             // Once we are done with single-step mode, set the CPU to execute on clock ticks.
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+        }
+
+        public static changeSingleStepStatusVisibility(param): void {
+            document.getElementById("divSingleStepStatus").style.display = param;
         }
 
         public static getProgramInput(): string[] {

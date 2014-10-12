@@ -35,6 +35,12 @@ module TSOS {
             // on clock ticks. Now we only call hostClockPulse when we click the 'Make Step' button.
             if (_CPU.isExecuting && _IsSingleStep) {
                 clearInterval(_hardwareClockID);
+                Control.changeSingleStepStatusVisibility("block");
+            }
+
+            // Don't bother showing the status message if we are not running a program.
+            if (!_CPU.isExecuting) {
+                Control.changeSingleStepStatusVisibility("none");
             }
 
             // Increment the hardware (host) clock.
