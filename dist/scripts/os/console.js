@@ -219,6 +219,35 @@ var TSOS;
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             }
         };
+
+        Console.prototype.handleSysCallIrq = function (params) {
+            var currXReg = params[0];
+            var currYReg = params[1];
+
+            if (currXReg == 1) {
+                this.putText("" + currYReg);
+                this.advanceLine();
+                _OsShell.putPrompt();
+            } else if (currXReg == 2) {
+                var outputStr = "";
+                var currOutputChar = "";
+                var movablePC = currYReg;
+                var currByte = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, movablePC);
+
+                while (currByte != 0) {
+                    currOutputChar = String.fromCharCode(currByte);
+                    outputStr += currOutputChar;
+                    movablePC++;
+                    currByte = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, movablePC);
+                }
+
+                this.putText(outputStr);
+                this.advanceLine();
+                _OsShell.putPrompt();
+            } else {
+                this.putText("Invalid system call.");
+            }
+        };
         return Console;
     })();
     TSOS.Console = Console;

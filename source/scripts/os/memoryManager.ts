@@ -33,12 +33,16 @@ module TSOS {
             }
         }
 
-        public getMemoryFromLocation(blockNum, loc): string {
-            return _Memory.getMemBlock(blockNum)[loc];
+        public getMemoryFromLocation(blockNum, loc): any {
+            var memBeforeParse = _Memory.getMemBlock(blockNum)[loc];
+            if (Utils.isNaNOverride(memBeforeParse)) {
+                return memBeforeParse;
+            } else {
+                return parseInt(memBeforeParse);
+            }
         }
 
         public updateMemoryAtLocation(blockNum, loc, newCode): void {
-            debugger;
             var newCodeHex = Utils.decNumToHexStr(newCode);
             var currBlock = _Memory.getMemBlock(blockNum);
             if (newCodeHex.length < 2)

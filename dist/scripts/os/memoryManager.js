@@ -28,11 +28,15 @@ var TSOS;
         };
 
         MemoryManager.prototype.getMemoryFromLocation = function (blockNum, loc) {
-            return _Memory.getMemBlock(blockNum)[loc];
+            var memBeforeParse = _Memory.getMemBlock(blockNum)[loc];
+            if (TSOS.Utils.isNaNOverride(memBeforeParse)) {
+                return memBeforeParse;
+            } else {
+                return parseInt(memBeforeParse);
+            }
         };
 
         MemoryManager.prototype.updateMemoryAtLocation = function (blockNum, loc, newCode) {
-            debugger;
             var newCodeHex = TSOS.Utils.decNumToHexStr(newCode);
             var currBlock = _Memory.getMemBlock(blockNum);
             if (newCodeHex.length < 2)

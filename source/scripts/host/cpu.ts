@@ -39,7 +39,6 @@ module TSOS {
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
 
-            var command = _Memory.getMemBlock(_CurrBlockOfMem)[this.PC];
             var command = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC);
 
             switch (command) {
@@ -79,10 +78,6 @@ module TSOS {
                     this.noOp();
                     break;
 
-                case "00":
-                    this.breakCall();
-                    break;
-
                 case "EC":
                     this.compareToX();
                     break;
@@ -97,6 +92,10 @@ module TSOS {
 
                 case "FF":
                     this.sysCall();
+                    break;
+
+                case "00" || 0:
+                    this.breakCall();
                     break;
             }
 
@@ -131,102 +130,113 @@ module TSOS {
         // Functions for each opcode
         //
 
-        // load constant (next value) into accumulator
+        // Load constant into accumulator
         private loadConstIntoAcc(): void {
             this.Acc = this.getNextByte();
             this.PC += 1;
         }
 
-        // load accumulator from memory (from location denoted by next 2 values)
+        // Load accumulator from memory
         private loadAccFromMem(): void {
             var location = this.getNextTwoBytesAndCombine();
             this.Acc = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         }
 
-        // Store accumulator into memory (to location denoted by next 2 values)
+        // Store accumulator into memory
         private storeAccIntoMem(): void {
             var location = this.getNextTwoBytesAndCombine();
             _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
         }
 
-        // Add contents of memory location (next 2 values) to accumulator, store back in accumulator
+        // Add contents of memory location to accumulator, store into accumulator
         private addAndStoreIntoAcc(): void {
-
+            var location = this.getNextTwoBytesAndCombine();
+            this.Acc += _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         }
 
-        // Load constant (next value) into x-reg
+        // Load constant into x-reg
         private loadConstIntoX(): void {
             this.Xreg = this.getNextByte();
             this.PC += 1;
         }
 
-        // Load x-reg from memory (location denoted by next 2 values)
+        // Load x-reg from memory
         private loadXFromMem(): void {
-
+            var location = this.getNextTwoBytesAndCombine();
+            this.Xreg = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         }
 
-        // Load constant (next value) into y-register
+        // Load constant into y-reg
         private loadConstIntoY(): void {
             this.Yreg = this.getNextByte();
             this.PC += 1;
         }
 
-        // load y-reg from memory (location denoted by next 2 values)
+        // Load y-reg from memory
         private loadYFromMem(): void {
-
+            var location = this.getNextTwoBytesAndCombine();
+            this.Yreg = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
             this.PC += 2;
         }
 
-        // This isn't the instruction you're looking for.
+        // This isn't the instruction you're looking for
         private noOp(): void {
-
+            // http://bit.ly/ZUMW3z
         }
 
-        // break (system call)
+        // Break (system call)
         private breakCall(): void {
             this.isExecuting = false;
             this.finishRunningProgram();
         }
 
-        // compare contents of memory (denoted by next 2 values) to x-reg
-        // set z-flag to true if equal
+        // Compare contents of memory to x-reg
+        // Set z-flag to 1 if equal (because they're not not-equal)
         private compareToX(): void {
+            var location = this.getNextTwoBytesAndCombine();
+            var memValue = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
 
+            this.Zflag = (memValue == this.Xreg) ? 1 : 0;
             this.PC += 2;
         }
 
-        // branch x bytes if z-flag == 0 (x is next value)
+        // Branch x bytes if z-flag == 0 (x is next value)
         private branchNotEqual(): void {
             if (this.Zflag == 0) {
-                //var branchSpanDec = Utils.hexStrToDecStr(this.getNextByte());
-                // Does the number represent a negative shift, or does it already force it to be a wrap-around
-                // positive shift?
-                //this.PC =
+                var branchSpan = this.getNextTwoBytesAndCombine();
+                this.PC = 255 - branchSpan;
             }
         }
 
-        // increment the next value by 1
+        // Increment the next value by one
         private increment(): void {
-            // Put 'value' back into memory
+            var incrValue = 1 + this.getNextByte();
+            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, this.PC + 1, incrValue);
             this.PC += 1;
         }
 
-        // system call
-        // if x-reg has a 1, print y-reg value
-        // if x-reg has a 2, print string that's in y-reg (it's null-term'd)
+        // System call:
+        // If x-reg has a 1, print y-reg value
+        // If x-reg has a 2, print string that begins at the mem location in y-reg (it's null-term'd)
         private sysCall(): void {
+            var params = new Array(this.Xreg, this.Yreg);
+            _KernelInterruptQueue.enqueue(new Interrupt(PROG_SYSCALL_IRQ, params));
 
         }
 
+        //
+        // Other functions to manipulate CPU data and miscellany tasks
+        //
+
         public updateCPUElements(): void {
-            TSOS.Control.setCPUElementByID("tdPC",    this.PC);
+            TSOS.Control.setCPUElementByID("tdPC", this.PC);
             TSOS.Control.setCPUElementByID("tdAccum", this.Acc);
-            TSOS.Control.setCPUElementByID("tdXReg",  this.Xreg);
-            TSOS.Control.setCPUElementByID("tdYReg",  this.Yreg);
+            TSOS.Control.setCPUElementByID("tdXReg", this.Xreg);
+            TSOS.Control.setCPUElementByID("tdYReg", this.Yreg);
             TSOS.Control.setCPUElementByID("tdZFlag", this.Zflag);
         }
 
@@ -246,8 +256,8 @@ module TSOS {
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;
-            _CurrPCB.YReg = this.Yreg;
-            _CurrPCB.ZFlag = this.Zflag;
+            _CurrPCB.Yreg = this.Yreg;
+            _CurrPCB.Zflag = this.Zflag;
             _CurrPCB.printPCB();
             _RunningPID = -1;
             _CurrBlockOfMem = -1;

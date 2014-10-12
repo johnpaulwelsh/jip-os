@@ -77,11 +77,13 @@ module TSOS {
                that it has to look for interrupts and process them if it finds any.                           */
 
             // Check for an interrupt, are any. Page 560
+
             if (_KernelInterruptQueue.getSize() > 0) {
                 // Process the first interrupt on the interrupt queue.
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
+
 
             // If there are no interrupts then run one CPU cycle if there is anything being processed.
             } else if (_CPU.isExecuting) {
@@ -128,6 +130,9 @@ module TSOS {
                 case KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params);   // Kernel mode device driver
                     _StdIn.handleInput();
+                    break;
+                case PROG_SYSCALL_IRQ:
+                    _StdIn.handleSysCallIrq(params);
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

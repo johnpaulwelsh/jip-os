@@ -7,17 +7,17 @@ module TSOS {
         PID: number;
         PC: number;
         Accum: number;
-        XReg: number;
-        YReg: number;
-        ZFlag: number;
+        Xreg: number;
+        Yreg: number;
+        Zflag: number;
 
         constructor() {
             this.PID   = _PID++;
             this.PC    = 0;
             this.Accum = 0;
-            this.XReg  = 0;
-            this.YReg  = 0;
-            this.ZFlag = 0;
+            this.Xreg  = 0;
+            this.Yreg  = 0;
+            this.Zflag = 0;
         }
 
         public printPCB(): void {
@@ -29,11 +29,11 @@ module TSOS {
             _StdOut.advanceLine();
             _StdOut.putText("Accum = " + this.Accum);
             _StdOut.advanceLine();
-            _StdOut.putText("X-Reg = " + this.XReg);
+            _StdOut.putText("X-Reg = " + this.Xreg);
             _StdOut.advanceLine();
-            _StdOut.putText("Y-Reg = " + this.YReg);
+            _StdOut.putText("Y-Reg = " + this.Yreg);
             _StdOut.advanceLine();
-            _StdOut.putText("Z-Flag = " + this.ZFlag);
+            _StdOut.putText("Z-Flag = " + this.Zflag);
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         }
