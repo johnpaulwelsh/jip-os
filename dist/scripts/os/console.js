@@ -221,8 +221,6 @@ var TSOS;
         };
 
         Console.prototype.handleSysCallIrq = function (params) {
-            debugger;
-
             var currXReg = params[0];
             var currYReg = params[1];
 
@@ -237,6 +235,7 @@ var TSOS;
                 var currByte = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, movablePC);
 
                 while (currByte != 0) {
+                    currByte = TSOS.Utils.hexStrToDecNum(currByte.toString());
                     currOutputChar = String.fromCharCode(currByte);
                     outputStr += currOutputChar;
                     movablePC++;

@@ -245,9 +245,6 @@ module TSOS {
         }
 
         public handleSysCallIrq(params): void {
-
-            debugger;
-
             var currXReg = params[0];
             var currYReg = params[1];
 
@@ -263,6 +260,7 @@ module TSOS {
                 var currByte = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, movablePC);
 
                 while (currByte != 0) {
+                    currByte = Utils.hexStrToDecNum(currByte.toString());
                     currOutputChar = String.fromCharCode(currByte);
                     outputStr += currOutputChar;
                     movablePC++;
