@@ -71,5 +71,23 @@ module TSOS {
 
             return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
         }
+
+        public static hexStrToDecNum(hexStr): number {
+            return parseInt(hexStr, 16);
+        }
+
+        public static decNumToHexStr(decNum): string {
+            return decNum.toString(16);
+        }
+
+        // The regular isNaN function will trigger as false if our opcode has a digit as its
+        // first character, and the opcodes in question all have a 'D' in them as the second character.
+        // We override isNaN so that when it comes across '6D' or '8D', it knows it isn't a number.
+        // We also have a situation where 00 can be a number (for memory) or a string (for the system
+        // call). So we also want to give back 00 as a string by default, and then parseInt on it once
+        // we know it isn't an opcode.
+        public static isNaNOverride(val): boolean {
+            return (val[1] === "D" || val === "00" || isNaN(val));
+        }
     }
 }

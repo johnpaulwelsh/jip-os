@@ -1,37 +1,40 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   <meta name="author"             content="Alan G. Labouseur" />
-   <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
-   <title>
-      jip-os - a browser-based virtual Operating System in TypeScript
-   </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="author"             content="Alan G. Labouseur" />
+    <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
+    <title>
+        jip-os - a browser-based virtual Operating System in TypeScript
+    </title>
 
-   <!-- Globals CONSTANTS and _Variables. Must included be first. -->
-   <script type="text/javascript" src="dist/scripts/globals.js"></script>
+    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <script type="text/javascript" src="dist/scripts/globals.js"></script>
 
-   <!-- Host (Hardware Simulation) Routines -->
-   <script type="text/javascript" src="dist/scripts/host/control.js"></script>
-   <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
-   <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+    <!-- Host (Hardware Simulation) Routines -->
+    <script type="text/javascript" src="dist/scripts/host/control.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
 
-   <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
-   <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/console.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
+    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+    <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/console.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
 
-   <!-- Other Routines -->
-   <script type="text/javascript" src="dist/scripts/utils.js"></script>
-   <!-- Uncomment this line below to enable Glados testing -->
-   <!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
+    <!-- Other Routines -->
+    <script type="text/javascript" src="dist/scripts/utils.js"></script>
+    <!-- Uncomment this line below to enable Glados testing -->
+    <!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
 </head>
 
 <body onload="onDocumentLoad();">
@@ -41,30 +44,62 @@
 
     <div id="divButtonBar" style="margin:4px;">
         <input type="button"
-             id = "btnStartOS"
-             name="brnStartOS"
-             class="normal_button"
-             value="Start"
-             tabindex="0"
-             onclick="TSOS.Control.hostBtnStartOS_click(this);">
+               id = "btnStartOS"
+               name="brnStartOS"
+               class="normal_button"
+               value="Start"
+               tabindex="0"
+               onclick="TSOS.Control.hostBtnStartOS_click(this);">
 
         <input type="button"
-             id = "btnHaltOS"
-             name="brnHaltOS"
-             class="normal_button"
-             disabled="disabled"
-             value="Halt"
-             tabindex="1"
-             onclick="TSOS.Control.hostBtnHaltOS_click(this);">
+               id = "btnHaltOS"
+               name="brnHaltOS"
+               class="normal_button"
+               disabled="disabled"
+               value="Halt"
+               tabindex="1"
+               onclick="TSOS.Control.hostBtnHaltOS_click(this);">
 
         <input type="button"
-             id = "btnReset"
-             name="brnReset"
-             class="normal_button"
-             disabled="disabled"
-             value="Reset"
-             tabindex="2"
-             onclick="TSOS.Control.hostBtnReset_click(this);">
+               id = "btnReset"
+               name="brnReset"
+               class="normal_button"
+               disabled="disabled"
+               value="Reset"
+               tabindex="2"
+               onclick="TSOS.Control.hostBtnReset_click(this);">
+
+        <input type="button"
+                id="btnSingleStepStart"
+                name="btnSingleStepStart"
+                class="normal_button"
+                disabled="disabled"
+                value="Start Single Step"
+                tabindex="3"
+                onclick="TSOS.Control.startSingleStep(this);">
+
+        <input type="button"
+               id="btnSingleStepMakeStep"
+               name="btnSingleStepMakeStep"
+               class="normal_button"
+               disabled="disabled"
+               value="Make Step"
+               tabindex="4"
+               onclick="TSOS.Control.makeSingleStep(this);">
+
+        <input type="button"
+               id="btnSingleStepEnd"
+               name="btnSingleStepEnd"
+               class="normal_button"
+               disabled="disabled"
+               value="End Single Step"
+               tabindex="5"
+               onclick="TSOS.Control.endSingleStep(this);">
+
+        <div id="divSingleStepStatus"
+             style="background-color: #909993; display: none;">
+            Single-Step Mode is active. Click 'Make Step' to continue.
+        </div>
     </div>
 
     <div id="divStatusBar" style="margin: 4px; width: 500px; height: 15px; margin-top: 5px;">
@@ -73,48 +108,82 @@
         </label>
     </div>
 
-    <div id="divConsole" style="margin:4px; width:518px; height:500px; float:left; overflow-x:hidden; overflow-y:auto;">
+    <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
         <canvas id="display"
-              width="500px"
-              height="490px"
-              tabindex="3">
+                width="500px"
+                height="500px"
+                tabindex="6">
         </canvas>
     </div>
 
     <div id="divLog" style="margin-left:520px;">
         <label>
-         Host Log
-         <br>
-         <textarea name="taHostLog"
-                   id  ="taHostLog"
-                   rows="26"
-                   cols="48"
-                   style="background-color: #909993;"
-                 ></textarea>
-      </label>
+            Host Log
+            <br>
+            <textarea name="taHostLog"
+                      id  ="taHostLog"
+                      rows="26"
+                      cols="48"
+                      style="background-color: #909993;">
+            </textarea>
+        </label>
     </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
-      <label>
-         User Program Input
-         <br>
-         <textarea name="taProgramInput"
-                   id  ="taProgramInput"
-                   rows="8"
-                   cols="48"
-                   style="background-color: #909993;"
-         ></textarea>
-      </label>
-   </div>
+    <div id="divUserProgramInput" style="margin-left:520px;">
+        <label>
+            User Program Input
+            <br>
+            <textarea name="taProgramInput"
+                      id  ="taProgramInput"
+                      rows="8"
+                      cols="48"
+                      style="background-color: #909993;">
+            </textarea>
+        </label>
+    </div>
 
+    <div id="divMemoryDisplay" style="height: 338px; width: 230px; overflow-y: auto; margin-left: 800px; margin-top: -500px;">
+        <label>
+            Memory (Scrollable)
+            <br>
+            <table id="tableMemory" style="background-color: #909993;">
+            </table>
+        </label>
+    </div>
+
+    <div id="divCPUComponentsDisplay" style="width: 250px; margin-left: 800px; margin-top: 20px;">
+
+        <label>
+            CPU Information
+            <br>
+            <table id="tableCPUComponents" style="background-color: #909993;">
+                <tr style="text-align: center;">
+                    <th>PC</th>
+                    <th>Accum</th>
+                    <th>X-Reg</th>
+                    <th>Y-Reg</th>
+                    <th>Z-Flag</th>
+                </tr>
+                <tr style="text-align: center;">
+                    <td id="tdPC"></td>
+                    <td id="tdAccum"></td>
+                    <td id="tdXReg"></td>
+                    <td id="tdYReg"></td>
+                    <td id="tdZFlag"></td>
+                </tr>
+            </table>
+        </label>
+
+    </div>
 </div>
 
 <p class="footerText" style="clear:both;">
-   <br>
-   Copyright &copy; 2008 - 2014 No Rights Reserved.
-   <br>
-   Reproduction is prohibited without the express written consent of
-   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+    <br>
+    Copyright &copy; 2008 - 2014 No Rights Reserved.
+    <br>
+    Reproduction is prohibited without the express written consent of
+    Ted Codd, Stevie Ray Vaughan, Ian Fleming, and George Lucas. Actually,
+    we can just skip George Lucas.
 </p>
 
 </body>

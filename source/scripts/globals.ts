@@ -21,6 +21,8 @@ var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interr
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
 
+var PROG_SYSCALL_IRQ: number = 2;
+
 
 //
 // Global Variables
@@ -73,6 +75,25 @@ var _CanvasHeight: number = null;
 // For keeping track of command history...
 var _CommandHistory: string[] = [];
 var _CommandHistPointer: number = 0;
+
+// For loading and running programs...
+var _PID: number = 0;
+// In which block of memory is the program we are currently running? Set to -1 when not running a program.
+var _CurrBlockOfMem: number = -1;
+var _CurrPCB: any = null;
+var _RunningPID: number = -1;
+
+var _Memory: any = null; // the Memory object
+var _MemTable: any = null; // the HTML table that displays memory
+var _MemMan: any = null; // the Memory Manager object
+
+var _ResidentQueue: any = null;
+
+// To allow single-step program execution...
+var _IsSingleStep = false;
+
+// For line wrap...
+var _StringCutoffLength = 40;
 
 var onDocumentLoad = function() {
 	TSOS.Control.hostInit();

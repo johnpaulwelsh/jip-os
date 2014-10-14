@@ -30,7 +30,9 @@ var TSOS;
             _DrawingContext = _Canvas.getContext('2d');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            TSOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
+            // Text functionality is now built in to the HTML5 canvas.
+            // But this is old-school, and fun.
+            TSOS.CanvasTextFunctions.enable(_DrawingContext);
 
             // I'm sorry Alan, I don't know why the compiler yells at me for this.
             // It still outputs correct JS, so I assumed it was because _DrawingContext was never
@@ -80,6 +82,7 @@ var TSOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnSingleStepStart").disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -98,6 +101,19 @@ var TSOS;
             var wrapper = document.getElementById("divConsole");
             wrapper.scrollTop = wrapper.scrollHeight;
             _CanvasHeight = document.getElementById("display").clientHeight;
+
+            // Initializes some memory.
+            // The first parameter will change from 1 to 3 for iProject 3.
+            _Memory = new TSOS.Memory(1, 256);
+
+            // Creates a memory manager.
+            _MemMan = new TSOS.MemoryManager();
+
+            // Sets the CPU display table to all zeroes.
+            this.resetCPUElementsInHTML();
+
+            // Create the HTML table to show the contents of memory.
+            this.generateMemoryTable(1);
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -120,6 +136,40 @@ var TSOS;
             // page from its cache, which is not what we want.
         };
 
+        Control.startSingleStep = function (btn) {
+            document.getElementById("btnSingleStepStart").disabled = true;
+            document.getElementById("btnSingleStepMakeStep").disabled = false;
+            document.getElementById("btnSingleStepEnd").disabled = false;
+            _IsSingleStep = true;
+        };
+
+        Control.makeSingleStep = function (btn) {
+            // Also check out the hostClockPulse function in devices.ts
+            // If we are running a program and in single-step mode, and this button is clicked,
+            // we run a clock pulse.
+            if (_CPU.isExecuting && _IsSingleStep) {
+                TSOS.Devices.hostClockPulse();
+                // Otherwise, set it back so the CPU executes on clock ticks.
+            } else {
+                _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            }
+        };
+
+        Control.endSingleStep = function (btn) {
+            document.getElementById("btnSingleStepStart").disabled = false;
+            document.getElementById("btnSingleStepMakeStep").disabled = true;
+            document.getElementById("btnSingleStepEnd").disabled = true;
+            this.changeSingleStepStatusVisibility("none");
+            _IsSingleStep = false;
+
+            // Once we are done with single-step mode, set the CPU to execute on clock ticks.
+            _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+        };
+
+        Control.changeSingleStepStatusVisibility = function (param) {
+            document.getElementById("divSingleStepStatus").style.display = param;
+        };
+
         Control.getProgramInput = function () {
             return document.getElementById("taProgramInput").value.trim().split(" ");
         };
@@ -133,22 +183,72 @@ var TSOS;
             _StdOut.bsodReset();
         };
 
-        Control.increaseCanvasHeight = function () {
-            // Get the div surrounding the canvas.
-            var wrapper = document.getElementById("divConsole");
-
+        Control.scrollCanvas = function (console) {
             // Get the current state of the canvas as an image and save it into an Image object.
             var currCanvasContent = new Image();
             currCanvasContent.src = _Canvas.toDataURL("content/png");
 
-            // Increase the height of the canvas, thus wiping its content.
-            _Canvas.height += 100;
+            // Wipe the canvas.
+            console.clearScreen();
 
-            // Draw the old canvas back onto the new canvas.
-            _DrawingContext.drawImage(currCanvasContent, 0, 0);
+            // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
+            var clipY = _DefaultFontSize + _FontHeightMargin;
+            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 500, 0, 0, 500, 500); // width, height
+        };
 
-            // Focus the bottom of the div, so we rest at the bottom of the canvas at all times.
-            wrapper.scrollTop = wrapper.scrollHeight;
+        // Sets all the CPU elements to 0.
+        Control.resetCPUElementsInHTML = function () {
+            document.getElementById("tdPC").innerHTML = "0";
+            document.getElementById("tdAccum").innerHTML = "0";
+            document.getElementById("tdXReg").innerHTML = "0";
+            document.getElementById("tdYReg").innerHTML = "0";
+            document.getElementById("tdZFlag").innerHTML = "0";
+        };
+
+        // Sets all memory elements to 0.
+        Control.resetMemory = function () {
+            _Memory.clearMem();
+        };
+
+        // Used to build the table that displays memory, because I sure wasn't going to
+        // hard-code 96 rows of a table.
+        Control.generateMemoryTable = function (segments) {
+            _MemTable = document.getElementById("tableMemory");
+
+            for (var i = 0; i < segments; i++) {
+                for (var j = 0; j < 32; j++) {
+                    var tr = document.createElement("tr");
+                    _MemTable.appendChild(tr);
+
+                    for (var k = 0; k < 8; k++) {
+                        var td = document.createElement("td");
+
+                        // Put the contents of each unit of memory into the td.
+                        //                        td.innerHTML = _Memory.getMemBlock(i)[j];
+                        td.innerHTML = "00";
+                        tr.appendChild(td);
+                    }
+                }
+            }
+        };
+
+        Control.updateMemTableAtLoc = function (tableRow, tableCel, newCode) {
+            _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        };
+
+        // TODO: fix how segments are handled; we only have one for now so it doesn't break anything
+        Control.emptyFullMemTable = function (segments) {
+            for (var i = 0; i < segments; i++) {
+                for (var j = 0; j < 32; j++) {
+                    for (var k = 0; k < 8; k++) {
+                        this.updateMemTableAtLoc(j, k, "00");
+                    }
+                }
+            }
+        };
+
+        Control.setCPUElementByID = function (id, value) {
+            document.getElementById(id).innerHTML = value;
         };
         return Control;
     })();
