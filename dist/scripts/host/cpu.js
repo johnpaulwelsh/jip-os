@@ -93,12 +93,25 @@ var TSOS;
                 case "00" || 0:
                     this.breakCall();
                     break;
+
+                default:
+                    var numCommand = TSOS.Utils.hexStrToDecNum(command);
+                    var params = new Array(numCommand, 0);
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_INVALID_OPCODE_IRQ, params));
+                    break;
             }
 
             this.updateCPUElements();
 
-            // We don't want this to happen after we do an FF command
+            // Increment the program counter when the program is still executing...
             if (this.isExecuting) {
+                //// ...and the command isn't a branch...
+                //if (command !== "D0") {
+                //    this.PC++;
+                //// ... or it's a failed branch...
+                //} else if (command === "D0" && this.Zflag !== 0) {
+                //    this.PC++;
+                //}
                 this.PC++;
             }
         };
@@ -125,19 +138,22 @@ var TSOS;
         //
         // Load constant into accumulator
         Cpu.prototype.loadConstIntoAcc = function () {
+            _Kernel.krnTrace("load const into acc");
             this.Acc = this.getNextByte();
             this.PC += 1;
         };
 
         // Load accumulator from memory
         Cpu.prototype.loadAccFromMem = function () {
+            _Kernel.krnTrace("load acc from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            this.Acc = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
             this.PC += 2;
         };
 
         // Store accumulator into memory
         Cpu.prototype.storeAccIntoMem = function () {
+            _Kernel.krnTrace("store acc into mem");
             var location = this.getNextTwoBytesAndCombine();
             _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
             this.PC += 2;
@@ -145,44 +161,51 @@ var TSOS;
 
         // Add contents of memory location to accumulator, store into accumulator
         Cpu.prototype.addAndStoreIntoAcc = function () {
+            _Kernel.krnTrace("add and store into mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc += _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            this.Acc += parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
             this.PC += 2;
         };
 
         // Load constant into x-reg
         Cpu.prototype.loadConstIntoX = function () {
+            _Kernel.krnTrace("load const into x");
             this.Xreg = this.getNextByte();
             this.PC += 1;
         };
 
         // Load x-reg from memory
         Cpu.prototype.loadXFromMem = function () {
+            _Kernel.krnTrace("load x from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Xreg = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            this.Xreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
             this.PC += 2;
         };
 
         // Load constant into y-reg
         Cpu.prototype.loadConstIntoY = function () {
+            _Kernel.krnTrace("load const into y");
             this.Yreg = this.getNextByte();
             this.PC += 1;
         };
 
         // Load y-reg from memory
         Cpu.prototype.loadYFromMem = function () {
+            _Kernel.krnTrace("load y from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Yreg = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            this.Yreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
             this.PC += 2;
         };
 
         // This isn't the instruction you're looking for
         Cpu.prototype.noOp = function () {
+            _Kernel.krnTrace("no-op");
             // http://bit.ly/ZUMW3z
         };
 
         // Break (system call)
         Cpu.prototype.breakCall = function () {
+            _Kernel.krnTrace("break");
             this.isExecuting = false;
             this.finishRunningProgram();
         };
@@ -190,29 +213,39 @@ var TSOS;
         // Compare contents of memory to x-reg
         // Set z-flag to 1 if equal
         Cpu.prototype.compareToX = function () {
+            _Kernel.krnTrace("compare to");
             var location = this.getNextTwoBytesAndCombine();
-            var memValue = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
-            this.Zflag = (memValue == this.Xreg) ? 1 : 0;
+            var memValue = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+            this.Zflag = (memValue === this.Xreg) ? 1 : 0;
             this.PC += 2;
         };
 
         // If z-flag is 0, branch forward the number of bytes represented by the next byte's hex value
         Cpu.prototype.branchNotEqual = function () {
-            if (this.Zflag == 0) {
+            _Kernel.krnTrace("branch not equal");
+            if (this.Zflag === 0) {
                 var branchSpan = this.getNextByte();
-                this.PC = (this.PC + branchSpan) % 255;
+
+                // Move past the byte that told us our jump amount. (But not too far, since we're gonna
+                // PC++ at the end of every command.)
+                this.PC += 1;
+
+                // Then branch.
+                this.PC = this.PC + branchSpan;
+                if (this.PC >= 256) {
+                    this.PC = this.PC - 256;
+                }
             } else {
-                // If the z-flag was 1, then we fall into the next command. But we need to skip over
-                // the byte that represented how far we would branch if we had to, so we do another
-                // incrementation of the PC.
+                // Skip over the next byte.
                 this.PC++;
             }
         };
 
         // Increment the next value by one
         Cpu.prototype.increment = function () {
+            _Kernel.krnTrace("increment");
             var location = this.getNextTwoBytesAndCombine();
-            var value = 1 + _MemMan.getMemoryFromLocation(_CurrBlockOfMem, location);
+            var value = 1 + parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
             _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
             this.PC += 2;
         };
@@ -221,6 +254,7 @@ var TSOS;
         // If x-reg has a 1, print y-reg value
         // If x-reg has a 2, print string that begins at the mem location in y-reg (it's null-term'd)
         Cpu.prototype.sysCall = function () {
+            _Kernel.krnTrace("system call");
             var params = new Array(this.Xreg, this.Yreg);
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_SYSCALL_IRQ, params));
         };
@@ -249,6 +283,7 @@ var TSOS;
         // print the PCB, and reset the two globals that specified which program was running
         // and which block of memory it was in.
         Cpu.prototype.finishRunningProgram = function () {
+            _StdOut.advanceLine();
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;

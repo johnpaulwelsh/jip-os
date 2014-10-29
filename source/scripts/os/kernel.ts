@@ -124,14 +124,21 @@ module TSOS {
             //       Maybe the hardware simulation will grow to support/require that in the future.
             switch (irq) {
                 case TIMER_IRQ:
-                    this.krnTimerISR();              // Kernel built-in routine for timers (not the clock).
+                    // Kernel built-in routine for timers (not the clock).
+                    this.krnTimerISR();
                     break;
                 case KEYBOARD_IRQ:
-                    _krnKeyboardDriver.isr(params);   // Kernel mode device driver
+                    // Kernel mode device driver
+                    _krnKeyboardDriver.isr(params);
                     _StdIn.handleInput();
                     break;
                 case PROG_SYSCALL_IRQ:
                     _StdIn.handleSysCallIrq(params);
+                    break;
+                case PROG_INVALID_OPCODE_IRQ:
+                    debugger;
+                    _StdIn.handleInvalidOpcodeIrq(params);
+                    _CPU.finishRunningProgram();
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

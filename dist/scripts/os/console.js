@@ -223,8 +223,8 @@ var TSOS;
 
             if (currXReg == 1) {
                 this.putText("" + currYReg);
-                this.advanceLine();
-                _OsShell.putPrompt();
+                //this.advanceLine();
+                //_OsShell.putPrompt();
             } else if (currXReg == 2) {
                 var outputStr = "";
                 var currOutputChar = "";
@@ -240,11 +240,16 @@ var TSOS;
                 }
 
                 this.putText(outputStr);
-                this.advanceLine();
-                _OsShell.putPrompt();
+                //this.advanceLine();
+                //_OsShell.putPrompt();
             } else {
                 this.putText("Invalid system call.");
             }
+        };
+
+        Console.prototype.handleInvalidOpcodeIrq = function (params) {
+            this.putText("Invalid op code: " + TSOS.Utils.decNumToHexStr(params[0]) + ". Terminating program.");
+            _CPU.isExecuting = false;
         };
         return Console;
     })();

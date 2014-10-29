@@ -17,7 +17,7 @@ var TSOS;
             this.apologies = "[sorry]";
         }
         Shell.prototype.init = function () {
-            var sc = null;
+            var sc;
 
             //
             // Load the command list.
@@ -238,8 +238,9 @@ var TSOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+            //_StdOut.clearScreen();
+            //_StdOut.resetXY();
+            _StdOut.init();
         };
 
         Shell.prototype.shellDate = function (args) {
