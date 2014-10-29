@@ -18,14 +18,14 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
-        public dingo;
+        public dingo; // This is extremely important. Trust me.
 
         constructor() {
 
         }
 
         public init() {
-            var sc = null;
+            var sc: TSOS.ShellCommand;
             //
             // Load the command list.
 
@@ -267,8 +267,9 @@ module TSOS {
         }
 
         public shellCls(args) {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+            //_StdOut.clearScreen();
+            //_StdOut.resetXY();
+            _StdOut.init();
         }
 
         public shellDate(args) {

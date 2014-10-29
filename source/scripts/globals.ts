@@ -20,9 +20,8 @@ var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 10
 var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
-
 var PROG_SYSCALL_IRQ: number = 2;
-
+var PROG_INVALID_OPCODE_IRQ: number = 3;
 
 //
 // Global Variables
@@ -44,13 +43,13 @@ var _Trace: boolean = true;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;
-var _KernelInterruptQueue = null;
+var _KernelInterruptQueue: TSOS.Queue = null;
 var _KernelBuffers: any[] = null;
-var _KernelInputQueue = null;
+var _KernelInputQueue: TSOS.Queue = null;
 
 // Standard input and output
-var _StdIn  = null;
-var _StdOut = null;
+var _StdIn: TSOS.Console  = null;
+var _StdOut: TSOS.Console = null;
 
 // UI
 var _Console: TSOS.Console;
@@ -60,7 +59,7 @@ var _OsShell: TSOS.Shell;
 var _SarcasticMode: boolean = false;
 
 // Global Device Driver Objects - page 12
-var _krnKeyboardDriver = null;
+var _krnKeyboardDriver: TSOS.DeviceDriverKeyboard = null;
 
 var _hardwareClockID: number = null;
 
