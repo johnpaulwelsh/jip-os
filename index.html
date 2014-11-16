@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <meta name="author"             content="Alan G. Labouseur" />
+    <meta name="author"             content="Alan G. Labouseur and John Paul Welsg" />
     <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
     <title>
         jip-os - a browser-based virtual Operating System in TypeScript
@@ -24,12 +24,13 @@
     <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
     <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
     <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
     <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/scheduler.js"></script>
     <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
     <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
     <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
-    <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
 
     <!-- Other Routines -->
     <script type="text/javascript" src="dist/scripts/utils.js"></script>
@@ -58,7 +59,7 @@
                disabled="disabled"
                value="Halt"
                tabindex="1"
-               onclick="TSOS.Control.hostBtnHaltOS_click(this);">
+               onclick="TSOS.Control.hostBtnHaltOS_click();">
 
         <input type="button"
                id = "btnReset"
@@ -67,7 +68,7 @@
                disabled="disabled"
                value="Reset"
                tabindex="2"
-               onclick="TSOS.Control.hostBtnReset_click(this);">
+               onclick="TSOS.Control.hostBtnReset_click();">
 
         <input type="button"
                 id="btnSingleStepStart"
@@ -76,7 +77,7 @@
                 disabled="disabled"
                 value="Start Single Step"
                 tabindex="3"
-                onclick="TSOS.Control.startSingleStep(this);">
+                onclick="TSOS.Control.startSingleStep();">
 
         <input type="button"
                id="btnSingleStepMakeStep"
@@ -85,7 +86,7 @@
                disabled="disabled"
                value="Make Step"
                tabindex="4"
-               onclick="TSOS.Control.makeSingleStep(this);">
+               onclick="TSOS.Control.makeSingleStep();">
 
         <input type="button"
                id="btnSingleStepEnd"
@@ -94,7 +95,7 @@
                disabled="disabled"
                value="End Single Step"
                tabindex="5"
-               onclick="TSOS.Control.endSingleStep(this);">
+               onclick="TSOS.Control.endSingleStep();">
 
         <div id="divSingleStepStatus"
              style="background-color: #909993; display: none;">

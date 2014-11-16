@@ -1,4 +1,3 @@
-///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -91,7 +90,7 @@ var TSOS;
 
                     var commList = _OsShell.commandList;
 
-                    for (var i in commList) {
+                    for (var i = 0; i < commList.length; i++) {
                         var c = commList[i].command;
 
                         if (regex.test(c)) {
@@ -104,7 +103,7 @@ var TSOS;
                     if (matchingComms.length > 1) {
                         this.advanceLine();
                         var suggestion = "Did you mean:   ";
-                        for (var comm in matchingComms) {
+                        for (var comm = 0; comm < matchingComms.length; comm++) {
                             suggestion += matchingComms[comm] + "   ";
                         }
                         this.putText(suggestion);
@@ -223,8 +222,6 @@ var TSOS;
 
             if (currXReg == 1) {
                 this.putText("" + currYReg);
-                //this.advanceLine();
-                //_OsShell.putPrompt();
             } else if (currXReg == 2) {
                 var outputStr = "";
                 var currOutputChar = "";
@@ -240,8 +237,6 @@ var TSOS;
                 }
 
                 this.putText(outputStr);
-                //this.advanceLine();
-                //_OsShell.putPrompt();
             } else {
                 this.putText("Invalid system call.");
             }

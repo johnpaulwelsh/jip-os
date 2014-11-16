@@ -1,5 +1,3 @@
-///<reference path="../globals.ts" />
-
 /* ------------
      Console.ts
 
@@ -71,7 +69,7 @@ module TSOS {
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal"
                 // (anything else that the keyboard device driver gave us).
-                if (chr === String.fromCharCode(13)) { //     Enter key
+                if (chr === String.fromCharCode(13)) { // Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
@@ -83,11 +81,11 @@ module TSOS {
                     // ... and reset our buffer.
                     this.buffer = "";
 
-                } else if (chr === String.fromCharCode(8)) { //   Backspace key
+                } else if (chr === String.fromCharCode(8)) { // Backspace key
 
                     this.clearCharacter();
 
-                } else if (chr === String.fromCharCode(9)) { //    Tab key
+                } else if (chr === String.fromCharCode(9)) { // Tab key
 
                     var commSoFar = this.buffer;
                     var regex = new RegExp("^" + commSoFar + "[A-Za-z]+");
@@ -95,7 +93,7 @@ module TSOS {
 
                     var commList = _OsShell.commandList;
 
-                    for (var i in commList) {
+                    for (var i = 0; i < commList.length; i++) {
                         var c = commList[i].command;
 
                         if (regex.test(c)) {
@@ -108,7 +106,7 @@ module TSOS {
                     if (matchingComms.length > 1) {
                         this.advanceLine();
                         var suggestion = "Did you mean:   ";
-                        for (var comm in matchingComms) {
+                        for (var comm = 0; comm < matchingComms.length; comm++) {
                             suggestion += matchingComms[comm] + "   ";
                         }
                         this.putText(suggestion);
@@ -124,7 +122,7 @@ module TSOS {
 
                     this.putText(this.buffer);
 
-                } else if (chr === "uparrow") { //   Up arrow key
+                } else if (chr === "uparrow") { // Up arrow key
 
                     this.clearLine();
 
@@ -144,7 +142,7 @@ module TSOS {
 
                     this.putText(this.buffer);
 
-                } else if (chr === "downarrow") { //  Down arrow key
+                } else if (chr === "downarrow") { // Down arrow key
 
                     this.clearLine();
 
@@ -245,8 +243,6 @@ module TSOS {
 
             if (currXReg == 1) {
                 this.putText("" + currYReg);
-                //this.advanceLine();
-                //_OsShell.putPrompt();
 
             } else if (currXReg == 2) {
                 var outputStr = "";
@@ -263,8 +259,6 @@ module TSOS {
                 }
 
                 this.putText(outputStr);
-                //this.advanceLine();
-                //_OsShell.putPrompt();
 
             } else {
                 this.putText("Invalid system call.");

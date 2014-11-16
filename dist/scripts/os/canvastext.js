@@ -11,6 +11,9 @@
 *  - added semi-colon.
 *
 * Port to TypeScript by Bob Nisco.
+*
+* Modifications by Jacob Leach.
+*  - fixed caret.
 * ----------------- */
 var TSOS;
 (function (TSOS) {

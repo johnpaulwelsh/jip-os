@@ -9,7 +9,7 @@ var TSOS;
 (function (TSOS) {
     var Queue = (function () {
         function Queue(q) {
-            if (typeof q === "undefined") { q = new Array(); }
+            if (typeof q === "undefined") { q = []; }
             this.q = q;
         }
         Queue.prototype.getSize = function () {
@@ -30,6 +30,32 @@ var TSOS;
                 retVal = this.q.shift();
             }
             return retVal;
+        };
+
+        Queue.prototype.findPCB = function (PID) {
+            var idx = -1;
+            for (var i = 0; i < this.q.length; i++) {
+                if (this.q[i].PID === PID)
+                    idx = i;
+            }
+
+            if (idx !== -1)
+                return this.q[idx];
+            else
+                return null;
+        };
+
+        Queue.prototype.findAndRemovePCB = function (PID) {
+            var idx = -1;
+            for (var i = 0; i < this.q.length; i++) {
+                if (this.q[i].PID === PID)
+                    idx = i;
+            }
+
+            if (idx !== -1)
+                return this.q.splice(idx, 1);
+            else
+                return null;
         };
 
         Queue.prototype.toString = function () {

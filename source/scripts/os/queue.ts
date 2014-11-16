@@ -10,7 +10,8 @@
 
 module TSOS {
     export class Queue {
-        constructor(public q = new Array()) {
+
+        constructor(public q = []) {
 
         }
 
@@ -32,6 +33,32 @@ module TSOS {
                 retVal = this.q.shift();
             }
             return retVal;
+        }
+
+        public findPCB(PID): any {
+            var idx = -1;
+            for (var i = 0; i < this.q.length; i++) {
+                if (this.q[i].PID === PID)
+                    idx = i;
+            }
+
+            if (idx !== -1)
+                return this.q[idx];
+            else
+                return null;
+        }
+
+        public findAndRemovePCB(PID): any {
+            var idx = -1;
+            for (var i = 0; i < this.q.length; i++) {
+                if (this.q[i].PID === PID)
+                    idx = i;
+            }
+
+            if (idx !== -1)
+                return this.q.splice(idx, 1);
+            else
+                return null;
         }
 
         public toString() {

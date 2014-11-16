@@ -1,4 +1,3 @@
-///<reference path="../globals.ts" />
 /* ------------
 CPU.ts
 Requires global.ts.
@@ -96,7 +95,7 @@ var TSOS;
 
                 default:
                     var numCommand = TSOS.Utils.hexStrToDecNum(command);
-                    var params = new Array(numCommand, 0);
+                    var params = [numCommand, 0];
                     _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_INVALID_OPCODE_IRQ, params));
                     break;
             }
@@ -105,13 +104,6 @@ var TSOS;
 
             // Increment the program counter when the program is still executing...
             if (this.isExecuting) {
-                //// ...and the command isn't a branch...
-                //if (command !== "D0") {
-                //    this.PC++;
-                //// ... or it's a failed branch...
-                //} else if (command === "D0" && this.Zflag !== 0) {
-                //    this.PC++;
-                //}
                 this.PC++;
             }
         };
@@ -255,7 +247,7 @@ var TSOS;
         // If x-reg has a 2, print string that begins at the mem location in y-reg (it's null-term'd)
         Cpu.prototype.sysCall = function () {
             _Kernel.krnTrace("system call");
-            var params = new Array(this.Xreg, this.Yreg);
+            var params = [this.Xreg, this.Yreg];
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_SYSCALL_IRQ, params));
         };
 

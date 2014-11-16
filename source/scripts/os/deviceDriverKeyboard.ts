@@ -1,5 +1,3 @@
-///<reference path="deviceDriver.ts" />
-
 /* ----------------------------------
    DeviceDriverKeyboard.ts
 

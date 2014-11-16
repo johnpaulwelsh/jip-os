@@ -80,11 +80,12 @@ var TSOS;
         };
 
         // The regular isNaN function will trigger as false if our opcode has a digit as its
-        // first character, and the opcodes in question all have a 'D' in them as the second character.
+        // first character, and those opcodes that do all have a 'D' in them as the second character.
         // We override isNaN so that when it comes across '6D' or '8D', it knows it isn't a number.
         // We also have a situation where 00 can be a number (for memory) or a string (for the system
         // call). So we also want to give back 00 as a string by default, and then parseInt on it once
-        // we know it isn't an opcode.
+        // we know it isn't an opcode. We also parseInt on the outside, to make sure that 00 is a number
+        // exactly when we need it to be.
         Utils.isNaNOverride = function (val) {
             return (val[1] === "D" || val === "00" || isNaN(val));
         };

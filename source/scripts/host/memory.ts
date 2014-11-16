@@ -1,5 +1,5 @@
 /**
- * Created by JP on 10/8/14.
+ * Created by John Paul Welsh on 10/8/14.
  */
 
 module TSOS {
@@ -31,6 +31,13 @@ module TSOS {
         public clearMem(): void {
             this.initializeMemBlocks(this.memBlockSize);
             Control.emptyFullMemTable(this.memBlocks.length);
+        }
+
+        public clearBlock(block): void {
+            var b = this.memBlocks[block];
+            for (var i = 0; i < b.length; i++) {
+                b[i] = "00";
+            }
         }
 
         public isEmpty(): boolean {

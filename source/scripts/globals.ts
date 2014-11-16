@@ -17,11 +17,20 @@ var APP_VERSION: string = "0.28";     // I like the number 28.
 
 var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
+// Software interrupt codes
 var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
 var PROG_SYSCALL_IRQ: number = 2;
 var PROG_INVALID_OPCODE_IRQ: number = 3;
+var CONTEXT_SWITCH_IRQ: number = 4;
+
+// Scheduling alrogithms
+var ROUND_ROBIN: number = 0;
+var FCFS: number = 1;
+var PRIORITY: number = 2;
+
+var SEGMENT_COUNT = 3;
 
 //
 // Global Variables
@@ -80,13 +89,19 @@ var _PID: number = 0;
 // In which block of memory is the program we are currently running? Set to -1 when not running a program.
 var _CurrBlockOfMem: number = -1;
 var _CurrPCB: any = null;
-var _RunningPID: number = -1;
+var _RunningPID: number = -1; // TODO: maybe unnecessary
 
 var _Memory: any = null; // the Memory object
 var _MemTable: any = null; // the HTML table that displays memory
 var _MemMan: any = null; // the Memory Manager object
 
+// The CPU Scheduler..
+var _Scheduler: any = null;
+
+// Program Queues...
 var _ResidentQueue: any = null;
+var _ReadyQueue: any = null;
+var _CompletedQueue: any = null;
 
 // To allow single-step program execution...
 var _IsSingleStep = false;

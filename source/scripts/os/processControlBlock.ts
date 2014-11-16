@@ -10,14 +10,22 @@ module TSOS {
         Xreg: number;
         Yreg: number;
         Zflag: number;
+        BaseReg: number;
+        LimitReg: number;
+        MemBlock: number;
+        State: string;
 
-        constructor() {
-            this.PID   = _PID++;
-            this.PC    = 0;
-            this.Accum = 0;
-            this.Xreg  = 0;
-            this.Yreg  = 0;
-            this.Zflag = 0;
+        constructor(mb) {
+            this.PID      = _PID++;
+            this.PC       = 0;
+            this.Accum    = 0;
+            this.Xreg     = 0;
+            this.Yreg     = 0;
+            this.Zflag    = 0;
+            this.MemBlock = mb;
+            this.BaseReg  = mb * 256;
+            this.LimitReg = this.BaseReg + 255;
+            this.State    = "New";
         }
 
         public printPCB(): void {
@@ -34,6 +42,10 @@ module TSOS {
             _StdOut.putText("Y-Reg = " + this.Yreg);
             _StdOut.advanceLine();
             _StdOut.putText("Z-Flag = " + this.Zflag);
+            _StdOut.advanceLine();
+            _StdOut.putText("Base reg = " + this.BaseReg);
+            _StdOut.advanceLine();
+            _StdOut.putText("Limit reg = " + this.LimitReg);
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         }
