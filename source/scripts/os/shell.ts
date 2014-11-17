@@ -4,8 +4,6 @@
    The OS Shell - The "command line interface" (CLI) for the console.
    ------------ */
 
-// TODO: Write a base class / prototype for system services and let Shell inherit from it.
-
 module TSOS {
     export class Shell {
         // Properties
@@ -13,8 +11,6 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
-
-        public dingo; // This is extremely important. Trust me.
 
         constructor() {
 
@@ -147,8 +143,9 @@ module TSOS {
             //
             // Parse the input...
             //
-            var userCommand = new UserCommand();
-            userCommand = this.parseInput(buffer);
+            var userCommand: TSOS.UserCommand = this.parseInput(buffer);
+            //var userCommand = new UserCommand();
+            //userCommand = this.parseInput(buffer);
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
             var args = userCommand.args;
@@ -156,7 +153,7 @@ module TSOS {
             // Determine the command and execute it.
             //
             // JavaScript may not support associative arrays in all browsers so we have to
-            // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
+            // iterate over the command list in attempt to find a match.
             var index = 0;
             var found = false;
             var fn = undefined;
@@ -172,9 +169,9 @@ module TSOS {
                 this.execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
+                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) { // Check for curses.
                     this.execute(this.shellCurse);
-                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {    // Check for apologies. {
+                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) { // Check for apologies.
                     this.execute(this.shellApology);
                 } else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
@@ -216,7 +213,7 @@ module TSOS {
             retVal.command = cmd;
 
             // 5. Now create the args array from what's left.
-            for (var i in tempList) {
+            for (var i = 0; i < tempList.length; i++) {
                 var arg = Utils.trim(tempList[i]);
                 if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
@@ -335,7 +332,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         public shellHelp() {
             _StdOut.putText("Commands:");
-            for (var i in _OsShell.commandList) {
+            for (var i = 0; i < _OsShell.commandList.length; i++) {
                 _StdOut.advanceLine();
                 _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
@@ -351,7 +348,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 var allValid = true;
 
                 // Loop over each one...
-                for (var i in _ProgInput) {
+                for (var i = 0; i < _ProgInput.length; i++) {
                     var hex = _ProgInput[i];
 
                     // ...checking whether the regex for a valid hex code matches.
@@ -437,15 +434,17 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         public shellRun(args) {
             if (args.length > 0) {
 
-                if (_Memory.isEmpty()) {
-                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
-                } else {
-                    // Puts all resident PCBs into Ready Queue...
+                if (!_Memory.isEmpty()) {
+
+                    // Puts the Resident PCB into the Ready Queue...
                     _Scheduler.residentToReady(args[0]);
                     // ...sets the CPU to isExecuting...
                     _CPU.isExecuting = true;
                     // ...and sets the currently running PID to the one we just ran.
                     _RunningPID = parseInt(args[0]);
+
+                } else {
+                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
                 }
 
             } else {
@@ -454,17 +453,24 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         }
 
         public shellRunAll() {
-            if (!_ResidentQueue.isEmpty())
+            if (!_ResidentQueue.isEmpty()) {
+
+                // Puts all Resident PCBs into the Ready Queue...
                 _Scheduler.residentToReadyAll();
-            else
+                // ...sets the CPU to isExecuting...
+                _CPU.isExecuting = true;
+                // ...and sets the currently running PID to the first program in the queue.
+                _RunningPID = _ReadyQueue.peek().PID;
+
+            } else {
                 _StdOut.putText("No programs in the Resident Queue.");
+            }
         }
 
         public shellShutdown() {
             _StdOut.putText("Shutting down...");
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
         public shellStatus(args) {

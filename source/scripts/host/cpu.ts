@@ -32,7 +32,6 @@ module TSOS {
 
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
-            // TODO: Accumulate CPU usage and profiling statistics here.
 
             var command = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC);
 
@@ -102,9 +101,19 @@ module TSOS {
 
             this.updateCPUElements();
 
-            // Increment the program counter when the program is still executing...
-            if (this.isExecuting) {
+            // Increment the program counter when the program is still executing.
+            if (this.isExecuting)
                 this.PC++;
+
+            _Scheduler.CycleCount++;
+
+            // If we have run this program for the amount of cycles that the quantum tells us
+            // (or the running program finishes early)...
+            if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
+                // Schdule an interrupt for a context switch.
+                var params: number[] = [];
+                // dingo
+                _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, params));
             }
         }
 
@@ -274,17 +283,25 @@ module TSOS {
             this.isExecuting = false;
         }
 
-        // Once we are done running a program, we save the CPU's registers into the PCB,
-        // print the PCB, and reset the two globals that specified which program was running
-        // and which block of memory it was in.
-        public finishRunningProgram(): void {
-            _StdOut.advanceLine();
+        public updatePCBWithCurrentCPU(): void {
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;
             _CurrPCB.Yreg = this.Yreg;
             _CurrPCB.Zflag = this.Zflag;
+        }
+
+        // Once we are done running a program, we save the CPU's registers into the PCB,
+        // print the PCB, and reset the two globals that specified which program was running
+        // and which block of memory it was in.
+        public finishRunningProgram(): void {
+            _StdOut.advanceLine();
+            this.updatePCBWithCurrentCPU();
             _CurrPCB.printPCB();
+            // TODO: THIS THING
+
+            _Scheduler.readyToCompleted();
+
             _RunningPID = -1;
             _CurrBlockOfMem = -1;
         }

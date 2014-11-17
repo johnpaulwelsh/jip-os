@@ -14,6 +14,7 @@ module TSOS {
         LimitReg: number;
         MemBlock: number;
         State: string;
+        isFinished: boolean;
 
         constructor(mb) {
             this.PID      = _PID++;
@@ -26,6 +27,7 @@ module TSOS {
             this.BaseReg  = mb * 256;
             this.LimitReg = this.BaseReg + 255;
             this.State    = "New";
+            this.isFinished = false;
         }
 
         public printPCB(): void {

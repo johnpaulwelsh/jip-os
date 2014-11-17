@@ -15,6 +15,7 @@ var TSOS;
             this.BaseReg = mb * 256;
             this.LimitReg = this.BaseReg + 255;
             this.State = "New";
+            this.isFinished = false;
         }
         ProcessControlBlock.prototype.printPCB = function () {
             _StdOut.putText("Process Control Block");

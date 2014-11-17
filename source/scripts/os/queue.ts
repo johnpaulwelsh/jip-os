@@ -27,12 +27,16 @@ module TSOS {
             this.q.push(element);
         }
 
-        public dequeue() {
+        public dequeue(): any {
             var retVal = null;
             if (this.q.length > 0) {
                 retVal = this.q.shift();
             }
             return retVal;
+        }
+
+        public peek(): any {
+            return this.q[0];
         }
 
         public findPCB(PID): any {

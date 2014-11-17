@@ -32,6 +32,10 @@ var TSOS;
             return retVal;
         };
 
+        Queue.prototype.peek = function () {
+            return this.q[0];
+        };
+
         Queue.prototype.findPCB = function (PID) {
             var idx = -1;
             for (var i = 0; i < this.q.length; i++) {

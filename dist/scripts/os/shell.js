@@ -2,7 +2,6 @@
 Shell.ts
 The OS Shell - The "command line interface" (CLI) for the console.
 ------------ */
-// TODO: Write a base class / prototype for system services and let Shell inherit from it.
 var TSOS;
 (function (TSOS) {
     var Shell = (function () {
@@ -105,9 +104,10 @@ var TSOS;
             //
             // Parse the input...
             //
-            var userCommand = new TSOS.UserCommand();
-            userCommand = this.parseInput(buffer);
+            var userCommand = this.parseInput(buffer);
 
+            //var userCommand = new UserCommand();
+            //userCommand = this.parseInput(buffer);
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
             var args = userCommand.args;
@@ -116,7 +116,7 @@ var TSOS;
             // Determine the command and execute it.
             //
             // JavaScript may not support associative arrays in all browsers so we have to
-            // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
+            // iterate over the command list in attempt to find a match.
             var index = 0;
             var found = false;
             var fn = undefined;
@@ -180,7 +180,7 @@ var TSOS;
             // 4.2 Record it in the return value.
             retVal.command = cmd;
 
-            for (var i in tempList) {
+            for (var i = 0; i < tempList.length; i++) {
                 var arg = TSOS.Utils.trim(tempList[i]);
                 if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
@@ -297,7 +297,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellHelp = function () {
             _StdOut.putText("Commands:");
-            for (var i in _OsShell.commandList) {
+            for (var i = 0; i < _OsShell.commandList.length; i++) {
                 _StdOut.advanceLine();
                 _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
@@ -312,7 +312,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             if (_ProgInput.length > 0 && _ProgInput[0] != "") {
                 var allValid = true;
 
-                for (var i in _ProgInput) {
+                for (var i = 0; i < _ProgInput.length; i++) {
                     var hex = _ProgInput[i];
 
                     // ...checking whether the regex for a valid hex code matches.
@@ -399,10 +399,8 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellRun = function (args) {
             if (args.length > 0) {
-                if (_Memory.isEmpty()) {
-                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
-                } else {
-                    // Puts all resident PCBs into Ready Queue...
+                if (!_Memory.isEmpty()) {
+                    // Puts the Resident PCB into the Ready Queue...
                     _Scheduler.residentToReady(args[0]);
 
                     // ...sets the CPU to isExecuting...
@@ -410,6 +408,8 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
                     // ...and sets the currently running PID to the one we just ran.
                     _RunningPID = parseInt(args[0]);
+                } else {
+                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
                 }
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
@@ -417,10 +417,18 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         };
 
         Shell.prototype.shellRunAll = function () {
-            if (!_ResidentQueue.isEmpty())
+            if (!_ResidentQueue.isEmpty()) {
+                // Puts all Resident PCBs into the Ready Queue...
                 _Scheduler.residentToReadyAll();
-            else
+
+                // ...sets the CPU to isExecuting...
+                _CPU.isExecuting = true;
+
+                // ...and sets the currently running PID to the first program in the queue.
+                _RunningPID = _ReadyQueue.peek().PID;
+            } else {
                 _StdOut.putText("No programs in the Resident Queue.");
+            }
         };
 
         Shell.prototype.shellShutdown = function () {
@@ -428,7 +436,6 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         };
 
         Shell.prototype.shellStatus = function (args) {
