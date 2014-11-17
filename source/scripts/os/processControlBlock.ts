@@ -30,6 +30,10 @@ module TSOS {
             this.isFinished = false;
         }
 
+        public getMemBlock(): number {
+            return this.MemBlock;
+        }
+
         public printPCB(): void {
             _StdOut.putText("Process Control Block");
             _StdOut.advanceLine();

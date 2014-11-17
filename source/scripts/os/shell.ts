@@ -363,7 +363,6 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
                     // If we still have space in memory...
                     if (_MemMan.nextFreeBlock !== -1) {
-                        debugger;
                         // Make a new PCB...
                         var pcb = new ProcessControlBlock(_MemMan.nextFreeBlock);
                         // ...put it in the Resident Queue...
@@ -440,8 +439,11 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                     _Scheduler.residentToReady(args[0]);
                     // ...sets the CPU to isExecuting...
                     _CPU.isExecuting = true;
-                    // ...and sets the currently running PID to the one we just ran.
+                    // ...and sets the currently running PID (and memory block)
+                    // to the one we were just commanded to run.
                     _RunningPID = parseInt(args[0]);
+                    _CurrPCB = _ReadyQueue.peek();
+                    _CurrBlockOfMem = _CurrPCB.getMemBlock();
 
                 } else {
                     _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
@@ -459,8 +461,11 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 _Scheduler.residentToReadyAll();
                 // ...sets the CPU to isExecuting...
                 _CPU.isExecuting = true;
-                // ...and sets the currently running PID to the first program in the queue.
-                _RunningPID = _ReadyQueue.peek().PID;
+                // ...and sets the currently running PID (and memory block)
+                // to the first program in the queue.
+                _CurrPCB = _ReadyQueue.peek();
+                _RunningPID = _CurrPCB.PID;
+                _CurrBlockOfMem = _CurrPCB.getMemBlock();
 
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");

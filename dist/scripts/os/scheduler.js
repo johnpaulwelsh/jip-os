@@ -75,10 +75,9 @@ var TSOS;
 
         Scheduler.prototype.residentToReady = function (PID) {
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
-
-            //pcb.State = "Ready";
+            pcb.State = "Ready";
             _ReadyQueue.enqueue(pcb);
-            pcb.State = "Running";
+            //pcb.State = "Running";
         };
 
         Scheduler.prototype.residentToReadyAll = function () {

@@ -112,8 +112,6 @@ var TSOS;
             if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
                 // Schdule an interrupt for a context switch.
                 var params = [];
-
-                // dingo
                 _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, params));
             }
         };

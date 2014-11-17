@@ -33,33 +33,35 @@ var TSOS;
         };
 
         Queue.prototype.peek = function () {
+            var x = this.q[0];
             return this.q[0];
         };
 
         Queue.prototype.findPCB = function (PID) {
             var idx = -1;
             for (var i = 0; i < this.q.length; i++) {
-                if (this.q[i].PID === PID)
+                if (this.q[i].PID == parseInt(PID))
                     idx = i;
             }
 
             if (idx !== -1)
                 return this.q[idx];
             else
-                return null;
+                return undefined;
         };
 
         Queue.prototype.findAndRemovePCB = function (PID) {
             var idx = -1;
             for (var i = 0; i < this.q.length; i++) {
-                if (this.q[i].PID === PID)
+                if (this.q[i].PID == parseInt(PID))
                     idx = i;
             }
 
-            if (idx !== -1)
-                return this.q.splice(idx, 1);
-            else
-                return null;
+            if (idx !== -1) {
+                var listOfOne = this.q.splice(idx, 1);
+                return listOfOne[0];
+            } else
+                return undefined;
         };
 
         Queue.prototype.toString = function () {

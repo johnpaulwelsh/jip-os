@@ -36,33 +36,36 @@ module TSOS {
         }
 
         public peek(): any {
+            var x = this.q[0];
             return this.q[0];
         }
 
         public findPCB(PID): any {
             var idx = -1;
             for (var i = 0; i < this.q.length; i++) {
-                if (this.q[i].PID === PID)
+                if (this.q[i].PID == parseInt(PID))
                     idx = i;
             }
 
             if (idx !== -1)
                 return this.q[idx];
             else
-                return null;
+                return undefined;
         }
 
         public findAndRemovePCB(PID): any {
             var idx = -1;
             for (var i = 0; i < this.q.length; i++) {
-                if (this.q[i].PID === PID)
+                if (this.q[i].PID == parseInt(PID))
                     idx = i;
             }
 
-            if (idx !== -1)
-                return this.q.splice(idx, 1);
+            if (idx !== -1) {
+                var listOfOne = this.q.splice(idx, 1);
+                return listOfOne[0];
+            }
             else
-                return null;
+                return undefined;
         }
 
         public toString() {

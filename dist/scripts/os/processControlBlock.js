@@ -17,6 +17,10 @@ var TSOS;
             this.State = "New";
             this.isFinished = false;
         }
+        ProcessControlBlock.prototype.getMemBlock = function () {
+            return this.MemBlock;
+        };
+
         ProcessControlBlock.prototype.printPCB = function () {
             _StdOut.putText("Process Control Block");
             _StdOut.advanceLine();
