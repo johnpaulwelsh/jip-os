@@ -31,6 +31,7 @@ var FCFS: number = 1;
 var PRIORITY: number = 2;
 
 var SEGMENT_COUNT = 3;
+var SEGMENT_SIZE = 256;
 
 //
 // Global Variables

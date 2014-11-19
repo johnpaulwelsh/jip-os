@@ -122,17 +122,47 @@ module TSOS {
 
         // Gives back the value that's at the next position in memory as a decimal number.
         private getNextByte(): number {
-            var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
-            return Utils.hexStrToDecNum(nextByteAsHex);
+            if (this.PC + 1 < SEGMENT_SIZE) {
+                var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+                return Utils.hexStrToDecNum(nextByteAsHex);
+
+            // We have exceeded the bounds for our space in memory, so get outta here.
+            } else {
+                this.isExecuting = false;
+                this.finishRunningProgram();
+                _Kernel.krnTrace("Invalid Memory Access: PC = " + this.PC);
+                return -1;
+            }
         }
 
 
         // The values at the next two positions in memory, swapped and combined, is a memory location
         // represented in hex. This returns that location as a decimal number.
         private getNextTwoBytesAndCombine(): number {
-            var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
-            var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
-            return Utils.hexStrToDecNum(byteTwo + byteOne); // swapped b/c of little-endian-ness
+
+            if (this.PC + 2 < SEGMENT_SIZE && this.PC >= 0) {
+                var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+                var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
+                var combined = Utils.hexStrToDecNum(byteTwo + byteOne); // swapped b/c of little-endian-ness
+
+                if (combined < SEGMENT_SIZE && combined >= 0) {
+                    return combined;
+
+                // We have exceeded the bounds for our space in memory, so get outta here.
+                } else {
+                    this.isExecuting = false;
+                    this.finishRunningProgram();
+                    _Kernel.krnTrace("Invalid Memory Access: location " + combined);
+                    return -1;
+                }
+
+            // We have exceeded the bounds for our space in memory, so get outta here.
+            } else {
+                this.isExecuting = false;
+                this.finishRunningProgram();
+                _Kernel.krnTrace("Invalid Memory Access: PC = " + this.PC);
+                return -1;
+            }
         }
 
         //
@@ -151,24 +181,33 @@ module TSOS {
         private loadAccFromMem(): void {
             _Kernel.krnTrace("load acc from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Acc = Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         }
 
         // Store accumulator into memory
         private storeAccIntoMem(): void {
             _Kernel.krnTrace("store acc into mem");
             var location = this.getNextTwoBytesAndCombine();
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
-            this.PC += 2;
+
+            if (location != -1) {
+                _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, Utils.decNumToHexStr(this.Acc));
+                this.PC += 2;
+            }
         }
 
         // Add contents of memory location to accumulator, store into accumulator
         private addAndStoreIntoAcc(): void {
             _Kernel.krnTrace("add and store into mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc += parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Acc += parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         }
 
         // Load constant into x-reg
@@ -182,8 +221,11 @@ module TSOS {
         private loadXFromMem(): void {
             _Kernel.krnTrace("load x from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Xreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Xreg = Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         }
 
         // Load constant into y-reg
@@ -197,8 +239,11 @@ module TSOS {
         private loadYFromMem(): void {
             _Kernel.krnTrace("load y from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Yreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Yreg = Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         }
 
         // This isn't the instruction you're looking for
@@ -219,9 +264,12 @@ module TSOS {
         private compareToX(): void {
             _Kernel.krnTrace("compare to");
             var location = this.getNextTwoBytesAndCombine();
-            var memValue = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.Zflag = (memValue === this.Xreg) ? 1 : 0;
-            this.PC += 2;
+
+            if (location != -1) {
+                var memValue = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.Zflag = (memValue === this.Xreg) ? 1 : 0;
+                this.PC += 2;
+            }
         }
 
         // If z-flag is 0, branch forward the number of bytes represented by the next byte's hex value
@@ -234,9 +282,17 @@ module TSOS {
                 this.PC += 1;
                 // Then branch.
                 this.PC = this.PC + branchSpan;
-                if (this.PC >= 256) {
-                    this.PC = this.PC - 256;
+
+                if (this.PC >= SEGMENT_SIZE) {
+                    this.PC = this.PC - SEGMENT_SIZE;
                 }
+
+                if (this.PC >= SEGMENT_SIZE) {
+                    this.isExecuting = false;
+                    this.finishRunningProgram();
+                }
+
+
             } else {
                 // Skip over the next byte.
                 this.PC++;
@@ -247,9 +303,12 @@ module TSOS {
         private increment(): void {
             _Kernel.krnTrace("increment");
             var location = this.getNextTwoBytesAndCombine();
-            var value = 1 + parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
-            this.PC += 2;
+
+            if (location != -1) {
+                var value = 1 + Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
+                this.PC += 2;
+            }
         }
 
         // System call:

@@ -105,7 +105,7 @@ module TSOS {
             _CanvasHeight = document.getElementById("display").clientHeight;
 
             // Initializes some memory.
-            _Memory = new TSOS.Memory(SEGMENT_COUNT, 256);
+            _Memory = new TSOS.Memory(SEGMENT_COUNT, SEGMENT_SIZE);
             // Creates a memory manager.
             _MemMan = new TSOS.MemoryManager();
             // Creates a CPU scheduler. Initialize with RR and quantum 6.

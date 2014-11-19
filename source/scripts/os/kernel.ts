@@ -15,7 +15,7 @@ module TSOS {
         //
         // OS Startup and Shutdown Routines
         //
-        public krnBootstrap() {      // Page 8. {
+        public krnBootstrap() {      // Page 8.
             Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
@@ -146,8 +146,10 @@ module TSOS {
         }
 
         public krnTimerISR() {
-            // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
-            // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
+            // TODO The built-in TIMER (not clock) Interrupt Service Routine
+            // TODO (as opposed to an ISR coming from a device driver).
+            // TODO Check multiprogramming parameters and enforce quanta here.
+            // TODO Call the scheduler / context switch here if necessary.
         }
 
         //
