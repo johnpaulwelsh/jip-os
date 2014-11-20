@@ -30,7 +30,7 @@ var TSOS;
                 if (!_CurrPCB.isFinished) {
                     // Move current PCB to the back of the Ready queue.
                     var endingPCB = _ReadyQueue.dequeue();
-                    endingPCB.State = "Waiting";
+                    endingPCB.State = "Ready";
                     _ReadyQueue.enqueue(endingPCB);
                     // ...if it is done, put it into the Completed Queue.
                 } else {
@@ -38,14 +38,14 @@ var TSOS;
                 }
 
                 // Take new first PCB from Ready queue...
-                var nextPCB = _ReadyQueue.peek();
+                _CurrPCB = _ReadyQueue.peek();
 
                 // and update the CPU components from the new PCB.
-                _CurrPCB = nextPCB;
-                _CurrBlockOfMem = nextPCB.MemBlock;
-                nextPCB.State = "Running";
+                _CurrBlockOfMem = _CurrPCB.MemBlock;
+                _CurrPCB.State = "Running";
+                _CPU.updateCPUWithPCBContents();
 
-                _Kernel.krnTrace("Round Robin context switch: running program's PID = " + nextPCB.PID);
+                _Kernel.krnTrace("Round Robin context switch: running program's PID = " + _CurrPCB.PID);
 
                 // The break command from the previously-running command might have
                 // stopped the CPU from executing, so we make it start again here.
@@ -77,6 +77,7 @@ var TSOS;
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
             _ReadyQueue.enqueue(pcb);
+            TSOS.Control.constructReadyQueueTable(_ReadyQueue.peek());
             //pcb.State = "Running";
         };
 
@@ -87,6 +88,7 @@ var TSOS;
                 _ReadyQueue.enqueue(pcb);
             }
             _ReadyQueue.peek().State = "Running";
+            TSOS.Control.constructReadyQueueTable(_ReadyQueue.peek());
         };
 
         Scheduler.prototype.readyToCompleted = function () {

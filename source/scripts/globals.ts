@@ -23,7 +23,8 @@ var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interr
 var KEYBOARD_IRQ: number = 1;
 var PROG_SYSCALL_IRQ: number = 2;
 var PROG_INVALID_OPCODE_IRQ: number = 3;
-var CONTEXT_SWITCH_IRQ: number = 4;
+var MEMORY_VIOLATION_IRQ: number = 4;
+var CONTEXT_SWITCH_IRQ: number = 5;
 
 // Scheduling alrogithms
 var ROUND_ROBIN: number = 0;
@@ -90,7 +91,6 @@ var _PID: number = 0;
 // In which block of memory is the program we are currently running? Set to -1 when not running a program.
 var _CurrBlockOfMem: number = -1;
 var _CurrPCB: any = null;
-var _RunningPID: number = -1; // TODO: maybe unnecessary
 
 var _Memory: any = null; // the Memory object
 var _MemTable: any = null; // the HTML table that displays memory
@@ -102,6 +102,7 @@ var _Scheduler: any = null;
 // Program Queues...
 var _ResidentQueue: any = null;
 var _ReadyQueue: any = null;
+var _ReadyQueueTable: any = null; // the HTML table that displays the Ready Queue
 var _CompletedQueue: any = null;
 
 // To allow single-step program execution...

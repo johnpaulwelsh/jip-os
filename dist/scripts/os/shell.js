@@ -406,7 +406,6 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
                     // ...and sets the currently running PID (and memory block)
                     // to the one we were just commanded to run.
-                    _RunningPID = parseInt(args[0]);
                     _CurrPCB = _ReadyQueue.peek();
                     _CurrBlockOfMem = _CurrPCB.getMemBlock();
                 } else {
@@ -428,7 +427,6 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 // ...and sets the currently running PID (and memory block)
                 // to the first program in the queue.
                 _CurrPCB = _ReadyQueue.peek();
-                _RunningPID = _CurrPCB.PID;
                 _CurrBlockOfMem = _CurrPCB.getMemBlock();
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");

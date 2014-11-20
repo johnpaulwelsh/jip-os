@@ -258,6 +258,83 @@ var TSOS;
         Control.setCPUElementByID = function (id, value) {
             document.getElementById(id).innerHTML = value;
         };
+
+        Control.constructReadyQueueTable = function (pcb) {
+            _ReadyQueueTable = document.getElementById("tableReadyQueue");
+            var row = document.createElement("tr");
+            row.style.textAlign = "center";
+            _ReadyQueueTable.appendChild(row);
+
+            var cellPID = document.createElement("td");
+            row.appendChild(cellPID);
+            cellPID.innerHTML = pcb.PID;
+
+            var cellPC = document.createElement("td");
+            row.appendChild(cellPC);
+            cellPC.innerHTML = pcb.PC;
+
+            var cellAccum = document.createElement("td");
+            row.appendChild(cellAccum);
+            cellAccum.innerHTML = pcb.Accum;
+
+            var cellXReg = document.createElement("td");
+            row.appendChild(cellXReg);
+            cellXReg.innerHTML = pcb.Xreg;
+
+            var cellYReg = document.createElement("td");
+            row.appendChild(cellYReg);
+            cellYReg.innerHTML = pcb.Yreg;
+
+            var cellZFlag = document.createElement("td");
+            row.appendChild(cellZFlag);
+            cellZFlag.innerHTML = pcb.Zflag;
+
+            var cellState = document.createElement("td");
+            row.appendChild(cellState);
+            cellState.innerHTML = pcb.State;
+        };
+
+        Control.updateReadyQueueTable = function () {
+            for (var i = 1; i < _ReadyQueueTable.rows.length; i++) {
+                _ReadyQueueTable.deleteRow(i);
+            }
+
+            for (var i = 0; i < _ReadyQueue.getSize(); i++) {
+                var pcb = _ReadyQueue.q[i];
+
+                var row = document.createElement("tr");
+                row.style.textAlign = "center";
+                _ReadyQueueTable.appendChild(row);
+
+                var cellPID = document.createElement("td");
+                row.appendChild(cellPID);
+                cellPID.innerHTML = pcb.PID;
+
+                var cellPC = document.createElement("td");
+                row.appendChild(cellPC);
+                cellPC.innerHTML = pcb.PC;
+
+                var cellAccum = document.createElement("td");
+                row.appendChild(cellAccum);
+                cellAccum.innerHTML = pcb.Accum;
+
+                var cellXReg = document.createElement("td");
+                row.appendChild(cellXReg);
+                cellXReg.innerHTML = pcb.Xreg;
+
+                var cellYReg = document.createElement("td");
+                row.appendChild(cellYReg);
+                cellYReg.innerHTML = pcb.Yreg;
+
+                var cellZFlag = document.createElement("td");
+                row.appendChild(cellZFlag);
+                cellZFlag.innerHTML = pcb.Zflag;
+
+                var cellState = document.createElement("td");
+                row.appendChild(cellState);
+                cellState.innerHTML = pcb.State;
+            }
+        };
         return Control;
     })();
     TSOS.Control = Control;

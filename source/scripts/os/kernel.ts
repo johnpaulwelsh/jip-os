@@ -137,6 +137,9 @@ module TSOS {
                     _StdIn.handleInvalidOpcodeIrq(params);
                     _CPU.finishRunningProgram();
                     break;
+                case MEMORY_VIOLATION_IRQ:
+                    _CPU.handleMemoryViolation(params);
+                    break;
                 case CONTEXT_SWITCH_IRQ:
                     _Scheduler.contextSwitch();
                     break;

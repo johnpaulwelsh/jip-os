@@ -99,20 +99,25 @@ module TSOS {
                     break;
             }
 
-            this.updateCPUElements();
 
             // Increment the program counter when the program is still executing.
             if (this.isExecuting)
-                this.PC++;
+            this.PC++;
 
-            _Scheduler.CycleCount++;
+            // This could become nulled if we already moved the PCB to the Completed Queue.
+            if (_CurrPCB != null) {
+                this.updatePCBWithCurrentCPU();
+            }
+            Control.updateReadyQueueTable();
+            this.updateCPUElements();
+
+            //_Scheduler.CycleCount++;
 
             // If we have run this program for the amount of cycles that the quantum tells us
             // (or the running program finishes early)...
             if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
                 // Schdule an interrupt for a context switch.
-                var params: number[] = [];
-                _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, params));
+                _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
             }
         }
 
@@ -128,9 +133,7 @@ module TSOS {
 
             // We have exceeded the bounds for our space in memory, so get outta here.
             } else {
-                this.isExecuting = false;
-                this.finishRunningProgram();
-                _Kernel.krnTrace("Invalid Memory Access: PC = " + this.PC);
+                _KernelInterruptQueue.enqueue(new Interrupt(MEMORY_VIOLATION_IRQ, [this.PC+1]));
                 return -1;
             }
         }
@@ -150,17 +153,13 @@ module TSOS {
 
                 // We have exceeded the bounds for our space in memory, so get outta here.
                 } else {
-                    this.isExecuting = false;
-                    this.finishRunningProgram();
-                    _Kernel.krnTrace("Invalid Memory Access: location " + combined);
+                    _KernelInterruptQueue.enqueue(new Interrupt(MEMORY_VIOLATION_IRQ, [combined]));
                     return -1;
                 }
 
             // We have exceeded the bounds for our space in memory, so get outta here.
             } else {
-                this.isExecuting = false;
-                this.finishRunningProgram();
-                _Kernel.krnTrace("Invalid Memory Access: PC = " + this.PC);
+                _KernelInterruptQueue.enqueue(new Interrupt(MEMORY_VIOLATION_IRQ, [this.PC+2]));
                 return -1;
             }
         }
@@ -288,10 +287,8 @@ module TSOS {
                 }
 
                 if (this.PC >= SEGMENT_SIZE) {
-                    this.isExecuting = false;
-                    this.finishRunningProgram();
+                    _KernelInterruptQueue.enqueue(new Interrupt(MEMORY_VIOLATION_IRQ, [this.PC]));
                 }
-
 
             } else {
                 // Skip over the next byte.
@@ -342,26 +339,51 @@ module TSOS {
         }
 
         public updatePCBWithCurrentCPU(): void {
-            _CurrPCB.PC = this.PC;
+            _CurrPCB.PC    = this.PC;
             _CurrPCB.Accum = this.Acc;
-            _CurrPCB.Xreg = this.Xreg;
-            _CurrPCB.Yreg = this.Yreg;
+            _CurrPCB.Xreg  = this.Xreg;
+            _CurrPCB.Yreg  = this.Yreg;
             _CurrPCB.Zflag = this.Zflag;
         }
 
+        public updateCPUWithPCBContents(): void {
+            this.PC    = _CurrPCB.PC;
+            this.Acc   = _CurrPCB.Accum;
+            this.Xreg  = _CurrPCB.Xreg;
+            this.Yreg  = _CurrPCB.Yreg;
+            this.Zflag = _CurrPCB.Zflag;
+        }
+
         // Once we are done running a program, we save the CPU's registers into the PCB,
-        // print the PCB, and reset the two globals that specified which program was running
-        // and which block of memory it was in.
+        // print the PCB, and do one of two things:
+        // either set the current memory block and PCB to the next one in the Ready Queue,
+        // or reset these variables if the queue is empty.
         public finishRunningProgram(): void {
             _StdOut.advanceLine();
             this.updatePCBWithCurrentCPU();
             _CurrPCB.printPCB();
-            // TODO: THIS THING
 
             _Scheduler.readyToCompleted();
 
-            _RunningPID = -1;
-            _CurrBlockOfMem = -1;
+            if (!_ReadyQueue.isEmpty()) {
+                _CurrPCB = _ReadyQueue.dequeue();
+                _CurrBlockOfMem = _CurrPCB.MemBlock;
+                this.updateCPUWithPCBContents();
+
+            } else {
+                _CurrPCB = null;
+                _CurrBlockOfMem = -1;
+                this.isExecuting = false;
+            }
+        }
+
+        // Handles the interrupt caused by a memory-out-of-bounds error.
+        // This will completely halt the programs from running, but will not
+        // empty out the queues.
+        public handleMemoryViolation(params): void {
+            this.finishRunningProgram();
+            this.isExecuting = false;
+            _Kernel.krnTrace("Invalid Memory Access: location = " + params[0]);
         }
     }
 }
