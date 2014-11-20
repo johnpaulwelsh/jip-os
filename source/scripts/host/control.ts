@@ -263,50 +263,18 @@ module TSOS {
             document.getElementById(id).innerHTML = value;
         }
 
-        public static constructReadyQueueTable(pcb): void {
-            _ReadyQueueTable = document.getElementById("tableReadyQueue");
-            var row = document.createElement("tr");
-            row.style.textAlign = "center";
-            _ReadyQueueTable.appendChild(row);
-
-            var cellPID = document.createElement("td");
-            row.appendChild(cellPID);
-            cellPID.innerHTML = pcb.PID;
-
-            var cellPC = document.createElement("td");
-            row.appendChild(cellPC);
-            cellPC.innerHTML = pcb.PC;
-
-            var cellAccum = document.createElement("td");
-            row.appendChild(cellAccum);
-            cellAccum.innerHTML = pcb.Accum;
-
-            var cellXReg = document.createElement("td");
-            row.appendChild(cellXReg);
-            cellXReg.innerHTML = pcb.Xreg;
-
-            var cellYReg = document.createElement("td");
-            row.appendChild(cellYReg);
-            cellYReg.innerHTML = pcb.Yreg;
-
-            var cellZFlag = document.createElement("td");
-            row.appendChild(cellZFlag);
-            cellZFlag.innerHTML = pcb.Zflag;
-
-            var cellState = document.createElement("td");
-            row.appendChild(cellState);
-            cellState.innerHTML = pcb.State;
-        }
-
         public static updateReadyQueueTable(): void {
+            _ReadyQueueTable = document.getElementById("tableReadyQueue");
 
             // Start at 1 because we don't want to delete the first row, with the headers.
-            for (var i = 1; i < _ReadyQueueTable.rows.length; i++) {
-                _ReadyQueueTable.deleteRow(i);
+            //var rowToDelete = 1;
+            while (_ReadyQueueTable.rows.length > 1) {
+                _ReadyQueueTable.deleteRow(1);
+                debugger;
             }
 
-            for (var i = 0; i < _ReadyQueue.getSize(); i++) {
-                var pcb = _ReadyQueue.q[i];
+            for (var j = 0; j < _ReadyQueue.getSize(); j++) {
+                var pcb = _ReadyQueue.q[j];
 
                 var row = document.createElement("tr");
                 row.style.textAlign = "center";

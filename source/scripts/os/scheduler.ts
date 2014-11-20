@@ -30,8 +30,12 @@ module TSOS {
 
         public doRoundRobinCS(): void {
 
+            //debugger;
+
             // If the Ready Queue has more than one PCB in it...
-            if (_ReadyQueue.length > 1) {
+            var readyQueueSize = _ReadyQueue.getSize();
+
+            if (_ReadyQueue.getSize() > 1) {
                 // If it isn't done executing yet...
                 if (!_CurrPCB.isFinished) {
                     // Move current PCB to the back of the Ready queue.
@@ -84,18 +88,18 @@ module TSOS {
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
             _ReadyQueue.enqueue(pcb);
-            Control.constructReadyQueueTable(_ReadyQueue.peek());
+            Control.updateReadyQueueTable();
             //pcb.State = "Running";
         }
 
         public residentToReadyAll(): void {
-            for (var i = 0; i < _ResidentQueue.getSize(); i++) {
+            while (!_ResidentQueue.isEmpty()) {
                 var pcb = _ResidentQueue.dequeue();
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
             _ReadyQueue.peek().State = "Running";
-            Control.constructReadyQueueTable(_ReadyQueue.peek());
+            Control.updateReadyQueueTable();
         }
 
         public readyToCompleted(): void {

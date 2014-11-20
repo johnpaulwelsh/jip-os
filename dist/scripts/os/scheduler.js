@@ -24,8 +24,11 @@ var TSOS;
         };
 
         Scheduler.prototype.doRoundRobinCS = function () {
+            //debugger;
             // If the Ready Queue has more than one PCB in it...
-            if (_ReadyQueue.length > 1) {
+            var readyQueueSize = _ReadyQueue.getSize();
+
+            if (_ReadyQueue.getSize() > 1) {
                 // If it isn't done executing yet...
                 if (!_CurrPCB.isFinished) {
                     // Move current PCB to the back of the Ready queue.
@@ -77,18 +80,18 @@ var TSOS;
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
             _ReadyQueue.enqueue(pcb);
-            TSOS.Control.constructReadyQueueTable(_ReadyQueue.peek());
+            TSOS.Control.updateReadyQueueTable();
             //pcb.State = "Running";
         };
 
         Scheduler.prototype.residentToReadyAll = function () {
-            for (var i = 0; i < _ResidentQueue.getSize(); i++) {
+            while (!_ResidentQueue.isEmpty()) {
                 var pcb = _ResidentQueue.dequeue();
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
             _ReadyQueue.peek().State = "Running";
-            TSOS.Control.constructReadyQueueTable(_ReadyQueue.peek());
+            TSOS.Control.updateReadyQueueTable();
         };
 
         Scheduler.prototype.readyToCompleted = function () {

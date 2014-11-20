@@ -111,11 +111,11 @@ module TSOS {
             Control.updateReadyQueueTable();
             this.updateCPUElements();
 
-            //_Scheduler.CycleCount++;
+            _Scheduler.CycleCount++;
 
             // If we have run this program for the amount of cycles that the quantum tells us
-            // (or the running program finishes early)...
-            if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
+            // (or the running program finishes early)...  || _CurrPCB.isFinished
+            if (_Scheduler.CycleCount >= _Scheduler.Quantum) {
                 // Schdule an interrupt for a context switch.
                 _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
             }
