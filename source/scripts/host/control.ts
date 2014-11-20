@@ -270,7 +270,6 @@ module TSOS {
             //var rowToDelete = 1;
             while (_ReadyQueueTable.rows.length > 1) {
                 _ReadyQueueTable.deleteRow(1);
-                debugger;
             }
 
             for (var j = 0; j < _ReadyQueue.getSize(); j++) {

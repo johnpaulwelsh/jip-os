@@ -99,25 +99,24 @@ var TSOS;
                     break;
             }
 
-            // Increment the program counter when the program is still executing.
-            if (this.isExecuting)
+            // Increment the program counter when the program is still executing,
+            // and when we are switching to another program after one just completed.
+            if (this.isExecuting && command != "00" && command != 0)
                 this.PC++;
 
             // This could become nulled if we already moved the PCB to the Completed Queue.
-            if (_CurrPCB != null) {
+            if (_CurrPCB != null)
                 this.updatePCBWithCurrentCPU();
-            }
+
             TSOS.Control.updateReadyQueueTable();
             this.updateCPUElements();
 
             _Scheduler.CycleCount++;
 
             // If we have run this program for the amount of cycles that the quantum tells us
-            // (or the running program finishes early)...  || _CurrPCB.isFinished
-            if (_Scheduler.CycleCount >= _Scheduler.Quantum) {
-                // Schdule an interrupt for a context switch.
+            // (or the running program finishes early), schedule an interrupt for a context switch.
+            if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
                 _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
-            }
         };
 
         //
@@ -245,7 +244,8 @@ var TSOS;
         // Break (system call)
         Cpu.prototype.breakCall = function () {
             _Kernel.krnTrace("break");
-            this.isExecuting = false;
+            _CurrPCB.State = "Terminated";
+            _CurrPCB.isFinished = true;
             this.finishRunningProgram();
         };
 
@@ -350,6 +350,8 @@ var TSOS;
         // either set the current memory block and PCB to the next one in the Ready Queue,
         // or reset these variables if the queue is empty.
         Cpu.prototype.finishRunningProgram = function () {
+            debugger;
+
             _StdOut.advanceLine();
             this.updatePCBWithCurrentCPU();
             _CurrPCB.printPCB();
@@ -357,9 +359,10 @@ var TSOS;
             _Scheduler.readyToCompleted();
 
             if (!_ReadyQueue.isEmpty()) {
-                _CurrPCB = _ReadyQueue.dequeue();
+                _CurrPCB = _ReadyQueue.peek();
                 _CurrBlockOfMem = _CurrPCB.MemBlock;
                 this.updateCPUWithPCBContents();
+                _Scheduler.CycleCount = 0;
             } else {
                 _CurrPCB = null;
                 _CurrBlockOfMem = -1;
