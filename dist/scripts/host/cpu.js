@@ -115,8 +115,10 @@ var TSOS;
 
             // If we have run this program for the amount of cycles that the quantum tells us
             // (or the running program finishes early), schedule an interrupt for a context switch.
-            if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+            if (_CurrPCB != null) {
+                if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+            }
         };
 
         //
@@ -350,12 +352,11 @@ var TSOS;
         // either set the current memory block and PCB to the next one in the Ready Queue,
         // or reset these variables if the queue is empty.
         Cpu.prototype.finishRunningProgram = function () {
-            debugger;
-
             _StdOut.advanceLine();
+            _OsShell.putPrompt();
             this.updatePCBWithCurrentCPU();
-            _CurrPCB.printPCB();
 
+            //_CurrPCB.printPCB();
             _Scheduler.readyToCompleted();
 
             if (!_ReadyQueue.isEmpty()) {

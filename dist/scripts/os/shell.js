@@ -397,7 +397,9 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellRun = function (args) {
             if (args.length > 0) {
-                if (!_Memory.isEmpty()) {
+                if (!_ResidentQueue.isEmpty()) {
+                    _CPU.resetCPUElements();
+
                     // Puts the Resident PCB into the Ready Queue...
                     _Scheduler.residentToReady(args[0]);
 
@@ -409,7 +411,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                     _CurrPCB = _ReadyQueue.peek();
                     _CurrBlockOfMem = _CurrPCB.getMemBlock();
                 } else {
-                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
+                    _StdOut.putText("No programs in the Resident Queue.");
                 }
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");

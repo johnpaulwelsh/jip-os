@@ -25,8 +25,6 @@ var TSOS;
 
         Scheduler.prototype.doRoundRobinCS = function () {
             // If the Ready Queue has more than one PCB in it...
-            var readyQueueSize = _ReadyQueue.getSize();
-
             if (_ReadyQueue.getSize() > 1) {
                 // If it isn't done executing yet...
                 if (!_CurrPCB.isFinished) {
@@ -97,6 +95,7 @@ var TSOS;
             var pcb = _ReadyQueue.dequeue();
             pcb.State = "Terminated";
             _CompletedQueue.enqueue(pcb);
+            TSOS.Control.updateReadyQueueTable();
         };
         return Scheduler;
     })();

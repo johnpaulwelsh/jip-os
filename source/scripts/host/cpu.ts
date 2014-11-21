@@ -115,8 +115,10 @@ module TSOS {
 
             // If we have run this program for the amount of cycles that the quantum tells us
             // (or the running program finishes early), schedule an interrupt for a context switch.
-            if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
-                _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+            if (_CurrPCB != null) {
+                if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
+                    _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+            }
         }
 
         //
@@ -359,11 +361,10 @@ module TSOS {
         // or reset these variables if the queue is empty.
         public finishRunningProgram(): void {
 
-            debugger;
-
             _StdOut.advanceLine();
+            _OsShell.putPrompt();
             this.updatePCBWithCurrentCPU();
-            _CurrPCB.printPCB();
+            //_CurrPCB.printPCB();
 
             _Scheduler.readyToCompleted();
 
