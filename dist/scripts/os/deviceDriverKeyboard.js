@@ -1,15 +1,14 @@
-///<reference path="deviceDriver.ts" />
+/* ----------------------------------
+DeviceDriverKeyboard.ts
+Requires deviceDriver.ts
+The Kernel Keyboard Device Driver.
+---------------------------------- */
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/* ----------------------------------
-DeviceDriverKeyboard.ts
-Requires deviceDriver.ts
-The Kernel Keyboard Device Driver.
----------------------------------- */
 var TSOS;
 (function (TSOS) {
     // Extends DeviceDriver

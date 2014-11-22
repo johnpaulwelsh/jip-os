@@ -15,14 +15,14 @@ module TSOS {
         //
         // OS Startup and Shutdown Routines
         //
-        public krnBootstrap() {      // Page 8. {
+        public krnBootstrap() {      // Page 8.
             Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
             _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
-            _KernelBuffers = new Array();         // Buffers... for the kernel.
+            _KernelBuffers = [];                  // Buffers... for the kernel.
             _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
-            _Console = new Console();          // The command line interface / console I/O device.
+            _Console = new Console();             // The command line interface / console I/O device.
 
             // Initialize the console.
             _Console.init();
@@ -69,7 +69,6 @@ module TSOS {
             this.krnTrace("end shutdown OS");
         }
 
-
         public krnOnCPUClockPulse() {
             /* This gets called from the host hardware sim every time there is a hardware clock pulse.
                This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
@@ -96,7 +95,6 @@ module TSOS {
             // Update the date and time in the status bar
             document.getElementById("spanDateAndTime").innerHTML = Utils.getDateAndTime();
         }
-
 
         //
         // Interrupt Handling
@@ -136,9 +134,14 @@ module TSOS {
                     _StdIn.handleSysCallIrq(params);
                     break;
                 case PROG_INVALID_OPCODE_IRQ:
-                    debugger;
                     _StdIn.handleInvalidOpcodeIrq(params);
                     _CPU.finishRunningProgram();
+                    break;
+                case MEMORY_VIOLATION_IRQ:
+                    _CPU.handleMemoryViolation(params);
+                    break;
+                case CONTEXT_SWITCH_IRQ:
+                    _Scheduler.contextSwitch();
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -146,8 +149,10 @@ module TSOS {
         }
 
         public krnTimerISR() {
-            // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
-            // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
+            // The built-in TIMER (not clock) Interrupt Service Routine
+            // (as opposed to an ISR coming from a device driver).
+            // Check multiprogramming parameters and enforce quanta here.
+            // Call the scheduler / context switch here if necessary.
         }
 
         //

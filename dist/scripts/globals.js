@@ -14,12 +14,23 @@ var APP_VERSION = "0.28";
 
 var CPU_CLOCK_INTERVAL = 100;
 
+// Software interrupt codes
 var TIMER_IRQ = 0;
 
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
 var PROG_SYSCALL_IRQ = 2;
 var PROG_INVALID_OPCODE_IRQ = 3;
+var MEMORY_VIOLATION_IRQ = 4;
+var CONTEXT_SWITCH_IRQ = 5;
+
+// Scheduling alrogithms
+var ROUND_ROBIN = 0;
+var FCFS = 1;
+var PRIORITY = 2;
+
+var SEGMENT_COUNT = 3;
+var SEGMENT_SIZE = 256;
 
 //
 // Global Variables
@@ -78,13 +89,19 @@ var _PID = 0;
 // In which block of memory is the program we are currently running? Set to -1 when not running a program.
 var _CurrBlockOfMem = -1;
 var _CurrPCB = null;
-var _RunningPID = -1;
 
 var _Memory = null;
 var _MemTable = null;
 var _MemMan = null;
 
+// The CPU Scheduler..
+var _Scheduler = null;
+
+// Program Queues...
 var _ResidentQueue = null;
+var _ReadyQueue = null;
+var _ReadyQueueTable = null;
+var _CompletedQueue = null;
 
 // To allow single-step program execution...
 var _IsSingleStep = false;

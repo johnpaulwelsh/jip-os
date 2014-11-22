@@ -1,5 +1,5 @@
 /**
- * Created by JP on 10/9/14.
+ * Created by John Paul Welsh on 10/9/14.
  */
 
 module TSOS {
@@ -7,8 +7,10 @@ module TSOS {
 
         baseRegister: number;
         limitRegister: number;
+        nextFreeBlock: number;
 
         constructor() {
+            this.nextFreeBlock = 0;
 
         }
 
@@ -33,6 +35,21 @@ module TSOS {
             }
         }
 
+        public updateNextFreeBlock(newlyFreedBlock?): void {
+            if (newlyFreedBlock !== undefined) {
+                this.nextFreeBlock = newlyFreedBlock;
+            } else {
+                this.nextFreeBlock++;
+                if (this.nextFreeBlock >= SEGMENT_COUNT) {
+                    this.nextFreeBlock = -1;
+                }
+            }
+        }
+
+        public clearBlockOfMem(block): void {
+            _Memory.clearBlock(block);
+        }
+
         public getMemoryFromLocation(blockNum, loc): any {
             var memBeforeParse = _Memory.getMemBlock(blockNum)[loc];
             if (Utils.isNaNOverride(memBeforeParse)) {
@@ -48,7 +65,7 @@ module TSOS {
             if (newCodeHex.length < 2)
                 newCodeHex = "0" + newCodeHex;
             currBlock[loc] = newCodeHex;
-            Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCodeHex);
+            Control.updateMemTableAtLoc(blockNum, Math.floor(loc / 8), loc % 8, newCodeHex);
         }
     }
 }

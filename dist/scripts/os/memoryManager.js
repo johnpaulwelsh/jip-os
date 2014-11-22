@@ -1,10 +1,11 @@
 /**
-* Created by JP on 10/9/14.
+* Created by John Paul Welsh on 10/9/14.
 */
 var TSOS;
 (function (TSOS) {
     var MemoryManager = (function () {
         function MemoryManager() {
+            this.nextFreeBlock = 0;
         }
         MemoryManager.prototype.fillMemoryWithProgram = function (blockNum, code) {
             switch (blockNum) {
@@ -27,6 +28,21 @@ var TSOS;
             }
         };
 
+        MemoryManager.prototype.updateNextFreeBlock = function (newlyFreedBlock) {
+            if (newlyFreedBlock !== undefined) {
+                this.nextFreeBlock = newlyFreedBlock;
+            } else {
+                this.nextFreeBlock++;
+                if (this.nextFreeBlock >= SEGMENT_COUNT) {
+                    this.nextFreeBlock = -1;
+                }
+            }
+        };
+
+        MemoryManager.prototype.clearBlockOfMem = function (block) {
+            _Memory.clearBlock(block);
+        };
+
         MemoryManager.prototype.getMemoryFromLocation = function (blockNum, loc) {
             var memBeforeParse = _Memory.getMemBlock(blockNum)[loc];
             if (TSOS.Utils.isNaNOverride(memBeforeParse)) {
@@ -42,7 +58,7 @@ var TSOS;
             if (newCodeHex.length < 2)
                 newCodeHex = "0" + newCodeHex;
             currBlock[loc] = newCodeHex;
-            TSOS.Control.updateMemTableAtLoc(Math.floor(loc / 8), loc % 8, newCodeHex);
+            TSOS.Control.updateMemTableAtLoc(blockNum, Math.floor(loc / 8), loc % 8, newCodeHex);
         };
         return MemoryManager;
     })();

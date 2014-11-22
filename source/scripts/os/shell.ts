@@ -1,14 +1,8 @@
-///<reference path="shellCommand.ts" />
-///<reference path="userCommand.ts" />
-///<reference path="../utils.ts" />
-
 /* ------------
    Shell.ts
 
    The OS Shell - The "command line interface" (CLI) for the console.
    ------------ */
-
-// TODO: Write a base class / prototype for system services and let Shell inherit from it.
 
 module TSOS {
     export class Shell {
@@ -17,8 +11,6 @@ module TSOS {
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
-
-        public dingo; // This is extremely important. Trust me.
 
         constructor() {
 
@@ -29,28 +21,22 @@ module TSOS {
             //
             // Load the command list.
 
-            // ver
-            sc = new ShellCommand(this.shellVer,
-                                  "ver",
-                                  "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
-
-            // help
-            sc = new ShellCommand(this.shellHelp,
-                                  "help",
-                                  "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
-
-            // shutdown
-            sc = new ShellCommand(this.shellShutdown,
-                                  "shutdown",
-                                  "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
-
             // bsod
             sc = new ShellCommand(this.shellBSOD,
                                   "bsod",
                                   "- Tests the Blue Screen of Death screen.");
+            this.commandList[this.commandList.length] = sc;
+
+            // clearmem
+            sc = new ShellCommand(this.shellClearMem,
+                                  "clearmem",
+                                  "- Clears all of memory. All of it.");
+            this.commandList[this.commandList.length] = sc;
+
+            // cls
+            sc = new ShellCommand(this.shellCls,
+                                  "cls",
+                                  "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
             // crawl
@@ -59,23 +45,28 @@ module TSOS {
                                   "<number> - Displays the Star Wars opening crawl for the <number>th movie (1-6).");
             this.commandList[this.commandList.length] = sc;
 
-            // cls
-            sc = new ShellCommand(this.shellCls,
-                                  "cls",
-                                  "- Clears the screen and resets the cursor position.");
-
-            this.commandList[this.commandList.length] = sc;
             // date
             sc = new ShellCommand(this.shellDate,
                                   "date",
                                   "- Displays the current date and time.");
-
             this.commandList[this.commandList.length] = sc;
+
+            // help
+            sc = new ShellCommand(this.shellHelp,
+                                  "help",
+                                  "- This is the help command. Seek help.");
+            this.commandList[this.commandList.length] = sc;
+
+            // kill
+            sc = new ShellCommand(this.shellKill,
+                                  "kill",
+                                  "- <pid> Kills a running program.");
+            this.commandList[this.commandList.length] = sc;
+
             // load
             sc = new ShellCommand(this.shellLoad,
                                   "load",
-                                  "- Currently, validates program input as hex.");
-
+                                  "- Validates program input as hex and loads it into memory.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -84,16 +75,22 @@ module TSOS {
                                   "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
-            // run <pid>
-            sc = new ShellCommand(this.shellRun,
-                                  "run",
-                                  "<PID> - Runs a program that has been loaded into memory.");
+            // prompt <string>
+            sc = new ShellCommand(this.shellPrompt,
+                                  "prompt",
+                                  "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
-            // trace <on | off>
-            sc = new ShellCommand(this.shellTrace,
-                                  "trace",
-                                  "<on | off> - Turns the OS trace on or off.");
+            // ps
+            sc = new ShellCommand(this.shellPs,
+                                  "ps",
+                                  " - Shows the currently running processes.");
+            this.commandList[this.commandList.length] = sc;
+
+            // quantum <num>
+            sc = new ShellCommand(this.shellQuantum,
+                                  "quantum",
+                                  "<num> - Sets the Round Robin quantum to <num>.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
@@ -102,16 +99,40 @@ module TSOS {
                                   "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
+            // run <pid>
+            sc = new ShellCommand(this.shellRun,
+                                  "run",
+                                  "<PID> - Runs a program that has been loaded into memory.");
+            this.commandList[this.commandList.length] = sc;
+
+            // runall
+            sc = new ShellCommand(this.shellRunAll,
+                                  "runall",
+                                  "- Runs all programs that have been loaded into memory.");
+            this.commandList[this.commandList.length] = sc;
+
+            // shutdown
+            sc = new ShellCommand(this.shellShutdown,
+                                  "shutdown",
+                                  "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
+            this.commandList[this.commandList.length] = sc;
+
+            // trace <on | off>
+            sc = new ShellCommand(this.shellTrace,
+                                  "trace",
+                                  "<on | off> - Turns the OS trace on or off.");
+            this.commandList[this.commandList.length] = sc;
+
             // status <string>
             sc = new ShellCommand(this.shellStatus,
                                   "status",
                                   "<string> - Displays a user-provided status to the console and status bar.");
             this.commandList[this.commandList.length] = sc;
 
-            // prompt <string>
-            sc = new ShellCommand(this.shellPrompt,
-                                  "prompt",
-                                  "<string> - Sets the prompt.");
+            // ver
+            sc = new ShellCommand(this.shellVer,
+                                  "ver",
+                                  "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
             // whereami
@@ -120,10 +141,6 @@ module TSOS {
                                   "- Displays the location of your computer.");
             this.commandList[this.commandList.length] = sc;
 
-            // processes - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
-
-            //
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -137,8 +154,9 @@ module TSOS {
             //
             // Parse the input...
             //
-            var userCommand = new UserCommand();
-            userCommand = this.parseInput(buffer);
+            var userCommand: TSOS.UserCommand = this.parseInput(buffer);
+            //var userCommand = new UserCommand();
+            //userCommand = this.parseInput(buffer);
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
             var args = userCommand.args;
@@ -146,7 +164,7 @@ module TSOS {
             // Determine the command and execute it.
             //
             // JavaScript may not support associative arrays in all browsers so we have to
-            // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
+            // iterate over the command list in attempt to find a match.
             var index = 0;
             var found = false;
             var fn = undefined;
@@ -162,9 +180,9 @@ module TSOS {
                 this.execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
+                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) { // Check for curses.
                     this.execute(this.shellCurse);
-                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {    // Check for apologies. {
+                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) { // Check for apologies.
                     this.execute(this.shellApology);
                 } else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
@@ -206,7 +224,7 @@ module TSOS {
             retVal.command = cmd;
 
             // 5. Now create the args array from what's left.
-            for (var i in tempList) {
+            for (var i = 0; i < tempList.length; i++) {
                 var arg = Utils.trim(tempList[i]);
                 if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
@@ -218,12 +236,13 @@ module TSOS {
         //
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
-        public shellInvalidCommand() {
-            _StdOut.putText("Invalid Command. ");
+
+        public shellApology() {
             if (_SarcasticMode) {
-                _StdOut.putText("Duh. Go back to your Speak & Spell.");
+                _StdOut.putText("Okay. I forgive you. This time.");
+                _SarcasticMode = false;
             } else {
-                _StdOut.putText("Type 'help' for, well... help.");
+                _StdOut.putText("For what?");
             }
         }
 
@@ -234,84 +253,29 @@ module TSOS {
             _SarcasticMode = true;
         }
 
-        public shellApology() {
-           if (_SarcasticMode) {
-              _StdOut.putText("Okay. I forgive you. This time.");
-              _SarcasticMode = false;
-           } else {
-              _StdOut.putText("For what?");
-           }
-        }
-
-        public shellVer(args) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
-        }
-
-        public shellHelp(args) {
-            _StdOut.putText("Commands:");
-            for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+        public shellInvalidCommand() {
+            _StdOut.putText("Invalid Command. ");
+            if (_SarcasticMode) {
+                _StdOut.putText("Duh. Go back to your Speak & Spell.");
+            } else {
+                _StdOut.putText("Type 'help' for, well... help.");
             }
         }
 
-        public shellShutdown(args) {
-             _StdOut.putText("Shutting down...");
-             // Call Kernel shutdown routine.
-            _Kernel.krnShutdown();
-            // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
-        }
+        //
+        // Actual shell commands
+        //
 
-        public shellBSOD(args) {
+        public shellBSOD() {
             Control.setBSODContext();
         }
 
-        public shellCls(args) {
-            //_StdOut.clearScreen();
-            //_StdOut.resetXY();
+        public shellClearMem() {
+            Control.resetMemory();
+        }
+
+        public shellCls() {
             _StdOut.init();
-        }
-
-        public shellDate(args) {
-            _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
-        }
-
-        public shellLoad(args) {
-            // Casting DOM elements === Joseph Stalin
-            _ProgInput = Control.getProgramInput();
-            var regex = new RegExp("^[A-Fa-f0-9]{2}$");
-
-            // If we have any hex codes to check (ensuring the first one isn't blank,
-            // which happens when you split the text from an empty textarea)...
-            if (_ProgInput.length > 0 && _ProgInput[0] != "") {
-                var allValid = true;
-
-                // Loop over each one...
-                for (var i in _ProgInput) {
-                    var hex = _ProgInput[i];
-
-                    // Checking whether the regex for a valid hex code matches.
-                    if (!(regex.test(hex))) {
-                        allValid = false;
-                        break;
-                    }
-                }
-
-                // If the code is valid...
-                if (allValid) {
-                    Control.resetMemory();
-                    _CPU.resetCPUElements();
-                    _CurrPCB = new ProcessControlBlock();
-                    _CurrBlockOfMem = 0; // hard-coded for now: will be extracted from somewhere else later
-                    _MemMan.fillMemoryWithProgram(_CurrBlockOfMem, _ProgInput);
-                    _StdOut.putText("PID = " + _CurrPCB.PID);
-                } else {
-                    _StdOut.putText("Not a valid set of hex codes.");
-                }
-
-            } else {
-                _StdOut.putText("No user program input to load.");
-            }
         }
 
         public shellCrawl(args) {
@@ -373,6 +337,77 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             _StdOut.putText(crawl);
         }
 
+        public shellDate() {
+            _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
+        }
+
+        public shellHelp() {
+            _StdOut.putText("Commands:");
+            for (var i = 0; i < _OsShell.commandList.length; i++) {
+                _StdOut.advanceLine();
+                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+            }
+        }
+
+        public shellKill(args) {
+            if (args.length > 0) {
+                _Scheduler.killProcess(args[0]);
+            } else {
+                _StdOut.putText("Usage: kill <pid>  Please supply a program to kill.");
+            }
+        }
+
+        public shellLoad() {
+            _ProgInput = Control.getProgramInput();
+            var regex = new RegExp("^[A-Fa-f0-9]{2}$");
+
+            // If we have any hex codes to check (ensuring the first one isn't blank,
+            // which happens when you split the text from an empty textarea)...
+            if (_ProgInput.length > 0 && _ProgInput[0] != "") {
+                var allValid = true;
+
+                // Loop over each one...
+                for (var i = 0; i < _ProgInput.length; i++) {
+                    var hex = _ProgInput[i];
+
+                    // ...checking whether the regex for a valid hex code matches.
+                    if (!(regex.test(hex))) {
+                        allValid = false;
+                        break;
+                    }
+                }
+
+                // If the code is valid...
+                if (allValid) {
+
+                    // If we still have space in memory...
+                    if (_MemMan.nextFreeBlock !== -1) {
+                        // Make a new PCB...
+                        var pcb = new ProcessControlBlock(_MemMan.nextFreeBlock);
+                        // ...put it in the Resident Queue...
+                        _ResidentQueue.enqueue(pcb);
+                        // ...clear out the block of memory where the program will go into...
+                        _MemMan.clearBlockOfMem(pcb.MemBlock);
+                        // ...set what the next free block of memory is...
+                        _MemMan.updateNextFreeBlock();
+                        // ...put the program into memory...
+                        _MemMan.fillMemoryWithProgram(pcb.MemBlock, _ProgInput);
+                        // ...and print the PID.
+                        _StdOut.putText("PID = " + pcb.PID);
+
+                    } else {
+                        _StdOut.putText("Memory is full.");
+                    }
+
+                } else {
+                    _StdOut.putText("Not a valid set of hex codes.");
+                }
+
+            } else {
+                _StdOut.putText("No user program input to load.");
+            }
+        }
+
         public shellMan(args) {
             if (args.length > 0) {
                 var topic = args[0];
@@ -388,20 +423,83 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         }
 
+        public shellPrompt(args) {
+            if (args.length > 0) {
+                _OsShell.promptStr = args[0];
+            } else {
+                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        }
+
+        public shellPs() {
+            _Scheduler.printRunningProcesses();
+        }
+
+        public shellQuantum(args) {
+            if (args.length > 0) {
+                _Scheduler.changeQuantum(args[0]);
+                _StdOut.putText("New RR quantum = " + args[0]);
+            } else {
+                _StdOut.putText("Usage: quantum <num> - Please supply a quantum number.");
+            }
+        }
+
+        public shellRot13(args) {
+            if (args.length > 0) {
+                // Requires Utils.ts for rot13() function.
+                _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
+            } else {
+                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+            }
+        }
+
         public shellRun(args) {
             if (args.length > 0) {
 
-                if (_Memory.isEmpty()) {
-                    _StdOut.putText("Memory is empty. Try the 'load' command and run again.");
-                } else {
-                    _CPU.isExecuting = true;
-                    _RunningPID = parseInt(args[0]);
-                }
+                if (!_ResidentQueue.isEmpty()) {
 
+                    _CPU.resetCPUElements();
+
+                    // Puts the Resident PCB into the Ready Queue...
+                    _Scheduler.residentToReady(args[0]);
+                    // ...sets the CPU to isExecuting...
+                    _CPU.isExecuting = true;
+                    // ...and sets the currently running PID (and memory block)
+                    // to the one we were just commanded to run.
+                    _CurrPCB = _ReadyQueue.peek();
+                    _CurrBlockOfMem = _CurrPCB.getMemBlock();
+
+                } else {
+                    _StdOut.putText("No programs in the Resident Queue.");
+                }
 
             } else {
                 _StdOut.putText("Usage: run <PID>  Please supply a PID number.");
             }
+        }
+
+        public shellRunAll() {
+
+            if (!_ResidentQueue.isEmpty()) {
+
+                // Puts all Resident PCBs into the Ready Queue...
+                _Scheduler.residentToReadyAll();
+                // ...sets the CPU to isExecuting...
+                _CPU.isExecuting = true;
+                // ...and sets the currently running PID (and memory block)
+                // to the first program in the queue.
+                _CurrPCB = _ReadyQueue.peek();
+                _CurrBlockOfMem = _CurrPCB.getMemBlock();
+
+            } else {
+                _StdOut.putText("No programs in the Resident Queue.");
+            }
+        }
+
+        public shellShutdown() {
+            _StdOut.putText("Shutting down...");
+            // Call Kernel shutdown routine.
+            _Kernel.krnShutdown();
         }
 
         public shellStatus(args) {
@@ -439,24 +537,11 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         }
 
-        public shellRot13(args) {
-            if (args.length > 0) {
-                // Requires Utils.ts for rot13() function.
-                _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
-            } else {
-                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
-            }
+        public shellVer() {
+            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         }
 
-        public shellPrompt(args) {
-            if (args.length > 0) {
-                _OsShell.promptStr = args[0];
-            } else {
-                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
-            }
-        }
-
-        public shellWhereAmI(args) {
+        public shellWhereAmI() {
             _StdOut.putText("Tatooine, Tatoo System, Arkanis Sector, Outer Rim Territories.");
         }
     }

@@ -1,5 +1,3 @@
-///<reference path="../globals.ts" />
-///<reference path="../os/canvastext.ts" />
 /* ------------
 Control.ts
 Requires globals.ts.
@@ -103,20 +101,27 @@ var TSOS;
             _CanvasHeight = document.getElementById("display").clientHeight;
 
             // Initializes some memory.
-            // The first parameter will change from 1 to 3 for iProject 3.
-            _Memory = new TSOS.Memory(1, 256);
+            _Memory = new TSOS.Memory(SEGMENT_COUNT, SEGMENT_SIZE);
 
             // Creates a memory manager.
             _MemMan = new TSOS.MemoryManager();
+
+            // Creates a CPU scheduler. Initialize with RR and quantum 6.
+            _Scheduler = new TSOS.Scheduler(ROUND_ROBIN, 6);
+
+            // Creates queues.
+            _ReadyQueue = new TSOS.Queue();
+            _ResidentQueue = new TSOS.Queue();
+            _CompletedQueue = new TSOS.Queue();
 
             // Sets the CPU display table to all zeroes.
             this.resetCPUElementsInHTML();
 
             // Create the HTML table to show the contents of memory.
-            this.generateMemoryTable(1);
+            this.generateMemoryTable(SEGMENT_COUNT);
         };
 
-        Control.hostBtnHaltOS_click = function (btn) {
+        Control.hostBtnHaltOS_click = function () {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
@@ -125,10 +130,9 @@ var TSOS;
 
             // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
-            // TODO: Is there anything else we need to do here?
         };
 
-        Control.hostBtnReset_click = function (btn) {
+        Control.hostBtnReset_click = function () {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload(true);
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
@@ -136,14 +140,14 @@ var TSOS;
             // page from its cache, which is not what we want.
         };
 
-        Control.startSingleStep = function (btn) {
+        Control.startSingleStep = function () {
             document.getElementById("btnSingleStepStart").disabled = true;
             document.getElementById("btnSingleStepMakeStep").disabled = false;
             document.getElementById("btnSingleStepEnd").disabled = false;
             _IsSingleStep = true;
         };
 
-        Control.makeSingleStep = function (btn) {
+        Control.makeSingleStep = function () {
             // Also check out the hostClockPulse function in devices.ts
             // If we are running a program and in single-step mode, and this button is clicked,
             // we run a clock pulse.
@@ -155,7 +159,7 @@ var TSOS;
             }
         };
 
-        Control.endSingleStep = function (btn) {
+        Control.endSingleStep = function () {
             document.getElementById("btnSingleStepStart").disabled = false;
             document.getElementById("btnSingleStepMakeStep").disabled = true;
             document.getElementById("btnSingleStepEnd").disabled = true;
@@ -208,6 +212,9 @@ var TSOS;
         // Sets all memory elements to 0.
         Control.resetMemory = function () {
             _Memory.clearMem();
+
+            // The 0th block is now free so we can start again at the beginning.
+            _MemMan.updateNextFreeBlock(0);
         };
 
         // Used to build the table that displays memory, because I sure wasn't going to
@@ -222,9 +229,6 @@ var TSOS;
 
                     for (var k = 0; k < 8; k++) {
                         var td = document.createElement("td");
-
-                        // Put the contents of each unit of memory into the td.
-                        //                        td.innerHTML = _Memory.getMemBlock(i)[j];
                         td.innerHTML = "00";
                         tr.appendChild(td);
                     }
@@ -232,16 +236,23 @@ var TSOS;
             }
         };
 
-        Control.updateMemTableAtLoc = function (tableRow, tableCel, newCode) {
-            _MemTable.rows[tableRow].cells[tableCel].innerHTML = newCode;
+        Control.updateMemTableAtLoc = function (blockNum, tableRow, tableCel, newCode) {
+            var realRow = tableRow;
+
+            if (blockNum === 1) {
+                realRow += 32;
+            } else if (blockNum === 2) {
+                realRow += 64;
+            }
+
+            _MemTable.rows[realRow].cells[tableCel].innerHTML = newCode;
         };
 
-        // TODO: fix how segments are handled; we only have one for now so it doesn't break anything
         Control.emptyFullMemTable = function (segments) {
             for (var i = 0; i < segments; i++) {
                 for (var j = 0; j < 32; j++) {
                     for (var k = 0; k < 8; k++) {
-                        this.updateMemTableAtLoc(j, k, "00");
+                        this.updateMemTableAtLoc(i, j, k, "00");
                     }
                 }
             }
@@ -249,6 +260,50 @@ var TSOS;
 
         Control.setCPUElementByID = function (id, value) {
             document.getElementById(id).innerHTML = value;
+        };
+
+        Control.updateReadyQueueTable = function () {
+            _ReadyQueueTable = document.getElementById("tableReadyQueue");
+
+            while (_ReadyQueueTable.rows.length > 1) {
+                _ReadyQueueTable.deleteRow(1);
+            }
+
+            for (var j = 0; j < _ReadyQueue.getSize(); j++) {
+                var pcb = _ReadyQueue.q[j];
+
+                var row = document.createElement("tr");
+                row.style.textAlign = "center";
+                _ReadyQueueTable.appendChild(row);
+
+                var cellPID = document.createElement("td");
+                row.appendChild(cellPID);
+                cellPID.innerHTML = pcb.PID;
+
+                var cellPC = document.createElement("td");
+                row.appendChild(cellPC);
+                cellPC.innerHTML = pcb.PC;
+
+                var cellAccum = document.createElement("td");
+                row.appendChild(cellAccum);
+                cellAccum.innerHTML = pcb.Accum;
+
+                var cellXReg = document.createElement("td");
+                row.appendChild(cellXReg);
+                cellXReg.innerHTML = pcb.Xreg;
+
+                var cellYReg = document.createElement("td");
+                row.appendChild(cellYReg);
+                cellYReg.innerHTML = pcb.Yreg;
+
+                var cellZFlag = document.createElement("td");
+                row.appendChild(cellZFlag);
+                cellZFlag.innerHTML = pcb.Zflag;
+
+                var cellState = document.createElement("td");
+                row.appendChild(cellState);
+                cellState.innerHTML = pcb.State;
+            }
         };
         return Control;
     })();

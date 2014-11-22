@@ -18,7 +18,7 @@ var TSOS;
 
             // Initialize our global queues.
             _KernelInterruptQueue = new TSOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
-            _KernelBuffers = new Array(); // Buffers... for the kernel.
+            _KernelBuffers = []; // Buffers... for the kernel.
             _KernelInputQueue = new TSOS.Queue(); // Where device input lands before being processed out somewhere.
             _Console = new TSOS.Console(); // The command line interface / console I/O device.
 
@@ -125,9 +125,14 @@ var TSOS;
                     _StdIn.handleSysCallIrq(params);
                     break;
                 case PROG_INVALID_OPCODE_IRQ:
-                    debugger;
                     _StdIn.handleInvalidOpcodeIrq(params);
                     _CPU.finishRunningProgram();
+                    break;
+                case MEMORY_VIOLATION_IRQ:
+                    _CPU.handleMemoryViolation(params);
+                    break;
+                case CONTEXT_SWITCH_IRQ:
+                    _Scheduler.contextSwitch();
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -135,8 +140,10 @@ var TSOS;
         };
 
         Kernel.prototype.krnTimerISR = function () {
-            // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
-            // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
+            // The built-in TIMER (not clock) Interrupt Service Routine
+            // (as opposed to an ISR coming from a device driver).
+            // Check multiprogramming parameters and enforce quanta here.
+            // Call the scheduler / context switch here if necessary.
         };
 
         //

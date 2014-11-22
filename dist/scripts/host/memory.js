@@ -1,5 +1,5 @@
 /**
-* Created by JP on 10/8/14.
+* Created by John Paul Welsh on 10/8/14.
 */
 var TSOS;
 (function (TSOS) {
@@ -26,6 +26,13 @@ var TSOS;
         Memory.prototype.clearMem = function () {
             this.initializeMemBlocks(this.memBlockSize);
             TSOS.Control.emptyFullMemTable(this.memBlocks.length);
+        };
+
+        Memory.prototype.clearBlock = function (block) {
+            var b = this.memBlocks[block];
+            for (var i = 0; i < b.length; i++) {
+                b[i] = "00";
+            }
         };
 
         Memory.prototype.isEmpty = function () {

@@ -1,4 +1,3 @@
-///<reference path="../globals.ts" />
 /* ------------
 CPU.ts
 Requires global.ts.
@@ -34,7 +33,6 @@ var TSOS;
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
 
-            // TODO: Accumulate CPU usage and profiling statistics here.
             var command = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC);
 
             switch (command) {
@@ -96,23 +94,30 @@ var TSOS;
 
                 default:
                     var numCommand = TSOS.Utils.hexStrToDecNum(command);
-                    var params = new Array(numCommand, 0);
+                    var params = [numCommand, 0];
                     _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_INVALID_OPCODE_IRQ, params));
                     break;
             }
 
+            // Increment the program counter when the program is still executing,
+            // and when we are switching to another program after one just completed.
+            if (this.isExecuting && command != "00" && command != 0)
+                this.PC++;
+
+            // This could become nulled if we already moved the PCB to the Completed Queue.
+            if (_CurrPCB != null)
+                this.updatePCBWithCurrentCPU();
+
+            TSOS.Control.updateReadyQueueTable();
             this.updateCPUElements();
 
-            // Increment the program counter when the program is still executing...
-            if (this.isExecuting) {
-                //// ...and the command isn't a branch...
-                //if (command !== "D0") {
-                //    this.PC++;
-                //// ... or it's a failed branch...
-                //} else if (command === "D0" && this.Zflag !== 0) {
-                //    this.PC++;
-                //}
-                this.PC++;
+            _Scheduler.CycleCount++;
+
+            // If we have run this program for the amount of cycles that the quantum tells us
+            // (or the running program finishes early), schedule an interrupt for a context switch.
+            if (_CurrPCB != null) {
+                if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
             }
         };
 
@@ -121,16 +126,36 @@ var TSOS;
         //
         // Gives back the value that's at the next position in memory as a decimal number.
         Cpu.prototype.getNextByte = function () {
-            var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
-            return TSOS.Utils.hexStrToDecNum(nextByteAsHex);
+            if (this.PC + 1 < SEGMENT_SIZE) {
+                var nextByteAsHex = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+                return TSOS.Utils.hexStrToDecNum(nextByteAsHex);
+                // We have exceeded the bounds for our space in memory, so get outta here.
+            } else {
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(MEMORY_VIOLATION_IRQ, [this.PC + 1]));
+                return -1;
+            }
         };
 
         // The values at the next two positions in memory, swapped and combined, is a memory location
         // represented in hex. This returns that location as a decimal number.
         Cpu.prototype.getNextTwoBytesAndCombine = function () {
-            var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
-            var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
-            return TSOS.Utils.hexStrToDecNum(byteTwo + byteOne);
+            if (this.PC + 2 < SEGMENT_SIZE && this.PC >= 0) {
+                var byteOne = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 1);
+                var byteTwo = _MemMan.getMemoryFromLocation(_CurrBlockOfMem, this.PC + 2);
+                var combined = TSOS.Utils.hexStrToDecNum(byteTwo + byteOne);
+
+                if (combined < SEGMENT_SIZE && combined >= 0) {
+                    return combined;
+                    // We have exceeded the bounds for our space in memory, so get outta here.
+                } else {
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(MEMORY_VIOLATION_IRQ, [combined]));
+                    return -1;
+                }
+                // We have exceeded the bounds for our space in memory, so get outta here.
+            } else {
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(MEMORY_VIOLATION_IRQ, [this.PC + 2]));
+                return -1;
+            }
         };
 
         //
@@ -147,24 +172,33 @@ var TSOS;
         Cpu.prototype.loadAccFromMem = function () {
             _Kernel.krnTrace("load acc from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Acc = TSOS.Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         };
 
         // Store accumulator into memory
         Cpu.prototype.storeAccIntoMem = function () {
             _Kernel.krnTrace("store acc into mem");
             var location = this.getNextTwoBytesAndCombine();
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, this.Acc);
-            this.PC += 2;
+
+            if (location != -1) {
+                _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, TSOS.Utils.decNumToHexStr(this.Acc));
+                this.PC += 2;
+            }
         };
 
         // Add contents of memory location to accumulator, store into accumulator
         Cpu.prototype.addAndStoreIntoAcc = function () {
             _Kernel.krnTrace("add and store into mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Acc += parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Acc += parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         };
 
         // Load constant into x-reg
@@ -178,8 +212,11 @@ var TSOS;
         Cpu.prototype.loadXFromMem = function () {
             _Kernel.krnTrace("load x from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Xreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Xreg = TSOS.Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         };
 
         // Load constant into y-reg
@@ -193,8 +230,11 @@ var TSOS;
         Cpu.prototype.loadYFromMem = function () {
             _Kernel.krnTrace("load y from mem");
             var location = this.getNextTwoBytesAndCombine();
-            this.Yreg = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.PC += 2;
+
+            if (location != -1) {
+                this.Yreg = TSOS.Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.PC += 2;
+            }
         };
 
         // This isn't the instruction you're looking for
@@ -206,7 +246,8 @@ var TSOS;
         // Break (system call)
         Cpu.prototype.breakCall = function () {
             _Kernel.krnTrace("break");
-            this.isExecuting = false;
+            _CurrPCB.State = "Terminated";
+            _CurrPCB.isFinished = true;
             this.finishRunningProgram();
         };
 
@@ -215,9 +256,12 @@ var TSOS;
         Cpu.prototype.compareToX = function () {
             _Kernel.krnTrace("compare to");
             var location = this.getNextTwoBytesAndCombine();
-            var memValue = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            this.Zflag = (memValue === this.Xreg) ? 1 : 0;
-            this.PC += 2;
+
+            if (location != -1) {
+                var memValue = parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                this.Zflag = (memValue === this.Xreg) ? 1 : 0;
+                this.PC += 2;
+            }
         };
 
         // If z-flag is 0, branch forward the number of bytes represented by the next byte's hex value
@@ -232,8 +276,13 @@ var TSOS;
 
                 // Then branch.
                 this.PC = this.PC + branchSpan;
-                if (this.PC >= 256) {
-                    this.PC = this.PC - 256;
+
+                if (this.PC >= SEGMENT_SIZE) {
+                    this.PC = this.PC - SEGMENT_SIZE;
+                }
+
+                if (this.PC >= SEGMENT_SIZE) {
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(MEMORY_VIOLATION_IRQ, [this.PC]));
                 }
             } else {
                 // Skip over the next byte.
@@ -245,9 +294,12 @@ var TSOS;
         Cpu.prototype.increment = function () {
             _Kernel.krnTrace("increment");
             var location = this.getNextTwoBytesAndCombine();
-            var value = 1 + parseInt(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
-            _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
-            this.PC += 2;
+
+            if (location != -1) {
+                var value = 1 + TSOS.Utils.hexStrToDecNum(_MemMan.getMemoryFromLocation(_CurrBlockOfMem, location));
+                _MemMan.updateMemoryAtLocation(_CurrBlockOfMem, location, value);
+                this.PC += 2;
+            }
         };
 
         // System call:
@@ -255,7 +307,7 @@ var TSOS;
         // If x-reg has a 2, print string that begins at the mem location in y-reg (it's null-term'd)
         Cpu.prototype.sysCall = function () {
             _Kernel.krnTrace("system call");
-            var params = new Array(this.Xreg, this.Yreg);
+            var params = [this.Xreg, this.Yreg];
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(PROG_SYSCALL_IRQ, params));
         };
 
@@ -279,19 +331,57 @@ var TSOS;
             this.isExecuting = false;
         };
 
-        // Once we are done running a program, we save the CPU's registers into the PCB,
-        // print the PCB, and reset the two globals that specified which program was running
-        // and which block of memory it was in.
-        Cpu.prototype.finishRunningProgram = function () {
-            _StdOut.advanceLine();
+        Cpu.prototype.updatePCBWithCurrentCPU = function () {
             _CurrPCB.PC = this.PC;
             _CurrPCB.Accum = this.Acc;
             _CurrPCB.Xreg = this.Xreg;
             _CurrPCB.Yreg = this.Yreg;
             _CurrPCB.Zflag = this.Zflag;
-            _CurrPCB.printPCB();
-            _RunningPID = -1;
-            _CurrBlockOfMem = -1;
+        };
+
+        Cpu.prototype.updateCPUWithPCBContents = function () {
+            this.PC = _CurrPCB.PC;
+            this.Acc = _CurrPCB.Accum;
+            this.Xreg = _CurrPCB.Xreg;
+            this.Yreg = _CurrPCB.Yreg;
+            this.Zflag = _CurrPCB.Zflag;
+        };
+
+        // Once we are done running a program, we save the CPU's registers into the PCB,
+        // print the PCB, and do one of two things:
+        // either set the current memory block and PCB to the next one in the Ready Queue,
+        // or reset these variables if the queue is empty.
+        Cpu.prototype.finishRunningProgram = function () {
+            _StdOut.advanceLine();
+            _OsShell.putPrompt();
+            this.updatePCBWithCurrentCPU();
+
+            //_CurrPCB.printPCB();
+            _Scheduler.readyToCompleted();
+
+            // Free up this space in memory because the current program
+            // is done running, so we can load into that spot now.
+            _MemMan.updateNextFreeBlock(_CurrBlockOfMem);
+
+            if (!_ReadyQueue.isEmpty()) {
+                _CurrPCB = _ReadyQueue.peek();
+                _CurrBlockOfMem = _CurrPCB.MemBlock;
+                this.updateCPUWithPCBContents();
+                _Scheduler.CycleCount = 0;
+            } else {
+                _CurrPCB = null;
+                _CurrBlockOfMem = -1;
+                this.isExecuting = false;
+            }
+        };
+
+        // Handles the interrupt caused by a memory-out-of-bounds error.
+        // This will completely halt the programs from running, but will not
+        // empty out the queues.
+        Cpu.prototype.handleMemoryViolation = function (params) {
+            this.finishRunningProgram();
+            this.isExecuting = false;
+            _Kernel.krnTrace("Invalid Memory Access: location = " + params[0]);
         };
         return Cpu;
     })();
