@@ -359,6 +359,10 @@ var TSOS;
             //_CurrPCB.printPCB();
             _Scheduler.readyToCompleted();
 
+            // Free up this space in memory because the current program
+            // is done running, so we can load into that spot now.
+            _MemMan.updateNextFreeBlock(_CurrBlockOfMem);
+
             if (!_ReadyQueue.isEmpty()) {
                 _CurrPCB = _ReadyQueue.peek();
                 _CurrBlockOfMem = _CurrPCB.MemBlock;
