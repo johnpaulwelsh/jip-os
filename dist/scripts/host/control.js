@@ -212,6 +212,9 @@ var TSOS;
         // Sets all memory elements to 0.
         Control.resetMemory = function () {
             _Memory.clearMem();
+
+            // The 0th block is now free so we can start again at the beginning.
+            _MemMan.updateNextFreeBlock(0);
         };
 
         // Used to build the table that displays memory, because I sure wasn't going to

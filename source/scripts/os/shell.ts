@@ -57,11 +57,16 @@ module TSOS {
                                   "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
 
+            // kill
+            sc = new ShellCommand(this.shellKill,
+                                  "kill",
+                                  "- <pid> Kills a running program.");
+            this.commandList[this.commandList.length] = sc;
+
             // load
             sc = new ShellCommand(this.shellLoad,
                                   "load",
                                   "- Validates program input as hex and loads it into memory.");
-
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -74,6 +79,12 @@ module TSOS {
             sc = new ShellCommand(this.shellPrompt,
                                   "prompt",
                                   "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ps
+            sc = new ShellCommand(this.shellPs,
+                                  "ps",
+                                  " - Shows the currently running processes.");
             this.commandList[this.commandList.length] = sc;
 
             // quantum <num>
@@ -338,6 +349,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         }
 
+        public shellKill(args) {
+            if (args.length > 0) {
+                _Scheduler.killProcess(args[0]);
+            } else {
+                _StdOut.putText("Usage: kill <pid>  Please supply a program to kill.");
+            }
+        }
+
         public shellLoad() {
             _ProgInput = Control.getProgramInput();
             var regex = new RegExp("^[A-Fa-f0-9]{2}$");
@@ -410,6 +429,10 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+
+        public shellPs() {
+            _Scheduler.printRunningProcesses();
         }
 
         public shellQuantum(args) {

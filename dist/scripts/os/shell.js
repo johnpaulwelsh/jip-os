@@ -41,9 +41,12 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
 
+            // kill
+            sc = new TSOS.ShellCommand(this.shellKill, "kill", "- <pid> Kills a running program.");
+            this.commandList[this.commandList.length] = sc;
+
             // load
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validates program input as hex and loads it into memory.");
-
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
@@ -52,6 +55,10 @@ var TSOS;
 
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ps
+            sc = new TSOS.ShellCommand(this.shellPs, "ps", " - Shows the currently running processes.");
             this.commandList[this.commandList.length] = sc;
 
             // quantum <num>
@@ -303,6 +310,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         };
 
+        Shell.prototype.shellKill = function (args) {
+            if (args.length > 0) {
+                _Scheduler.killProcess(args[0]);
+            } else {
+                _StdOut.putText("Usage: kill <pid>  Please supply a program to kill.");
+            }
+        };
+
         Shell.prototype.shellLoad = function () {
             _ProgInput = TSOS.Control.getProgramInput();
             var regex = new RegExp("^[A-Fa-f0-9]{2}$");
@@ -375,6 +390,10 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        };
+
+        Shell.prototype.shellPs = function () {
+            _Scheduler.printRunningProcesses();
         };
 
         Shell.prototype.shellQuantum = function (args) {

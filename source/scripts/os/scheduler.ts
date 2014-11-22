@@ -80,6 +80,44 @@ module TSOS {
             this.Quantum = newQ;
         }
 
+        public killProcess(pid): void {
+
+            // If the one getting killed is currently on the CPU, do a context switch first.
+            if (_CurrPCB.PID == pid)
+                this.contextSwitch();
+
+            var killedProgram = _ReadyQueue.findAndRemovePCB(pid);
+
+            if (killedProgram != undefined) {
+
+                _CompletedQueue.enqueue(killedProgram);
+                _StdOut.putText("PID " + killedProgram.PID + " killed. You monster.");
+
+                if (_ReadyQueue.isEmpty()) {
+                    _CPU.isExecuting = false;
+                }
+
+                Control.updateReadyQueueTable();
+
+            } else {
+                _StdOut.putText("There is no running program with that PID.");
+            }
+        }
+
+        public printRunningProcesses(): void {
+            var fullStr = "PIDs of running processes: ";
+
+            for (var i = 0; i < _ReadyQueue.getSize(); i++) {
+                fullStr += _ReadyQueue.q[i].PID;
+                // Put commas (except for after the last one)
+                if (i != _ReadyQueue.getSize()-1) {
+                    fullStr += ", ";
+                }
+            }
+
+            _StdOut.putText(fullStr);
+        }
+
         public residentToReady(PID): void {
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
