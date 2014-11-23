@@ -51,6 +51,12 @@ module TSOS {
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
+            // getschedule
+            sc = new ShellCommand(this.shellGetSchedule,
+                                  "getschedule",
+                                  "- Displays the current CPU scheduling algorithm.");
+            this.commandList[this.commandList.length] = sc;
+
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
@@ -111,22 +117,28 @@ module TSOS {
                                   "- Runs all programs that have been loaded into memory.");
             this.commandList[this.commandList.length] = sc;
 
+            // shellSetSchedule <algorithm>
+            sc = new ShellCommand(this.shellSetSchedule,
+                                  "setschedule",
+                                  "<algorithm> - Sets the CPU scheduling algorithm to either Round Robin (rr), First Come First Served (fcfs), or Priority (priority).");
+            this.commandList[this.commandList.length] = sc;
+
             // shutdown
             sc = new ShellCommand(this.shellShutdown,
                                   "shutdown",
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
-            // trace <on | off>
-            sc = new ShellCommand(this.shellTrace,
-                                  "trace",
-                                  "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
-
             // status <string>
             sc = new ShellCommand(this.shellStatus,
                                   "status",
                                   "<string> - Displays a user-provided status to the console and status bar.");
+            this.commandList[this.commandList.length] = sc;
+
+            // trace <on | off>
+            sc = new ShellCommand(this.shellTrace,
+                                  "trace",
+                                  "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
 
             // ver
@@ -341,6 +353,10 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
         }
 
+        public shellGetSchedule() {
+            _StdOut.putText("Current scheduling algorithm: " + _Scheduler.printMode());
+        }
+
         public shellHelp() {
             _StdOut.putText("Commands:");
             for (var i = 0; i < _OsShell.commandList.length; i++) {
@@ -493,6 +509,32 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");
+            }
+        }
+
+        public shellSetSchedule(args) {
+            if (args.length > 0) {
+
+                switch (args[0]) {
+                    case "rr":
+                        _Scheduler.Mode = ROUND_ROBIN;
+                        break;
+
+                    case "fcfs":
+                        _Scheduler.Mode = FCFS;
+                        break;
+
+                    case "priority":
+                        _Scheduler.Mode = PRIORITY;
+                        break;
+
+                    default:
+                        _StdOut.putText("Invalid scheduling algorithm. Choose another.");
+                        break;
+                }
+
+            } else {
+                _StdOut.putText("Usage: setschedule <algorithm>  Please supply a scheduling algorithm [rr, fcfs, priority].");
             }
         }
 

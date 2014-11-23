@@ -65,11 +65,24 @@ module TSOS {
         }
 
         public doFCFSCS(): void {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCB();
+                _Kernel.krnTrace("FCFS context switch: running program's PID = " + _CurrPCB.PID);
+            }
+            // otherwise, do nothing and let it all end.
         }
 
         public doPriorityCS(): void {
             // TODO: iProject 4
+        }
+
+        private setUpNextPCB(): void {
+            _CurrPCB = _ReadyQueue.peek();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
         }
 
         public changeMode(newMode): void {
@@ -116,6 +129,20 @@ module TSOS {
             }
 
             _StdOut.putText(fullStr);
+        }
+
+        public printMode(): string {
+            switch (this.Mode) {
+                case ROUND_ROBIN:
+                    return "Round Robin";
+                    break;
+                case FCFS:
+                    return "First Come, First Served";
+                    break;
+                case PRIORITY:
+                    return "Priority";
+                    break;
+            }
         }
 
         public residentToReady(PID): void {

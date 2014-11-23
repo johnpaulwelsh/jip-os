@@ -101,23 +101,35 @@ var TSOS;
 
             // Increment the program counter when the program is still executing,
             // and when we are switching to another program after one just completed.
-            if (this.isExecuting && command != "00" && command != 0)
+            if (this.isExecuting && command != "00" && command != 0) {
                 this.PC++;
+            }
 
             // This could become nulled if we already moved the PCB to the Completed Queue.
-            if (_CurrPCB != null)
+            if (_CurrPCB != null) {
                 this.updatePCBWithCurrentCPU();
+            }
 
             TSOS.Control.updateReadyQueueTable();
             this.updateCPUElements();
 
-            _Scheduler.CycleCount++;
+            if (_Scheduler.Mode == ROUND_ROBIN) {
+                _Scheduler.CycleCount++;
+            }
 
-            // If we have run this program for the amount of cycles that the quantum tells us
-            // (or the running program finishes early), schedule an interrupt for a context switch.
             if (_CurrPCB != null) {
-                if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
-                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+                // If we have run this program for the amount of cycles that the quantum tells us
+                // (or the running program finishes early), schedule an interrupt for a context switch.
+                if (_Scheduler.Mode == ROUND_ROBIN) {
+                    if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
+                        _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+                    }
+                    // For the other two scheduling algorithms, just move on when a program completes.
+                } else {
+                    if (_CurrPCB.isFinished) {
+                        _KernelInterruptQueue.enqueue(new TSOS.Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+                    }
+                }
             }
         };
 
