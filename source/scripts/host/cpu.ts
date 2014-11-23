@@ -155,7 +155,6 @@ module TSOS {
             }
         }
 
-
         // The values at the next two positions in memory, swapped and combined, is a memory location
         // represented in hex. This returns that location as a decimal number.
         private getNextTwoBytesAndCombine(): number {
@@ -383,22 +382,31 @@ module TSOS {
             this.updatePCBWithCurrentCPU();
             //_CurrPCB.printPCB();
 
-            _Scheduler.readyToCompleted();
+            if (_Scheduler.Mode == PRIORITY) {
+                _Scheduler.readyToCompleted(_CurrPCB);
+            } else {
+                _Scheduler.readyToCompleted();
+            }
 
             // Free up this space in memory because the current program
             // is done running, so we can load into that spot now.
             _MemMan.updateNextFreeBlock(_CurrBlockOfMem);
 
             if (!_ReadyQueue.isEmpty()) {
-                _CurrPCB = _ReadyQueue.peek();
+
+                _CurrPCB = (_Scheduler.Mode == PRIORITY) ? _ReadyQueue.findLowestPriority()
+                                                         : _ReadyQueue.peek();
                 _CurrBlockOfMem = _CurrPCB.MemBlock;
+                _CurrPCB.State = "Running";
                 this.updateCPUWithPCBContents();
                 _Scheduler.CycleCount = 0;
 
             } else {
+
                 _CurrPCB = null;
                 _CurrBlockOfMem = -1;
                 this.isExecuting = false;
+
             }
         }
 

@@ -330,7 +330,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         };
 
-        Shell.prototype.shellLoad = function () {
+        Shell.prototype.shellLoad = function (args) {
             _ProgInput = TSOS.Control.getProgramInput();
             var regex = new RegExp("^[A-Fa-f0-9]{2}$");
 
@@ -353,8 +353,8 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 if (allValid) {
                     // If we still have space in memory...
                     if (_MemMan.nextFreeBlock !== -1) {
-                        // Make a new PCB...
-                        var pcb = new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock);
+                        // Make a new PCB (with priority, if supplied)...
+                        var pcb = (args.length > 0) ? new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock, args[0]) : new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock);
 
                         // ...put it in the Resident Queue...
                         _ResidentQueue.enqueue(pcb);
@@ -458,9 +458,15 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 _CPU.isExecuting = true;
 
                 // ...and sets the currently running PID (and memory block)
-                // to the first program in the queue.
-                _CurrPCB = _ReadyQueue.peek();
+                // to the first program in the queue (for RR and FCFS, or
+                // the one with the lowest priority).
+                if (_Scheduler.Mode == PRIORITY)
+                    _CurrPCB = _ReadyQueue.findLowestPriority();
+                else
+                    _CurrPCB = _ReadyQueue.peek();
+
                 _CurrBlockOfMem = _CurrPCB.getMemBlock();
+                _CurrPCB.State = "Running";
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");
             }

@@ -4,7 +4,7 @@
 var TSOS;
 (function (TSOS) {
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(mb) {
+        function ProcessControlBlock(mb, priority) {
             this.PID = _PID++;
             this.PC = 0;
             this.Accum = 0;
@@ -14,6 +14,7 @@ var TSOS;
             this.MemBlock = mb;
             this.BaseReg = mb * 256;
             this.LimitReg = this.BaseReg + 255;
+            this.Priority = (priority != undefined) ? priority : 0;
             this.State = "New";
             this.isFinished = false;
         }

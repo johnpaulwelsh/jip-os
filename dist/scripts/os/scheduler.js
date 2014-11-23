@@ -10,6 +10,7 @@ var TSOS;
             this.CycleCount = 0;
         }
         Scheduler.prototype.contextSwitch = function () {
+            debugger;
             switch (this.Mode) {
                 case ROUND_ROBIN:
                     this.doRoundRobinCS();
@@ -61,18 +62,29 @@ var TSOS;
             // If the Ready Queue has more than one PCB in it...
             if (_ReadyQueue.getSize() > 1) {
                 this.readyToCompleted();
-                this.setUpNextPCB();
-                _Kernel.krnTrace("FCFS context switch: running program's PID = " + _CurrPCB.PID);
+                this.setUpNextPCBInOrder();
             }
             // otherwise, do nothing and let it all end.
         };
 
         Scheduler.prototype.doPriorityCS = function () {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBPriority();
+                _Kernel.krnTrace("Priority context switch: running program's PID = " + _CurrPCB.PID);
+            }
         };
 
-        Scheduler.prototype.setUpNextPCB = function () {
+        Scheduler.prototype.setUpNextPCBInOrder = function () {
             _CurrPCB = _ReadyQueue.peek();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
+        };
+
+        Scheduler.prototype.setUpNextPCBPriority = function () {
+            _CurrPCB = _ReadyQueue.findLowestPriority();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";
             _CPU.updateCPUWithPCBContents();
@@ -150,12 +162,11 @@ var TSOS;
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
-            _ReadyQueue.peek().State = "Running";
             TSOS.Control.updateReadyQueueTable();
         };
 
-        Scheduler.prototype.readyToCompleted = function () {
-            var pcb = _ReadyQueue.dequeue();
+        Scheduler.prototype.readyToCompleted = function (priorityPCB) {
+            var pcb = (priorityPCB != undefined) ? _ReadyQueue.findAndRemovePCB(priorityPCB.PID) : _ReadyQueue.dequeue();
             pcb.State = "Terminated";
             _CompletedQueue.enqueue(pcb);
             TSOS.Control.updateReadyQueueTable();

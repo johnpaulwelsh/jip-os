@@ -14,9 +14,10 @@ module TSOS {
         LimitReg: number;
         MemBlock: number;
         State: string;
+        Priority: number;
         isFinished: boolean;
 
-        constructor(mb) {
+        constructor(mb, priority?) {
             this.PID      = _PID++;
             this.PC       = 0;
             this.Accum    = 0;
@@ -26,6 +27,7 @@ module TSOS {
             this.MemBlock = mb;
             this.BaseReg  = mb * 256;
             this.LimitReg = this.BaseReg + 255;
+            this.Priority = (priority != undefined) ? priority : 0;
             this.State    = "New";
             this.isFinished = false;
         }

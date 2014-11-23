@@ -36,7 +36,27 @@ module TSOS {
         }
 
         public peek(): any {
-            var x = this.q[0];
+            return this.q[0];
+        }
+
+        public findLowestPriority(): any {
+            var pri = 1000;
+            // Search for the lowest priority value.
+            for (var i = 0; i < this.q.length; i++) {
+                var x = this.q[i].Priority;
+                if (parseInt(this.q[i].Priority) < pri) {
+                    pri = parseInt(this.q[i].Priority);
+                }
+            }
+
+            // Then search again to find the first one with that priority value.
+            for (var j = 0; j < this.q.length; j++) {
+                if (parseInt(this.q[j].Priority) == pri) {
+                    return this.q[j];
+                }
+            }
+
+            // As a failsafe, just give back the first thing in the Ready Queue.
             return this.q[0];
         }
 
@@ -70,7 +90,7 @@ module TSOS {
 
         public toString() {
             var retVal = "";
-            for (var i in this.q) {
+            for (var i = 0; i < this.q.length; i++) {
                 retVal += "[" + this.q[i] + "] ";
             }
             return retVal;

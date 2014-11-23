@@ -15,6 +15,7 @@ module TSOS {
         }
 
         public contextSwitch(): void {
+            debugger;
             switch (this.Mode) {
                 case ROUND_ROBIN:
                     this.doRoundRobinCS();
@@ -68,18 +69,30 @@ module TSOS {
             // If the Ready Queue has more than one PCB in it...
             if (_ReadyQueue.getSize() > 1) {
                 this.readyToCompleted();
-                this.setUpNextPCB();
-                _Kernel.krnTrace("FCFS context switch: running program's PID = " + _CurrPCB.PID);
+                this.setUpNextPCBInOrder();
+
             }
             // otherwise, do nothing and let it all end.
         }
 
         public doPriorityCS(): void {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBPriority();
+                _Kernel.krnTrace("Priority context switch: running program's PID = " + _CurrPCB.PID);
+            }
         }
 
-        private setUpNextPCB(): void {
+        private setUpNextPCBInOrder(): void {
             _CurrPCB = _ReadyQueue.peek();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
+        }
+
+        private setUpNextPCBPriority(): void {
+            _CurrPCB = _ReadyQueue.findLowestPriority();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";
             _CPU.updateCPUWithPCBContents();
@@ -159,12 +172,12 @@ module TSOS {
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
-            _ReadyQueue.peek().State = "Running";
             Control.updateReadyQueueTable();
         }
 
-        public readyToCompleted(): void {
-            var pcb = _ReadyQueue.dequeue();
+        public readyToCompleted(priorityPCB?): void {
+            var pcb = (priorityPCB != undefined) ? _ReadyQueue.findAndRemovePCB(priorityPCB.PID)
+                                                 : _ReadyQueue.dequeue();
             pcb.State = "Terminated";
             _CompletedQueue.enqueue(pcb);
             Control.updateReadyQueueTable();

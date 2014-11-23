@@ -308,6 +308,10 @@ module TSOS {
                 var cellState = document.createElement("td");
                 row.appendChild(cellState);
                 cellState.innerHTML = pcb.State;
+
+                var cellPriority = document.createElement("td");
+                row.appendChild(cellPriority);
+                cellPriority.innerHTML = pcb.Priority;
             }
         }
     }

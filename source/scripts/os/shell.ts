@@ -373,7 +373,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         }
 
-        public shellLoad() {
+        public shellLoad(args) {
             _ProgInput = Control.getProgramInput();
             var regex = new RegExp("^[A-Fa-f0-9]{2}$");
 
@@ -398,8 +398,9 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
                     // If we still have space in memory...
                     if (_MemMan.nextFreeBlock !== -1) {
-                        // Make a new PCB...
-                        var pcb = new ProcessControlBlock(_MemMan.nextFreeBlock);
+                        // Make a new PCB (with priority, if supplied)...
+                        var pcb = (args.length > 0) ? new ProcessControlBlock(_MemMan.nextFreeBlock, args[0])
+                                                    : new ProcessControlBlock(_MemMan.nextFreeBlock);
                         // ...put it in the Resident Queue...
                         _ResidentQueue.enqueue(pcb);
                         // ...clear out the block of memory where the program will go into...
@@ -503,9 +504,15 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 // ...sets the CPU to isExecuting...
                 _CPU.isExecuting = true;
                 // ...and sets the currently running PID (and memory block)
-                // to the first program in the queue.
-                _CurrPCB = _ReadyQueue.peek();
+                // to the first program in the queue (for RR and FCFS, or
+                // the one with the lowest priority).
+                if (_Scheduler.Mode == PRIORITY)
+                    _CurrPCB = _ReadyQueue.findLowestPriority();
+                else
+                    _CurrPCB = _ReadyQueue.peek();
+
                 _CurrBlockOfMem = _CurrPCB.getMemBlock();
+                _CurrPCB.State = "Running";
 
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");
