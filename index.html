@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <meta name="author"             content="Alan G. Labouseur and John Paul Welsh" />
+    <meta name="author"             content="Alan G. Labouseur, Bob Nisco, and John Paul Welsh" />
     <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
     <title>
         jip-os - a browser-based virtual Operating System in TypeScript
@@ -23,6 +23,7 @@
     <script type="text/javascript" src="dist/scripts/os/console.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriverFileSystem.js"></script>
     <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
     <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
     <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
@@ -196,6 +197,15 @@
                     <th>State</th>
                     <th>Priority</th>
                 </tr>
+            </table>
+        </label>
+    </div>
+
+    <div id="divFileSystem" style="margin:4px; width:700px; height:100px; float:left; margin-top:50px; overflow-y: auto;">
+        <label>
+            File System
+            <br>
+            <table id="tableFileSystem" style="background-color: #909993;">
             </table>
         </label>
     </div>

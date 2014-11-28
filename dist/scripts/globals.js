@@ -68,6 +68,7 @@ var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver = null;
+var _krnFileSystemDriver = null;
 
 var _hardwareClockID = null;
 
@@ -108,6 +109,17 @@ var _IsSingleStep = false;
 
 // For line wrap...
 var _StringCutoffLength = 40;
+
+// For file system...
+var DISK_CREATE = 0;
+var DISK_READ = 0;
+var DISK_WRITE = 0;
+var DISK_DELETE = 0;
+var DISK_FORMAT = 0;
+var _FileSystemTable = null;
+var FS_NUM_TRACKS = 4;
+var FS_NUM_SECTORS = 8;
+var FS_NUM_BLOCKS = 8;
 
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();

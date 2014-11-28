@@ -3,7 +3,9 @@
  */
 
 module TSOS {
+
     export class ProcessControlBlock {
+
         PID: number;
         PC: number;
         Accum: number;

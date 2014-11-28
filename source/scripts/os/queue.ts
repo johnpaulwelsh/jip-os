@@ -9,6 +9,7 @@
    ------------ */
 
 module TSOS {
+
     export class Queue {
 
         constructor(public q = []) {

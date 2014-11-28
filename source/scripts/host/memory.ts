@@ -3,6 +3,7 @@
  */
 
 module TSOS {
+
     export class Memory {
 
         memBlocks: string[][];

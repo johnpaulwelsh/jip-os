@@ -309,6 +309,25 @@ var TSOS;
                 cellPriority.innerHTML = pcb.Priority;
             }
         };
+
+        Control.createFileSystemTable = function () {
+            _FileSystemTable = document.getElementById("tableFileSystem");
+
+            for (var t = 0; t < FS_NUM_TRACKS; t++) {
+                for (var s = 0; s < FS_NUM_SECTORS; s++) {
+                    for (var b = 0; b < FS_NUM_BLOCKS; b++) {
+                        var row = document.createElement("tr");
+                        _FileSystemTable.appendChild(row);
+
+                        for (var c = 0; c < 64; c++) {
+                            var cell = document.createElement("td");
+                            row.appendChild(cell);
+                            cell.innerHTML = "~";
+                        }
+                    }
+                }
+            }
+        };
         return Control;
     })();
     TSOS.Control = Control;

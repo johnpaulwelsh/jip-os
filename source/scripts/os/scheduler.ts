@@ -3,7 +3,9 @@
  */
 
 module TSOS {
+
     export class Scheduler {
+
         Mode: number;
         Quantum: number;
         CycleCount: number;

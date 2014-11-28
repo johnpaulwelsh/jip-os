@@ -5,7 +5,9 @@
    ------------ */
 
 module TSOS {
+
     export class Shell {
+
         // Properties
         public promptStr = ">";
         public commandList = [];

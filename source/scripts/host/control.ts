@@ -269,7 +269,6 @@ module TSOS {
             _ReadyQueueTable = document.getElementById("tableReadyQueue");
 
             // Start at 1 because we don't want to delete the first row, with the headers.
-            //var rowToDelete = 1;
             while (_ReadyQueueTable.rows.length > 1) {
                 _ReadyQueueTable.deleteRow(1);
             }
@@ -312,6 +311,25 @@ module TSOS {
                 var cellPriority = document.createElement("td");
                 row.appendChild(cellPriority);
                 cellPriority.innerHTML = pcb.Priority;
+            }
+        }
+
+        public static createFileSystemTable() {
+            _FileSystemTable = document.getElementById("tableFileSystem");
+
+            for (var t = 0; t < FS_NUM_TRACKS; t++) {
+                for (var s = 0; s < FS_NUM_SECTORS; s++) {
+                    for (var b = 0; b < FS_NUM_BLOCKS; b++) {
+                        var row = document.createElement("tr");
+                        _FileSystemTable.appendChild(row);
+
+                        for (var c = 0; c < 64; c++) {
+                            var cell = document.createElement("td");
+                            row.appendChild(cell);
+                            cell.innerHTML = "~";
+                        }
+                    }
+                }
             }
         }
     }
