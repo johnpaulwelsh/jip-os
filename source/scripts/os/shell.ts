@@ -53,6 +53,42 @@ module TSOS {
                                   "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
+            // create
+            sc = new ShellCommand(this.shellFSCreate,
+                                  "create",
+                                  "<filename> - Creates an empty file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // read
+            sc = new ShellCommand(this.shellFSRead,
+                                  "read",
+                                  "<filename> - Reads out the contents of the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // write
+            sc = new ShellCommand(this.shellFSWrite,
+                                  "write",
+                                  "<filename, text> - Writes to the file <filename> the given <text>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // delete
+            sc = new ShellCommand(this.shellFSDelete,
+                                  "delete",
+                                  "<filename> - Deletes the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // format
+            sc = new ShellCommand(this.shellFSFormat,
+                                  "format",
+                                  "- Formats the file system.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ls
+            sc = new ShellCommand(this.shellFSList,
+                "ls",
+                "- Lists the contents of the file system.");
+            this.commandList[this.commandList.length] = sc;
+
             // getschedule
             sc = new ShellCommand(this.shellGetSchedule,
                                   "getschedule",
@@ -353,6 +389,30 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         public shellDate() {
             _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
+        }
+
+        public shellFSCreate(args) {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE]));
+        }
+
+        public shellFSRead(args) {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_READ]));
+        }
+
+        public shellFSWrite(args) {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE]));
+        }
+
+        public shellFSDelete(args) {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE]));
+        }
+
+        public shellFSFormat() {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_FORMAT]));
+        }
+
+        public shellFSList() {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_LIST]));
         }
 
         public shellGetSchedule() {

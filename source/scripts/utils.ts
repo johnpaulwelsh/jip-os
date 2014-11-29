@@ -80,6 +80,10 @@ module TSOS {
             return decNum.toString(16);
         }
 
+        public static hexStrToDecStr(hexStr): string {
+            return parseInt(hexStr, 16).toString();
+        }
+
         // The regular isNaN function will trigger as false if our opcode has a digit as its
         // first character, and those opcodes that do all have a 'D' in them as the second character.
         // We override isNaN so that when it comes across '6D' or '8D', it knows it isn't a number.

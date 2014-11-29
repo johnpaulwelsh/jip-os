@@ -197,7 +197,7 @@ var TSOS;
 
             // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
             var clipY = _DefaultFontSize + _FontHeightMargin;
-            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 500, 0, 0, 500, 500); // width, height
+            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 630, 0, 0, 500, 630); // width, height
         };
 
         // Sets all the CPU elements to 0.
@@ -319,7 +319,7 @@ var TSOS;
                         var row = document.createElement("tr");
                         _FileSystemTable.appendChild(row);
 
-                        for (var c = 0; c < 64; c++) {
+                        for (var c = 0; c < FS_META_BYTES + FS_DATA_BYTES; c++) {
                             var cell = document.createElement("td");
                             row.appendChild(cell);
                             cell.innerHTML = "~";
@@ -327,6 +327,13 @@ var TSOS;
                     }
                 }
             }
+        };
+
+        Control.updateFileSysAtLoc = function (t, s, b, startByte, length, newText) {
+            sessionStorage.setItem("" + t + s + b, newText);
+        };
+
+        Control.fillInMetaBytes = function () {
         };
         return Control;
     })();

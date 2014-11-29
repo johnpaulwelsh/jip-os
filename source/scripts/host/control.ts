@@ -195,9 +195,9 @@ module TSOS {
             var clipY = _DefaultFontSize + _FontHeightMargin;
             _DrawingContext.drawImage(currCanvasContent, // img
                                         0, clipY,        // sx, sy
-                                        500, 500,        // swidth, sheight
+                                        500, 630,        // swidth, sheight
                                         0, 0,            // x, y
-                                        500, 500);       // width, height
+                                        500, 630);       // width, height
         }
 
         // Sets all the CPU elements to 0.
@@ -323,7 +323,7 @@ module TSOS {
                         var row = document.createElement("tr");
                         _FileSystemTable.appendChild(row);
 
-                        for (var c = 0; c < 64; c++) {
+                        for (var c = 0; c < FS_META_BYTES + FS_DATA_BYTES; c++) {
                             var cell = document.createElement("td");
                             row.appendChild(cell);
                             cell.innerHTML = "~";
@@ -331,6 +331,14 @@ module TSOS {
                     }
                 }
             }
+        }
+
+        public static updateFileSysAtLoc(t, s, b, startByte, length, newText) {
+            sessionStorage.setItem(""+t+s+b, newText);
+        }
+
+        public static fillInMetaBytes() {
+
         }
     }
 }

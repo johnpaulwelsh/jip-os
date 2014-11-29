@@ -37,6 +37,30 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time.");
             this.commandList[this.commandList.length] = sc;
 
+            // create
+            sc = new TSOS.ShellCommand(this.shellFSCreate, "create", "<filename> - Creates an empty file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // read
+            sc = new TSOS.ShellCommand(this.shellFSRead, "read", "<filename> - Reads out the contents of the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // write
+            sc = new TSOS.ShellCommand(this.shellFSWrite, "write", "<filename, text> - Writes to the file <filename> the given <text>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // delete
+            sc = new TSOS.ShellCommand(this.shellFSDelete, "delete", "<filename> - Deletes the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // format
+            sc = new TSOS.ShellCommand(this.shellFSFormat, "format", "- Formats the file system.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ls
+            sc = new TSOS.ShellCommand(this.shellFSList, "ls", "- Lists the contents of the file system.");
+            this.commandList[this.commandList.length] = sc;
+
             // getschedule
             sc = new TSOS.ShellCommand(this.shellGetSchedule, "getschedule", "- Displays the current CPU scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
@@ -308,6 +332,30 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellDate = function () {
             _StdOut.putText("Time and date, from TD Bank: " + TSOS.Utils.getDateAndTime());
+        };
+
+        Shell.prototype.shellFSCreate = function (args) {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE]));
+        };
+
+        Shell.prototype.shellFSRead = function (args) {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_READ]));
+        };
+
+        Shell.prototype.shellFSWrite = function (args) {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE]));
+        };
+
+        Shell.prototype.shellFSDelete = function (args) {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE]));
+        };
+
+        Shell.prototype.shellFSFormat = function () {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_FORMAT]));
+        };
+
+        Shell.prototype.shellFSList = function () {
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_LIST]));
         };
 
         Shell.prototype.shellGetSchedule = function () {
