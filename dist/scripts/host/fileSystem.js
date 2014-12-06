@@ -112,7 +112,6 @@ var TSOS;
         };
 
         FileSystem.prototype.getDirectoryWithName = function (fileName) {
-            debugger;
             return this.loopThroughFSDoing(function (tsb) {
                 if (_FileSystem.isDirectoryNotMBR(tsb) && TSOS.Utils.contains(_FileSystem.getDataBytes(tsb), fileName)) {
                     _FileSystem.isDoneLooping = true;

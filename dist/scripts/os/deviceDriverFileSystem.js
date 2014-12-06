@@ -78,8 +78,8 @@ var TSOS;
             var text = params[2];
             var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
             if (tsbWithName != undefined) {
-                _FileSystem.setBytes(false, text);
                 var dataTSB = _FileSystem.getNextFreeDataEntry();
+                _FileSystem.setBytes(false, text);
                 _FileSystem.setTSBBytes(tsbWithName, dataTSB); // TODO: off-by-one error
                 _StdOut.putText("File written");
             } else {

@@ -122,7 +122,6 @@ module TSOS {
         }
 
         public getDirectoryWithName(fileName): string {
-            debugger;
             return this.loopThroughFSDoing(function(tsb) {
                 if (_FileSystem.isDirectoryNotMBR(tsb) && Utils.contains(_FileSystem.getDataBytes(tsb), fileName)) {
                     _FileSystem.isDoneLooping = true;
