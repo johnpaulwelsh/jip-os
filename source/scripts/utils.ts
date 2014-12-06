@@ -94,5 +94,9 @@ module TSOS {
         public static isNaNOverride(val): boolean {
             return (val[1] === "D" || val === "00" || isNaN(val));
         }
+
+        public static tsbStr(t, s, b) {
+            return ""+t+s+b;
+        }
     }
 }

@@ -111,6 +111,9 @@ module TSOS {
             // Creates a CPU scheduler. Initialize with RR and quantum 6.
             _Scheduler = new TSOS.Scheduler(ROUND_ROBIN, 6);
 
+            // Initializes the file system.
+            _FileSystem = new TSOS.FileSystem(4, 8, 8);
+
             // Creates queues.
             _ReadyQueue = new TSOS.Queue();
             _ResidentQueue = new TSOS.Queue();
@@ -331,10 +334,6 @@ module TSOS {
                     }
                 }
             }
-        }
-
-        public static updateFileSysAtLoc(t, s, b, startByte, length, newText) {
-            sessionStorage.setItem(""+t+s+b, newText);
         }
 
         public static updateFileSystemTable(tsbID, newText) {

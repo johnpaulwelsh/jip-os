@@ -54,18 +54,17 @@ h3 {
 
 #divColumn1 {
   display: table-cell;
+  vertical-align: top;
 }
 
 #divColumn2 {
   display: table-cell;
   vertical-align: top;
-  /*padding: 0;*/
 }
 
 #divColumn3 {
   display: table-cell;
   vertical-align: top;
-  /*padding: 0;*/
 }
 
 #tableMemory tr td th {

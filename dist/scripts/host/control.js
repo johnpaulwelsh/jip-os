@@ -109,6 +109,9 @@ var TSOS;
             // Creates a CPU scheduler. Initialize with RR and quantum 6.
             _Scheduler = new TSOS.Scheduler(ROUND_ROBIN, 6);
 
+            // Initializes the file system.
+            _FileSystem = new TSOS.FileSystem(4, 8, 8);
+
             // Creates queues.
             _ReadyQueue = new TSOS.Queue();
             _ResidentQueue = new TSOS.Queue();
@@ -327,10 +330,6 @@ var TSOS;
                     }
                 }
             }
-        };
-
-        Control.updateFileSysAtLoc = function (t, s, b, startByte, length, newText) {
-            sessionStorage.setItem("" + t + s + b, newText);
         };
 
         Control.updateFileSystemTable = function (tsbID, newText) {

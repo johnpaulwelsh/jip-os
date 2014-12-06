@@ -121,6 +121,7 @@ var DISK_DELETE = 3;
 var DISK_FORMAT = 4;
 var DISK_LIST = 5;
 var _FileSystemTable: any = null;
+var _FileSystem: any = null;
 var FS_NUM_TRACKS = 4;
 var FS_NUM_SECTORS = 8;
 var FS_NUM_BLOCKS = 8;

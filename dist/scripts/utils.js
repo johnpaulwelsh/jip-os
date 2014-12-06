@@ -93,6 +93,10 @@ var TSOS;
         Utils.isNaNOverride = function (val) {
             return (val[1] === "D" || val === "00" || isNaN(val));
         };
+
+        Utils.tsbStr = function (t, s, b) {
+            return "" + t + s + b;
+        };
         return Utils;
     })();
     TSOS.Utils = Utils;
