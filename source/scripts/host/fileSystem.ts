@@ -5,28 +5,35 @@ module TSOS {
     export class FileSystem {
 
         DATA_FILL: string = "~";
-        TSB_FILL: string  = "*";
+        TSB_FILL:  string = "*";
 
         tracks: number;
         sectors: number;
         blocks: number;
+        metaBytes: number = 4;
+        dataBytes: number = 60;
 
         constructor(tracks, sectors, blocks) {
-            this.tracks = tracks;
+            this.tracks  = tracks;
             this.sectors = sectors;
-            this.blocks = blocks;
+            this.blocks  = blocks;
         }
 
         //
         // Helpers
         //
 
-        public getItem(tsb) {
+        private getItem(tsb) {
             return sessionStorage.getItem(tsb);
         }
 
-        public setItem(tsb, newBytes) {
+        private setItem(tsb, newBytes) {
             sessionStorage.setItem(tsb, newBytes);
+            Control.updateFileSystemTable(tsb, newBytes);
+        }
+
+        private continueAsLinked(filledTsb, remainingBytes) {
+
         }
 
         //
@@ -66,7 +73,46 @@ module TSOS {
         }
 
         public getDataBytes(tsb) {
-            return this.getItem(tsb).substr();
+            return this.getItem(tsb).substr(4, this.dataBytes);
+        }
+
+        public getMasterBootRecord() {
+            return this.getItem("000");
+        }
+
+        public getNextFreeDirectoryEntry() {
+            var nextFree = "";
+
+            var t = 0;
+            for (var s = 0; s < this.sectors; s++) {
+                for (var b = 0; b < this.blocks; b++) {
+                    var tsb = Utils.tsbStr(t, s, b);
+                    if (this.getIsUsedByte(tsb) == "0") {
+                        nextFree = tsb;
+                        break;
+                    }
+                }
+            }
+
+            return nextFree;
+        }
+
+        public getNextFreeDataEntry() {
+            var nextFree = "";
+
+            for (var t = 1; t < this.tracks; t++) {
+                for (var s = 0; s < this.sectors; s++) {
+                    for (var b = 0; b < this.blocks; b++) {
+                        var tsb = Utils.tsbStr(t, s, b);
+                        if (this.getIsUsedByte(tsb) == "0") {
+                            nextFree = tsb;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return nextFree;
         }
 
         //
@@ -89,13 +135,18 @@ module TSOS {
         }
 
         public setDataBytes(tsb, dataBytes) {
-
+            // The most complicated one.
+            // loop through every character in dataBytes,
+            // convert to hex, and put into one spot.
+            // if it reaches the end, linked-list it into
+            // another entry
         }
 
         public setMasterBootRecord() {
-            this.setIsUsedByte("000", "1");
-            this.setTSBBytesBlank("000");
-            this.setDataBytes("000", "jip-os");
+            var mbrTSB = "000";
+            this.setIsUsedByte(mbrTSB, "1");
+            this.setTSBBytesBlank(mbrTSB);
+            this.setDataBytes(mbrTSB, APP_NAME);
         }
 
         //
@@ -118,14 +169,10 @@ module TSOS {
             this.setItem(tsb, data);
         }
 
-        public setFullDirectoryBlank(tsb) {
+        public setFullBlank(tsb) {
             this.setIsUsedByte(tsb, "0");
             this.setTSBBytesBlank(tsb);
             this.setDataBytesBlank(tsb);
-        }
-
-        public setFullDataBlank(tsb) {
-            this.setFullDirectoryBlank(tsb);
         }
     }
 }

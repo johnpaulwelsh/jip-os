@@ -109,9 +109,6 @@ var TSOS;
             // Creates a CPU scheduler. Initialize with RR and quantum 6.
             _Scheduler = new TSOS.Scheduler(ROUND_ROBIN, 6);
 
-            // Initializes the file system.
-            _FileSystem = new TSOS.FileSystem(4, 8, 8);
-
             // Creates queues.
             _ReadyQueue = new TSOS.Queue();
             _ResidentQueue = new TSOS.Queue();
@@ -316,24 +313,34 @@ var TSOS;
         Control.createFileSystemTable = function () {
             _FileSystemTable = document.getElementById("tableFileSystem");
 
-            for (var t = 0; t < FS_NUM_TRACKS; t++) {
-                for (var s = 0; s < FS_NUM_SECTORS; s++) {
-                    for (var b = 0; b < FS_NUM_BLOCKS; b++) {
+            for (var t = 0; t < _FileSystem.tracks; t++) {
+                for (var s = 0; s < _FileSystem.sectors; s++) {
+                    for (var b = 0; b < _FileSystem.blocks; b++) {
+                        var tsb = TSOS.Utils.tsbStr(t, s, b);
+
                         var row = document.createElement("tr");
+
+                        // This allows you to getElementById and access any row instantly.
+                        row.id = tsb;
                         _FileSystemTable.appendChild(row);
 
-                        for (var c = 0; c < FS_META_BYTES + FS_DATA_BYTES; c++) {
-                            var cell = document.createElement("td");
-                            row.appendChild(cell);
-                            cell.innerHTML = "~";
+                        var data = "0";
+                        data += _FileSystem.TSB_FILL + _FileSystem.TSB_FILL + _FileSystem.TSB_FILL;
+
+                        for (var c = 0; c < _FileSystem.dataBytes; c++) {
+                            data += _FileSystem.DATA_FILL;
                         }
+
+                        var cell = document.createElement("td");
+                        row.appendChild(cell);
+                        row.innerHTML = data;
                     }
                 }
             }
         };
 
-        Control.updateFileSystemTable = function (tsbID, newText) {
-            document.getElementById(tsbID).innerHTML = newText;
+        Control.updateFileSystemTable = function (tsbID, newBytes) {
+            document.getElementById(tsbID).innerHTML = newBytes;
         };
 
         Control.fillInMetaBytes = function () {

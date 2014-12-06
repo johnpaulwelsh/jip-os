@@ -6,21 +6,12 @@ module TSOS {
 
     export class DeviceDriverFileSystem extends DeviceDriver {
 
-        tracks:    number;
-        sectors:   number;
-        blocks:    number;
-        metaBytes: number;
-        dataBytes: number;
         isDirectoryFull: boolean;
         isDataFull:      boolean;
 
         constructor() {
             super(this.krnFileSysDriverEntry, this.krnFileSysDispatchAction);
-            this.tracks    = FS_NUM_TRACKS;
-            this.sectors   = FS_NUM_SECTORS;
-            this.blocks    = FS_NUM_BLOCKS;
-            this.metaBytes = FS_META_BYTES;
-            this.dataBytes = FS_DATA_BYTES;
+            _FileSystem = new TSOS.FileSystem(FS_NUM_TRACKS, FS_NUM_SECTORS, FS_NUM_BLOCKS);
             this.isDirectoryFull = false;
             this.isDataFull      = false;
 

@@ -13,11 +13,7 @@ var TSOS;
         __extends(DeviceDriverFileSystem, _super);
         function DeviceDriverFileSystem() {
             _super.call(this, this.krnFileSysDriverEntry, this.krnFileSysDispatchAction);
-            this.tracks = FS_NUM_TRACKS;
-            this.sectors = FS_NUM_SECTORS;
-            this.blocks = FS_NUM_BLOCKS;
-            this.metaBytes = FS_META_BYTES;
-            this.dataBytes = FS_DATA_BYTES;
+            _FileSystem = new TSOS.FileSystem(FS_NUM_TRACKS, FS_NUM_SECTORS, FS_NUM_BLOCKS);
             this.isDirectoryFull = false;
             this.isDataFull = false;
 

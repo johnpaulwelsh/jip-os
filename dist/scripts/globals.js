@@ -123,8 +123,6 @@ var _FileSystem = null;
 var FS_NUM_TRACKS = 4;
 var FS_NUM_SECTORS = 8;
 var FS_NUM_BLOCKS = 8;
-var FS_META_BYTES = 4;
-var FS_DATA_BYTES = 60;
 
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();

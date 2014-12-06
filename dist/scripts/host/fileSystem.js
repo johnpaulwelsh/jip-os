@@ -7,6 +7,8 @@ var TSOS;
         function FileSystem(tracks, sectors, blocks) {
             this.DATA_FILL = "~";
             this.TSB_FILL = "*";
+            this.metaBytes = 4;
+            this.dataBytes = 60;
             this.tracks = tracks;
             this.sectors = sectors;
             this.blocks = blocks;
@@ -20,6 +22,10 @@ var TSOS;
 
         FileSystem.prototype.setItem = function (tsb, newBytes) {
             sessionStorage.setItem(tsb, newBytes);
+            TSOS.Control.updateFileSystemTable(tsb, newBytes);
+        };
+
+        FileSystem.prototype.continueAsLinked = function (filledTsb, remainingBytes) {
         };
 
         //
@@ -57,7 +63,46 @@ var TSOS;
         };
 
         FileSystem.prototype.getDataBytes = function (tsb) {
-            return this.getItem(tsb).substr();
+            return this.getItem(tsb).substr(4, this.dataBytes);
+        };
+
+        FileSystem.prototype.getMasterBootRecord = function () {
+            return this.getItem("000");
+        };
+
+        FileSystem.prototype.getNextFreeDirectoryEntry = function () {
+            var nextFree = "";
+
+            var t = 0;
+            for (var s = 0; s < this.sectors; s++) {
+                for (var b = 0; b < this.blocks; b++) {
+                    var tsb = TSOS.Utils.tsbStr(t, s, b);
+                    if (this.getIsUsedByte(tsb) == "0") {
+                        nextFree = tsb;
+                        break;
+                    }
+                }
+            }
+
+            return nextFree;
+        };
+
+        FileSystem.prototype.getNextFreeDataEntry = function () {
+            var nextFree = "";
+
+            for (var t = 1; t < this.tracks; t++) {
+                for (var s = 0; s < this.sectors; s++) {
+                    for (var b = 0; b < this.blocks; b++) {
+                        var tsb = TSOS.Utils.tsbStr(t, s, b);
+                        if (this.getIsUsedByte(tsb) == "0") {
+                            nextFree = tsb;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return nextFree;
         };
 
         //
@@ -79,12 +124,18 @@ var TSOS;
         };
 
         FileSystem.prototype.setDataBytes = function (tsb, dataBytes) {
+            // The most complicated one.
+            // loop through every character in dataBytes,
+            // convert to hex, and put into one spot.
+            // if it reaches the end, linked-list it into
+            // another entry
         };
 
         FileSystem.prototype.setMasterBootRecord = function () {
-            this.setIsUsedByte("000", "1");
-            this.setTSBBytesBlank("000");
-            this.setDataBytes("000", "jip-os");
+            var mbrTSB = "000";
+            this.setIsUsedByte(mbrTSB, "1");
+            this.setTSBBytesBlank(mbrTSB);
+            this.setDataBytes(mbrTSB, APP_NAME);
         };
 
         //
@@ -106,14 +157,10 @@ var TSOS;
             this.setItem(tsb, data);
         };
 
-        FileSystem.prototype.setFullDirectoryBlank = function (tsb) {
+        FileSystem.prototype.setFullBlank = function (tsb) {
             this.setIsUsedByte(tsb, "0");
             this.setTSBBytesBlank(tsb);
             this.setDataBytesBlank(tsb);
-        };
-
-        FileSystem.prototype.setFullDataBlank = function (tsb) {
-            this.setFullDirectoryBlank(tsb);
         };
         return FileSystem;
     })();
