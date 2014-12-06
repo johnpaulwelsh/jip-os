@@ -333,6 +333,10 @@ var TSOS;
             sessionStorage.setItem("" + t + s + b, newText);
         };
 
+        Control.updateFileSystemTable = function (tsbID, newText) {
+            document.getElementById(tsbID).innerHTML = newText;
+        };
+
         Control.fillInMetaBytes = function () {
         };
         return Control;

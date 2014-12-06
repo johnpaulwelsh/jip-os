@@ -337,6 +337,10 @@ module TSOS {
             sessionStorage.setItem(""+t+s+b, newText);
         }
 
+        public static updateFileSystemTable(tsbID, newText) {
+            document.getElementById(tsbID).innerHTML = newText;
+        }
+
         public static fillInMetaBytes() {
 
         }
