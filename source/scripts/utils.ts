@@ -95,8 +95,12 @@ module TSOS {
             return (val[1] === "D" || val === "00" || isNaN(val));
         }
 
-        public static tsbStr(t, s, b) {
+        public static tsbStr(t, s, b): string {
             return ""+t+s+b;
+        }
+
+        public static contains(str, subStr): boolean {
+            return (str.indexOf(subStr) > -1);
         }
     }
 }

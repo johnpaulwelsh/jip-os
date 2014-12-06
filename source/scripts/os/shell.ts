@@ -392,19 +392,24 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         }
 
         public shellFSCreate(args) {
-            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE]));
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, fileName]));
         }
 
         public shellFSRead(args) {
-            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_READ]));
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_READ, fileName]));
         }
 
         public shellFSWrite(args) {
-            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE]));
+            var fileName = args[0];
+            var text = args[1];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text]));
         }
 
         public shellFSDelete(args) {
-            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE]));
+            var fileName = args[0]
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE, fileName]));
         }
 
         public shellFSFormat() {

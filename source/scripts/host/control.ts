@@ -323,32 +323,42 @@ module TSOS {
                         var tsb = Utils.tsbStr(t, s, b);
 
                         var row = document.createElement("tr");
-                        // This allows you to getElementById and access any row instantly.
-                        row.id = tsb;
                         _FileSystemTable.appendChild(row);
 
-                        var data = "0";
-                        data += _FileSystem.TSB_FILL + _FileSystem.TSB_FILL + _FileSystem.TSB_FILL;
+                        var data = this.buildEmptyEntry();
 
-                        for (var c = 0; c < _FileSystem.dataBytes; c++) {
-                            data += _FileSystem.DATA_FILL;
-                        }
+                        var keyCell = document.createElement("td");
+                        row.appendChild(keyCell);
+                        keyCell.innerHTML = tsb;
 
-                        var cell = document.createElement("td");
-                        row.appendChild(cell);
-                        row.innerHTML = data;
+                        var spacer = document.createElement("td");
+                        row.appendChild(spacer);
+                        spacer.innerHTML = "&nbsp;";
+
+                        var valueCell = document.createElement("td");
+                        row.appendChild(valueCell);
+                        valueCell.innerHTML = data;
+                        // This allows you to getElementById and access any row instantly.
+                        valueCell.id = tsb;
 
                     }
                 }
             }
         }
 
-        public static updateFileSystemTable(tsbID, newBytes) {
-            document.getElementById(tsbID).innerHTML = newBytes;
+        public static buildEmptyEntry() {
+            var data = "0";
+            data += _FileSystem.TSB_FILL + _FileSystem.TSB_FILL + _FileSystem.TSB_FILL;
+
+            for (var c = 0; c < _FileSystem.dataBytes; c++) {
+                data += _FileSystem.DATA_FILL;
+            }
+
+            return data;
         }
 
-        public static fillInMetaBytes() {
-
+        public static updateFileSystemTable(tsbID, newBytes) {
+            document.getElementById(tsbID).innerHTML = newBytes;
         }
     }
 }

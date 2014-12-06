@@ -335,19 +335,24 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         };
 
         Shell.prototype.shellFSCreate = function (args) {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE]));
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, fileName]));
         };
 
         Shell.prototype.shellFSRead = function (args) {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_READ]));
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_READ, fileName]));
         };
 
         Shell.prototype.shellFSWrite = function (args) {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE]));
+            var fileName = args[0];
+            var text = args[1];
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text]));
         };
 
         Shell.prototype.shellFSDelete = function (args) {
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE]));
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE, fileName]));
         };
 
         Shell.prototype.shellFSFormat = function () {

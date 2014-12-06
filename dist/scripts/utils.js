@@ -97,6 +97,10 @@ var TSOS;
         Utils.tsbStr = function (t, s, b) {
             return "" + t + s + b;
         };
+
+        Utils.contains = function (str, subStr) {
+            return (str.indexOf(subStr) > -1);
+        };
         return Utils;
     })();
     TSOS.Utils = Utils;
