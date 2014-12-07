@@ -50,6 +50,14 @@ var TSOS;
             return (tsb[0] == "0" && tsb != "000");
         };
 
+        FileSystem.prototype.isDirectory = function (tsb) {
+            return (tsb[0] == "0");
+        };
+
+        FileSystem.prototype.isNotUsed = function (tsb) {
+            return (_FileSystem.getIsUsedByte(tsb) == "0");
+        };
+
         //
         // Helpers
         //
@@ -95,7 +103,7 @@ var TSOS;
 
         FileSystem.prototype.getNextFreeDirectoryEntry = function () {
             return this.loopThroughFSDoing(function (tsb) {
-                if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.getIsUsedByte(tsb) == "0") {
+                if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -104,7 +112,7 @@ var TSOS;
 
         FileSystem.prototype.getNextFreeDataEntry = function () {
             return this.loopThroughFSDoing(function (tsb) {
-                if (tsb[0] != "0" && _FileSystem.getIsUsedByte(tsb) == "0") {
+                if (!this.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }

@@ -103,10 +103,13 @@ var TSOS;
         };
 
         DeviceDriverFileSystem.prototype.listFiles = function () {
-            for (var i = 0; i < _FileSystem.getSize(); i++) {
-                _StdOut.putText("Files listed");
-                _StdOut.advanceLine();
-            }
+            _FileSystem.loopThroughFSDoing(function (tsb) {
+                if (_FileSystem.isDirectoryNotMBR(tsb) && !_FileSystem.isNotUsed(tsb)) {
+                    var fileName = _FileSystem.getDataBytes(tsb).replace(/~/g, "");
+                    _StdOut.putText(fileName);
+                    _StdOut.advanceLine();
+                }
+            });
             _OsShell.putPrompt();
         };
 

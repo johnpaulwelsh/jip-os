@@ -57,6 +57,14 @@ module TSOS {
             return (tsb[0] == "0" && tsb != "000");
         }
 
+        public isDirectory(tsb): boolean {
+            return (tsb[0] == "0");
+        }
+
+        public isNotUsed(tsb): boolean {
+            return (_FileSystem.getIsUsedByte(tsb) == "0");
+        }
+
         //
         // Helpers
         //
@@ -105,7 +113,7 @@ module TSOS {
 
         public getNextFreeDirectoryEntry(): string {
             return this.loopThroughFSDoing(function(tsb) {
-                if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.getIsUsedByte(tsb) == "0") {
+                if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -114,7 +122,7 @@ module TSOS {
 
         public getNextFreeDataEntry(): string {
             return this.loopThroughFSDoing(function(tsb) {
-                if (tsb[0] != "0" && _FileSystem.getIsUsedByte(tsb) == "0") {
+                if (!this.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -127,7 +135,6 @@ module TSOS {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
-
             });
         }
 
@@ -154,8 +161,8 @@ module TSOS {
             var myTSB = (tsb != undefined) ?
                         tsb :
                         ((isDirectory) ?
-                          this.getNextFreeDirectoryEntry() :
-                          this.getNextFreeDataEntry());
+                            this.getNextFreeDirectoryEntry() :
+                            this.getNextFreeDataEntry());
 
 
             var data = this.getItem(myTSB).split("");
