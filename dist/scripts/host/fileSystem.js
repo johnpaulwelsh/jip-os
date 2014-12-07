@@ -207,6 +207,14 @@ var TSOS;
             this.setItem(tsb, data.join(""));
         };
 
+        FileSystem.prototype.setDataBytesWithLinksBlank = function (tsb) {
+            var linkTSB = this.getTSBBytes(tsb);
+            if (linkTSB != this.TSB_FILL_FULL) {
+                this.setDataBytesWithLinksBlank(linkTSB);
+            }
+            this.setFullBlank(tsb);
+        };
+
         FileSystem.prototype.setFullBlank = function (tsb) {
             this.setIsUsedByte(tsb, "0");
             this.setTSBBytesBlank(tsb);

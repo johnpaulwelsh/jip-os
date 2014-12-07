@@ -73,7 +73,7 @@ var TSOS;
                 var dataTSB = _FileSystem.getTSBBytes(tsbWithName);
                 _StdOut.putText(_FileSystem.getDataBytesWithLinks(dataTSB).replace(/~/g, ""));
             } else {
-                _StdOut.putText("No file exists by that name");
+                _StdOut.putText("No file exists by that name.");
             }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
@@ -89,7 +89,7 @@ var TSOS;
                 _FileSystem.setTSBBytes(tsbWithName, dataTSB);
                 _StdOut.putText("File written");
             } else {
-                _StdOut.putText("No file exists by that name");
+                _StdOut.putText("No file exists by that name.");
             }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
@@ -97,7 +97,13 @@ var TSOS;
 
         DeviceDriverFileSystem.prototype.deleteFile = function (params) {
             var fileName = params[1];
-            _StdOut.putText("File deleted");
+            var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
+            if (tsbWithName != undefined) {
+                _FileSystem.setDataBytesWithLinksBlank(tsbWithName);
+                _StdOut.putText("File deleted");
+            } else {
+                _StdOut.putText("No file exists by that name.");
+            }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         };
