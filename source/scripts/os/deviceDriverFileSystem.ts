@@ -48,7 +48,7 @@ module TSOS {
                     this.deleteFile(params);
                     break;
                 case DISK_FORMAT:
-                    this.format(params);
+                    this.format();
                     break;
                 case DISK_LIST:
                     this.listFiles();
@@ -102,8 +102,13 @@ module TSOS {
             _OsShell.putPrompt();
         }
 
-        public format(params) {
-            _StdOut.putText("Disk formatted");
+        public format() {
+            if (!_CPU.isExecuting) {
+                this.initialize();
+                _StdOut.putText("Disk formatted");
+            } else {
+                _StdOut.putText("Not safe to format, disk is running.");
+            }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         }

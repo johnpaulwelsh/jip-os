@@ -48,7 +48,7 @@ var TSOS;
                     this.deleteFile(params);
                     break;
                 case DISK_FORMAT:
-                    this.format(params);
+                    this.format();
                     break;
                 case DISK_LIST:
                     this.listFiles();
@@ -102,8 +102,13 @@ var TSOS;
             _OsShell.putPrompt();
         };
 
-        DeviceDriverFileSystem.prototype.format = function (params) {
-            _StdOut.putText("Disk formatted");
+        DeviceDriverFileSystem.prototype.format = function () {
+            if (!_CPU.isExecuting) {
+                this.initialize();
+                _StdOut.putText("Disk formatted");
+            } else {
+                _StdOut.putText("Not safe to format, disk is running.");
+            }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         };
