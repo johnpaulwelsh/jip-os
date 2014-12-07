@@ -170,32 +170,72 @@ module TSOS {
         }
 
         public setBytes(isDirectory, bytes, tsb?) {
+
+            var byteArray = bytes.split("");
+
+            // If we don't need to do any linking...
+            if (byteArray.length <= 60) {
+
+                var myTSB = (tsb != undefined) ?
+                            tsb :
+                                ((isDirectory) ?
+                                this.getNextFreeDirectoryEntry() :
+                                this.getNextFreeDataEntry());
+
+
+                var dataArray = this.getItem(myTSB).split("");
+
+                for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
+                    dataArray[s] = byteArray[s - this.DATA_BEGIN];
+                }
+
+                this.setItem(myTSB, dataArray.join(""));
+                this.setIsUsedByte(myTSB, "1");
+
+            } else {
+                this.setBytesWithLinks(isDirectory, byteArray, tsb);
+            }
+        }
+
+        public setBytesWithLinks(isDirectory, byteArray, tsb?) {
             var myTSB = (tsb != undefined) ?
                         tsb :
-                        ((isDirectory) ?
+                            ((isDirectory) ?
                             this.getNextFreeDirectoryEntry() :
                             this.getNextFreeDataEntry());
 
+            var dataArray = this.getItem(myTSB).split("");
 
-            var data = this.getItem(myTSB).split("");
-            var byteArray = bytes.split("");
-            // If we don't need to do any linking...
-            if (byteArray.length <= 60) {
-                for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
-                    data[s] = byteArray[s - this.DATA_BEGIN];
-                }
-            // If we do need to link...
-            } else {
-                this.setBytesWithLinks(isDirectory, data, byteArray, myTSB);
+            for (var s = this.DATA_BEGIN; s < (this.dataBytes + this.DATA_BEGIN); s++) {
+                dataArray[s] = byteArray[s - this.DATA_BEGIN];
             }
 
-            this.setItem(myTSB, data.join(""));
+            // Get the rest of the string
+            byteArray = byteArray.slice(this.dataBytes);
+
+            var finalData = dataArray.join("");
+
+            if (byteArray.length <= 0) {
+                // TODO: this writes more than it should, so formatting doesn't overwrite everything
+                for (var i = finalData.length; i < (this.dataBytes + this.DATA_BEGIN); i++) {
+                    finalData += this.DATA_FILL;
+                }
+            }
+
+            this.setItem(myTSB, finalData);
             this.setIsUsedByte(myTSB, "1");
 
-        }
+            // If there's still some left...
+            if (byteArray.length > 0) {
+                var newTSB = ((isDirectory) ?
+                        this.getNextFreeDirectoryEntry() :
+                        this.getNextFreeDataEntry());
 
-        public setBytesWithLinks(isDirectory, existingData, byteArray, startingTSB) {
-            
+                this.setTSBBytes(myTSB, newTSB);
+                this.setIsUsedByte(newTSB, "1");
+
+                this.setBytesWithLinks(isDirectory, byteArray, newTSB);
+            }
         }
 
         public setMasterBootRecord() {
