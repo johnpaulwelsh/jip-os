@@ -94,16 +94,12 @@ module TSOS {
             }
 
             strArray = strArray.map(function(hex) {
-                //if (strArray.indexOf(hex) >= _FileSystem.DATA_BEGIN) {
-                    var decCharCode = Utils.hexStrToDecNum(hex);
-                    if (hex == _FileSystem.DATA_FILL) {
-                        return hex;
-                    } else {
-                        return String.fromCharCode(decCharCode);
-                    }
-                //} else {
-                //    return hex;
-                //}
+                var decCharCode = Utils.hexStrToDecNum(hex);
+                if (hex == _FileSystem.DATA_FILL) {
+                    return hex;
+                } else {
+                    return String.fromCharCode(decCharCode);
+                }
             });
 
             return strArray.join("");

@@ -16,14 +16,13 @@ var TSOS;
             this.sectors = sectors;
             this.blocks = blocks;
         }
-        FileSystem.prototype.getDirectorySize = function () {
-            return this.sectors * this.blocks;
-        };
-
-        FileSystem.prototype.getDataSize = function () {
-            return (this.tracks - 1) * this.sectors * this.blocks;
-        };
-
+        //public getDirectorySize(): number {
+        //    return this.sectors * this.blocks;
+        //}
+        //
+        //public getDataSize(): number {
+        //    return (this.tracks-1) * this.sectors * this.blocks;
+        //}
         FileSystem.prototype.loopThroughFSDoing = function (func) {
             var foundThing = null;
 
@@ -111,8 +110,7 @@ var TSOS;
         };
 
         FileSystem.prototype.getDataBytes = function (tsb) {
-            var ascii = TSOS.Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
-            return ascii;
+            return TSOS.Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
         };
 
         FileSystem.prototype.getDataBytesWithLinks = function (tsb) {
@@ -125,10 +123,9 @@ var TSOS;
             }
         };
 
-        FileSystem.prototype.getMasterBootRecord = function () {
-            return this.getItem("000");
-        };
-
+        //public getMasterBootRecord(): string {
+        //    return this.getItem("000");
+        //}
         FileSystem.prototype.getNextFreeDirectoryEntry = function () {
             return this.loopThroughFSDoing(function (tsb) {
                 if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.isNotUsed(tsb)) {

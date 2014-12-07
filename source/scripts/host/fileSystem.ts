@@ -24,13 +24,13 @@ module TSOS {
             this.blocks  = blocks;
         }
 
-        public getDirectorySize(): number {
-            return this.sectors * this.blocks;
-        }
-
-        public getDataSize(): number {
-            return (this.tracks-1) * this.sectors * this.blocks;
-        }
+        //public getDirectorySize(): number {
+        //    return this.sectors * this.blocks;
+        //}
+        //
+        //public getDataSize(): number {
+        //    return (this.tracks-1) * this.sectors * this.blocks;
+        //}
 
         public loopThroughFSDoing(func) {
             var foundThing = null;
@@ -121,8 +121,7 @@ module TSOS {
         }
 
         public getDataBytes(tsb): string {
-            var ascii = Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
-            return ascii;
+            return Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
         }
 
         public getDataBytesWithLinks(tsb): string {
@@ -135,9 +134,9 @@ module TSOS {
             }
         }
 
-        public getMasterBootRecord(): string {
-            return this.getItem("000");
-        }
+        //public getMasterBootRecord(): string {
+        //    return this.getItem("000");
+        //}
 
         public getNextFreeDirectoryEntry(): string {
             return this.loopThroughFSDoing(function(tsb) {

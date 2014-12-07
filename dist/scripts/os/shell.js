@@ -346,7 +346,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellFSWrite = function (args) {
             var fileName = args[0];
-            var text = args[1];
+            var text = "";
+            for (var i = 1; i < args.length; i++) {
+                text += " " + args[i];
+            }
+
+            // Get rid of all the quotes and leading/trailing whitespace.
+            text = TSOS.Utils.trim(text.replace(/"/g, "").replace(/'/g, ""));
+
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text]));
         };
 
