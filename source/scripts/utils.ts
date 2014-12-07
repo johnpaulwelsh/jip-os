@@ -80,8 +80,52 @@ module TSOS {
             return decNum.toString(16);
         }
 
-        public static hexStrToDecStr(hexStr): string {
-            return parseInt(hexStr, 16).toString();
+        public static charHexStrToAsciiStr(hexStr): string {
+            var strArray = [];
+            var i = 0;
+            while (i < hexStr.length) {
+                if (hexStr.charAt(i) == _FileSystem.DATA_FILL) {
+                    strArray.push(hexStr.substr(i, 1));
+                    i += 1;
+                } else {
+                    strArray.push(hexStr.substr(i, 2));
+                    i += 2;
+                }
+            }
+
+            strArray = strArray.map(function(hex) {
+                //if (strArray.indexOf(hex) >= _FileSystem.DATA_BEGIN) {
+                    var decCharCode = Utils.hexStrToDecNum(hex);
+                    if (hex == _FileSystem.DATA_FILL) {
+                        return hex;
+                    } else {
+                        return String.fromCharCode(decCharCode);
+                    }
+                //} else {
+                //    return hex;
+                //}
+            });
+
+            return strArray.join("");
+        }
+
+        public static asciiStrToCharHexStr(asciiStr): string {
+            var strArray = asciiStr.split("");
+            strArray = strArray.map(function(ascii) {
+                if (strArray.indexOf(ascii) >= _FileSystem.DATA_BEGIN) {
+                    var hexCharCode = ascii.charCodeAt(0);
+
+                    if (ascii == _FileSystem.DATA_FILL) {
+                        return ascii;
+                    } else {
+                        return Utils.decNumToHexStr(hexCharCode);
+                    }
+                } else {
+                    return ascii;
+                }
+            });
+
+            return strArray.join("");
         }
 
         // The regular isNaN function will trigger as false if our opcode has a digit as its

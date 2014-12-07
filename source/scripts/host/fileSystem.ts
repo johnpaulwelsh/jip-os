@@ -14,7 +14,7 @@ module TSOS {
         sectors: number;
         blocks:  number;
         metaBytes: number = 4;
-        dataBytes: number = 60;
+        dataBytes: number = 120;
 
         isDoneLooping: boolean = false;
 
@@ -77,8 +77,23 @@ module TSOS {
         }
 
         private setItem(tsb, newBytes): void {
+            this.specialSetItemBlank(tsb);
             sessionStorage.setItem(tsb, newBytes);
             Control.updateFileSystemTable(tsb, newBytes);
+        }
+
+        private specialSetItemBlank(tsb): void {
+            var data = this.getItem(tsb).split("");
+
+            data[0] = "0";
+            data[1] = this.TSB_FILL;
+            data[2] = this.TSB_FILL;
+            data[3] = this.TSB_FILL;
+            for (var i = 4; i < this.dataBytes; i++) {
+                data[i] = this.DATA_FILL;
+            }
+
+            sessionStorage.setItem(tsb, data.join(""));
         }
 
         //
@@ -106,7 +121,8 @@ module TSOS {
         }
 
         public getDataBytes(tsb): string {
-            return this.getItem(tsb).substr(4, this.dataBytes);
+            var ascii = Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
+            return ascii;
         }
 
         public getDataBytesWithLinks(tsb): string {
@@ -143,7 +159,8 @@ module TSOS {
 
         public getDirectoryWithName(fileName): string {
             return this.loopThroughFSDoing(function(tsb) {
-                if (_FileSystem.isDirectoryNotMBR(tsb) && Utils.contains(_FileSystem.getDataBytes(tsb), fileName)) {
+                var asciiName = _FileSystem.getDataBytes(tsb).replace(/~/g, "");
+                if (_FileSystem.isDirectoryNotMBR(tsb) && Utils.contains(asciiName, fileName)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -170,11 +187,10 @@ module TSOS {
         }
 
         public setBytes(isDirectory, bytes, tsb?) {
-
             var byteArray = bytes.split("");
 
             // If we don't need to do any linking...
-            if (byteArray.length <= 60) {
+            if (byteArray.length <= this.dataBytes) {
 
                 var myTSB = (tsb != undefined) ?
                             tsb :
@@ -189,7 +205,8 @@ module TSOS {
                     dataArray[s] = byteArray[s - this.DATA_BEGIN];
                 }
 
-                this.setItem(myTSB, dataArray.join(""));
+                var finalData = Utils.asciiStrToCharHexStr(dataArray.join(""));
+                this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
 
             } else {
@@ -222,7 +239,9 @@ module TSOS {
                 }
             }
 
-            this.setItem(myTSB, finalData);
+            var realFinalData = Utils.asciiStrToCharHexStr(finalData);
+            this.setItem(myTSB, realFinalData);
+            //this.setItem(myTSB, finalData);
             this.setIsUsedByte(myTSB, "1");
 
             // If there's still some left...

@@ -10,7 +10,7 @@ var TSOS;
             this.TSB_FILL_FULL = "***";
             this.DATA_BEGIN = 4;
             this.metaBytes = 4;
-            this.dataBytes = 60;
+            this.dataBytes = 120;
             this.isDoneLooping = false;
             this.tracks = tracks;
             this.sectors = sectors;
@@ -68,8 +68,23 @@ var TSOS;
         };
 
         FileSystem.prototype.setItem = function (tsb, newBytes) {
+            this.specialSetItemBlank(tsb);
             sessionStorage.setItem(tsb, newBytes);
             TSOS.Control.updateFileSystemTable(tsb, newBytes);
+        };
+
+        FileSystem.prototype.specialSetItemBlank = function (tsb) {
+            var data = this.getItem(tsb).split("");
+
+            data[0] = "0";
+            data[1] = this.TSB_FILL;
+            data[2] = this.TSB_FILL;
+            data[3] = this.TSB_FILL;
+            for (var i = 4; i < this.dataBytes; i++) {
+                data[i] = this.DATA_FILL;
+            }
+
+            sessionStorage.setItem(tsb, data.join(""));
         };
 
         //
@@ -96,7 +111,8 @@ var TSOS;
         };
 
         FileSystem.prototype.getDataBytes = function (tsb) {
-            return this.getItem(tsb).substr(4, this.dataBytes);
+            var ascii = TSOS.Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
+            return ascii;
         };
 
         FileSystem.prototype.getDataBytesWithLinks = function (tsb) {
@@ -133,7 +149,8 @@ var TSOS;
 
         FileSystem.prototype.getDirectoryWithName = function (fileName) {
             return this.loopThroughFSDoing(function (tsb) {
-                if (_FileSystem.isDirectoryNotMBR(tsb) && TSOS.Utils.contains(_FileSystem.getDataBytes(tsb), fileName)) {
+                var asciiName = _FileSystem.getDataBytes(tsb).replace(/~/g, "");
+                if (_FileSystem.isDirectoryNotMBR(tsb) && TSOS.Utils.contains(asciiName, fileName)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -162,7 +179,7 @@ var TSOS;
             var byteArray = bytes.split("");
 
             // If we don't need to do any linking...
-            if (byteArray.length <= 60) {
+            if (byteArray.length <= this.dataBytes) {
                 var myTSB = (tsb != undefined) ? tsb : ((isDirectory) ? this.getNextFreeDirectoryEntry() : this.getNextFreeDataEntry());
 
                 var dataArray = this.getItem(myTSB).split("");
@@ -171,7 +188,8 @@ var TSOS;
                     dataArray[s] = byteArray[s - this.DATA_BEGIN];
                 }
 
-                this.setItem(myTSB, dataArray.join(""));
+                var finalData = TSOS.Utils.asciiStrToCharHexStr(dataArray.join(""));
+                this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
             } else {
                 this.setBytesWithLinks(isDirectory, byteArray, tsb);
@@ -198,7 +216,10 @@ var TSOS;
                 }
             }
 
-            this.setItem(myTSB, finalData);
+            var realFinalData = TSOS.Utils.asciiStrToCharHexStr(finalData);
+            this.setItem(myTSB, realFinalData);
+
+            //this.setItem(myTSB, finalData);
             this.setIsUsedByte(myTSB, "1");
 
             // If there's still some left...

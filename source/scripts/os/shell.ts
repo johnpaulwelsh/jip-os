@@ -408,7 +408,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
         }
 
         public shellFSDelete(args) {
-            var fileName = args[0]
+            var fileName = args[0];
             _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE, fileName]));
         }
 
@@ -480,6 +480,8 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         _StdOut.putText("PID = " + pcb.PID);
 
                     } else {
+
+                        // TODO: memory is never full, because swap files
                         _StdOut.putText("Memory is full.");
                     }
 

@@ -424,6 +424,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         // ...and print the PID.
                         _StdOut.putText("PID = " + pcb.PID);
                     } else {
+                        // TODO: memory is never full, because swap files
                         _StdOut.putText("Memory is full.");
                     }
                 } else {
