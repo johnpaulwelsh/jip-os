@@ -4,8 +4,10 @@
 module TSOS {
     export class FileSystem {
 
-        DATA_FILL:  string = "~";
-        TSB_FILL:   string = "*";
+        DATA_FILL:     string = "~";
+        TSB_FILL:      string = "*";
+        TSB_FILL_FULL: string = "***";
+
         DATA_BEGIN: number = 4;
 
         tracks:  number;
@@ -87,24 +89,34 @@ module TSOS {
             return this.getItem(tsb).substr(0, 1);
         }
 
-        //public getTrackByte(tsb): string {
-        //    return this.getItem(tsb).substr(1, 1);
-        //}
-        //
-        //public getSectorByte(tsb): string {
-        //    return this.getItem(tsb).substr(2, 1);
-        //}
-        //
-        //public getBlockByte(tsb): string {
-        //    return this.getItem(tsb).substr(3, 1);
-        //}
-        //
-        //public getTSBBytes(tsb): string {
-        //    return (this.getTrackByte(tsb) + this.getSectorByte(tsb) + this.getBlockByte(tsb));
-        //}
+        public getTrackByte(tsb): string {
+            return this.getItem(tsb).substr(1, 1);
+        }
+
+        public getSectorByte(tsb): string {
+            return this.getItem(tsb).substr(2, 1);
+        }
+
+        public getBlockByte(tsb): string {
+            return this.getItem(tsb).substr(3, 1);
+        }
+
+        public getTSBBytes(tsb): string {
+            return (this.getTrackByte(tsb) + this.getSectorByte(tsb) + this.getBlockByte(tsb));
+        }
 
         public getDataBytes(tsb): string {
             return this.getItem(tsb).substr(4, this.dataBytes);
+        }
+
+        public getDataBytesWithLinks(tsb): string {
+            var firstPiece = this.getDataBytes(tsb);
+            var nextTSB = this.getTSBBytes(tsb);
+            if (nextTSB != this.TSB_FILL_FULL) {
+                return firstPiece + this.getDataBytesWithLinks(nextTSB);
+            } else {
+                return firstPiece;
+            }
         }
 
         public getMasterBootRecord(): string {
@@ -122,7 +134,7 @@ module TSOS {
 
         public getNextFreeDataEntry(): string {
             return this.loopThroughFSDoing(function(tsb) {
-                if (!this.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
+                if (!_FileSystem.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -167,17 +179,23 @@ module TSOS {
 
             var data = this.getItem(myTSB).split("");
             var byteArray = bytes.split("");
-            for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
-                data[s] = byteArray[s - this.DATA_BEGIN];
+            // If we don't need to do any linking...
+            if (byteArray.length <= 60) {
+                for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
+                    data[s] = byteArray[s - this.DATA_BEGIN];
+                }
+            // If we do need to link...
+            } else {
+                this.setBytesWithLinks(isDirectory, data, byteArray, myTSB);
             }
 
             this.setItem(myTSB, data.join(""));
             this.setIsUsedByte(myTSB, "1");
-            // The most complicated one.
-            // loop through every character in dataBytes,
-            // convert to hex, and put into one spot.
-            // if it reaches the end, linked-list it into
-            // another entry
+
+        }
+
+        public setBytesWithLinks(isDirectory, existingData, byteArray, startingTSB) {
+
         }
 
         public setMasterBootRecord() {

@@ -68,7 +68,13 @@ var TSOS;
 
         DeviceDriverFileSystem.prototype.readFile = function (params) {
             var fileName = params[1];
-            _StdOut.putText("File read");
+            var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
+            if (tsbWithName != undefined) {
+                var dataTSB = _FileSystem.getTSBBytes(tsbWithName);
+                _StdOut.putText(_FileSystem.getDataBytesWithLinks(dataTSB).replace(/~/g, ""));
+            } else {
+                _StdOut.putText("No file exists by that name");
+            }
             _StdOut.advanceLine();
             _OsShell.putPrompt();
         };
@@ -80,7 +86,7 @@ var TSOS;
             if (tsbWithName != undefined) {
                 var dataTSB = _FileSystem.getNextFreeDataEntry();
                 _FileSystem.setBytes(false, text);
-                _FileSystem.setTSBBytes(tsbWithName, dataTSB); // TODO: off-by-one error
+                _FileSystem.setTSBBytes(tsbWithName, dataTSB);
                 _StdOut.putText("File written");
             } else {
                 _StdOut.putText("No file exists by that name");

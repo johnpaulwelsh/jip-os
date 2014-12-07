@@ -7,6 +7,7 @@ var TSOS;
         function FileSystem(tracks, sectors, blocks) {
             this.DATA_FILL = "~";
             this.TSB_FILL = "*";
+            this.TSB_FILL_FULL = "***";
             this.DATA_BEGIN = 4;
             this.metaBytes = 4;
             this.dataBytes = 60;
@@ -78,23 +79,34 @@ var TSOS;
             return this.getItem(tsb).substr(0, 1);
         };
 
-        //public getTrackByte(tsb): string {
-        //    return this.getItem(tsb).substr(1, 1);
-        //}
-        //
-        //public getSectorByte(tsb): string {
-        //    return this.getItem(tsb).substr(2, 1);
-        //}
-        //
-        //public getBlockByte(tsb): string {
-        //    return this.getItem(tsb).substr(3, 1);
-        //}
-        //
-        //public getTSBBytes(tsb): string {
-        //    return (this.getTrackByte(tsb) + this.getSectorByte(tsb) + this.getBlockByte(tsb));
-        //}
+        FileSystem.prototype.getTrackByte = function (tsb) {
+            return this.getItem(tsb).substr(1, 1);
+        };
+
+        FileSystem.prototype.getSectorByte = function (tsb) {
+            return this.getItem(tsb).substr(2, 1);
+        };
+
+        FileSystem.prototype.getBlockByte = function (tsb) {
+            return this.getItem(tsb).substr(3, 1);
+        };
+
+        FileSystem.prototype.getTSBBytes = function (tsb) {
+            return (this.getTrackByte(tsb) + this.getSectorByte(tsb) + this.getBlockByte(tsb));
+        };
+
         FileSystem.prototype.getDataBytes = function (tsb) {
             return this.getItem(tsb).substr(4, this.dataBytes);
+        };
+
+        FileSystem.prototype.getDataBytesWithLinks = function (tsb) {
+            var firstPiece = this.getDataBytes(tsb);
+            var nextTSB = this.getTSBBytes(tsb);
+            if (nextTSB != this.TSB_FILL_FULL) {
+                return firstPiece + this.getDataBytesWithLinks(nextTSB);
+            } else {
+                return firstPiece;
+            }
         };
 
         FileSystem.prototype.getMasterBootRecord = function () {
@@ -112,7 +124,7 @@ var TSOS;
 
         FileSystem.prototype.getNextFreeDataEntry = function () {
             return this.loopThroughFSDoing(function (tsb) {
-                if (!this.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
+                if (!_FileSystem.isDirectory(tsb) && _FileSystem.isNotUsed(tsb)) {
                     _FileSystem.isDoneLooping = true;
                     return tsb;
                 }
@@ -151,17 +163,22 @@ var TSOS;
 
             var data = this.getItem(myTSB).split("");
             var byteArray = bytes.split("");
-            for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
-                data[s] = byteArray[s - this.DATA_BEGIN];
+
+            // If we don't need to do any linking...
+            if (byteArray.length <= 60) {
+                for (var s = this.DATA_BEGIN; s < (byteArray.length + this.DATA_BEGIN); s++) {
+                    data[s] = byteArray[s - this.DATA_BEGIN];
+                }
+                // If we do need to link...
+            } else {
+                this.setBytesWithLinks(isDirectory, data, byteArray, myTSB);
             }
 
             this.setItem(myTSB, data.join(""));
             this.setIsUsedByte(myTSB, "1");
-            // The most complicated one.
-            // loop through every character in dataBytes,
-            // convert to hex, and put into one spot.
-            // if it reaches the end, linked-list it into
-            // another entry
+        };
+
+        FileSystem.prototype.setBytesWithLinks = function (isDirectory, existingData, byteArray, startingTSB) {
         };
 
         FileSystem.prototype.setMasterBootRecord = function () {
