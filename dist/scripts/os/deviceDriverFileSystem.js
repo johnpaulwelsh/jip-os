@@ -58,6 +58,10 @@ var TSOS;
             }
         };
 
+        DeviceDriverFileSystem.prototype.getSwapFileName = function (pid) {
+            return ".swap" + pid;
+        };
+
         DeviceDriverFileSystem.prototype.createFile = function (params) {
             var fileName = params[1];
             _FileSystem.setBytes(true, fileName);

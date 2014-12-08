@@ -6,8 +6,8 @@ module TSOS {
 
     export class DeviceDriverFileSystem extends DeviceDriver {
 
-        isDirectoryFull: boolean;
-        isDataFull:      boolean;
+        isDirectoryFull:  boolean;
+        isDataFull:       boolean;
 
         constructor() {
             super(this.krnFileSysDriverEntry, this.krnFileSysDispatchAction);
@@ -56,6 +56,10 @@ module TSOS {
                 default:
                     break;
             }
+        }
+
+        public getSwapFileName(pid) {
+            return ".swap" + pid;
         }
 
         public createFile(params) {

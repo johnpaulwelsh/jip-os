@@ -470,7 +470,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 // If the code is valid...
                 if (allValid) {
 
-                    // If we still have space in memory...
+                    // If we still have space in real memory...
                     if (_MemMan.nextFreeBlock !== -1) {
                         // Make a new PCB (with priority, if supplied)...
                         var pcb = (args.length > 0) ? new ProcessControlBlock(_MemMan.nextFreeBlock, args[0])
@@ -486,10 +486,25 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         // ...and print the PID.
                         _StdOut.putText("PID = " + pcb.PID);
 
+                    // If we don't, we have to use a swap file in the file system.
                     } else {
 
-                        // TODO: memory is never full, because swap files
-                        _StdOut.putText("Memory is full.");
+                        // Make a new PCB (with priority, if supplied)...
+                        var pcb = (args.length > 0) ? new ProcessControlBlock("fs", args[0])
+                                                    : new ProcessControlBlock("fs");
+
+                        // ...tell the pcb that it's stuff is in the swap file...
+                        pcb.setSwapFileName(_krnFileSystemDriver.getSwapFileName(pcb.PID));
+                        // ...put it in the Resident Queue...
+                        _ResidentQueue.enqueue(pcb);
+                        // ...create the swap file...
+                        _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                                                                    [DISK_CREATE, pcb.swapFileName]));
+                        // ...fill the file with the program code...
+                        _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                                                                    [DISK_WRITE, pcb.swapFileName, _ProgInput.join("")]));
+                        // ...and print the PID.
+                        _StdOut.putText("PID = " + pcb.PID);
                     }
 
                 } else {

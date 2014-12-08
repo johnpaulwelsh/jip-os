@@ -240,7 +240,6 @@ module TSOS {
 
             var realFinalData = Utils.asciiStrToCharHexStr(finalData);
             this.setItem(myTSB, realFinalData);
-            //this.setItem(myTSB, finalData);
             this.setIsUsedByte(myTSB, "1");
 
             // If there's still some left...
