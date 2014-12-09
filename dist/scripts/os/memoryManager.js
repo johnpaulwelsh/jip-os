@@ -74,6 +74,14 @@ var TSOS;
                 return "god dammit";
             }
         };
+
+        MemoryManager.prototype.getProgCodeFromMem = function (memBlock) {
+            var memCode = "";
+            for (var i = 0; i < SEGMENT_SIZE; i++) {
+                memCode += this.getMemoryFromLocation(memBlock, i);
+            }
+            return memCode;
+        };
         return MemoryManager;
     })();
     TSOS.MemoryManager = MemoryManager;

@@ -487,7 +487,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         // ...tell the pcb that it's stuff is in the swap file...
                         pcb.setSwapFileName(_krnFileSystemDriver.getSwapFileName(pcb.PID));
                         // ...put it in the Resident Queue...
-                        _ResidentQueue.enqueue(pcb);
+                        //_ResidentQueue.enqueue(pcb);
                         // ...create the swap file...
                         _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
                             [DISK_CREATE, pcb.swapFileName]));
@@ -495,6 +495,8 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         var fullProgCode = Utils.padProgCodeWithBlanks(_ProgInput).join("");
                         _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
                             [DISK_WRITE, pcb.swapFileName, fullProgCode, true]));
+
+                        _StdOut.putText("Memory is full, so we made a swap file, but it has not been given a PCB.");
 
                     }
                     // ...and print the PID.

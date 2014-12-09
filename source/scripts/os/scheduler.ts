@@ -90,7 +90,12 @@ module TSOS {
             // TODO: dingo
 
             _CurrPCB = _ReadyQueue.peek();
-            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            if (_CurrPCB.location == "File System") {
+                _CurrBlockOfMem = this.moveFromMemToFile(_CurrPCB);
+                this.moveFromFileToMem(_CurrPCB.swapFileName, _CurrBlockOfMem);
+            } else {
+                _CurrBlockOfMem = _CurrPCB.MemBlock;
+            }
             _CurrPCB.State = "Running";
             _CPU.updateCPUWithPCBContents();
         }
@@ -110,7 +115,7 @@ module TSOS {
             _MemMan.fillMemoryWithProgram(memBlock, fsCodeArray);
         }
 
-        private moveFromMemToFile(pcb): void {
+        private moveFromMemToFile(pcb): number {
             // TODO: finish this
             var memCode = "";
 
@@ -118,7 +123,14 @@ module TSOS {
                 [DISK_CREATE, pcb.swapFileName]));
 
             _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
-                [DISK_WRITE, pcb.swapFileName, _ProgInput.join(""), true]));
+                [DISK_WRITE, pcb.swapFileName, memCode, true]));
+
+            pcb.location = "File System";
+            pcb.BaseReg = -1;
+            pcb.LimitReg = -1;
+
+            // TODO: not right
+            return 0;
         }
 
         public changeMode(newMode): void {

@@ -81,5 +81,13 @@ module TSOS {
                 return "god dammit";
             }
         }
+
+        public getProgCodeFromMem(memBlock): string {
+            var memCode = "";
+            for (var i = 0; i < SEGMENT_SIZE; i++) {
+                memCode += this.getMemoryFromLocation(memBlock, i);
+            }
+            return memCode;
+        }
     }
 }

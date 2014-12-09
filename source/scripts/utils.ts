@@ -94,7 +94,11 @@ module TSOS {
         }
 
         /*
-         * TODO COMMENTS HERE
+         * Splits the string into pairs of hex characters, and maps
+         * a function to each of the pairs that translates it into
+         * a decimal char code. This is then translated into its
+         * corresponding ascii character (except for DATA_FILL characters,
+         * which are left alone).
          */
         public static charHexStrToAsciiStr(hexStr): string {
             var strArray = this.splitByTwos(hexStr);
@@ -112,7 +116,9 @@ module TSOS {
         }
 
         /*
-         * TODO: COMMENTS HERE
+         * Maps a function to every character in the ascii input string,
+         * which translates the given character into hex (unless it's a
+         * DATA_FILL character, which are left alone).
          */
         public static asciiStrToCharHexStr(asciiStr): string {
             var strArray = asciiStr.split("");
@@ -161,7 +167,8 @@ module TSOS {
         }
 
         /*
-         * TODO: COMMENTS HERE
+         * Splits a string into pairs of characters. Useful for getting
+         * program hex code out of a file.
          */
         public static splitByTwos(str): string[] {
             var strArray = [];

@@ -40,8 +40,8 @@ module TSOS {
                 this.location = "File System";
             }
 
-            this.Priority = (priority != undefined) ? priority : 0;
-            this.State    = "New";
+            this.Priority   = (priority != undefined) ? priority : 0;
+            this.State      = "New";
             this.isFinished = false;
         }
 
@@ -49,7 +49,7 @@ module TSOS {
             return this.MemBlock;
         }
 
-        public setSwapFileName(name) {
+        public setSwapFileName(name): void {
             this.swapFileName = name;
             this.location = "File System";
         }

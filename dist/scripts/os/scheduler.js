@@ -79,7 +79,12 @@ var TSOS;
             // TODO: use getDataBytesWithLinksKeepHex()
             // TODO: dingo
             _CurrPCB = _ReadyQueue.peek();
-            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            if (_CurrPCB.location == "File System") {
+                _CurrBlockOfMem = this.moveFromMemToFile(_CurrPCB);
+                this.moveFromFileToMem(_CurrPCB.swapFileName, _CurrBlockOfMem);
+            } else {
+                _CurrBlockOfMem = _CurrPCB.MemBlock;
+            }
             _CurrPCB.State = "Running";
             _CPU.updateCPUWithPCBContents();
         };
@@ -103,7 +108,14 @@ var TSOS;
 
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, pcb.swapFileName]));
 
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, pcb.swapFileName, _ProgInput.join(""), true]));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, pcb.swapFileName, memCode, true]));
+
+            pcb.location = "File System";
+            pcb.BaseReg = -1;
+            pcb.LimitReg = -1;
+
+            // TODO: not right
+            return 0;
         };
 
         Scheduler.prototype.changeMode = function (newMode) {
