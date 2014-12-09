@@ -10,7 +10,6 @@ var TSOS;
             this.CycleCount = 0;
         }
         Scheduler.prototype.contextSwitch = function () {
-            debugger;
             switch (this.Mode) {
                 case ROUND_ROBIN:
                     this.doRoundRobinCS();
@@ -77,6 +76,7 @@ var TSOS;
         };
 
         Scheduler.prototype.setUpNextPCBInOrder = function () {
+            // TODO: dingo
             _CurrPCB = _ReadyQueue.peek();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";

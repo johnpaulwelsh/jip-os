@@ -24,13 +24,13 @@ module TSOS {
             this.blocks  = blocks;
         }
 
-        //public getDirectorySize(): number {
-        //    return this.sectors * this.blocks;
-        //}
-        //
-        //public getDataSize(): number {
-        //    return (this.tracks-1) * this.sectors * this.blocks;
-        //}
+        public getDirectorySize(): number {
+            return this.sectors * this.blocks;
+        }
+
+        public getDataSize(): number {
+            return (this.tracks-1) * this.sectors * this.blocks;
+        }
 
         public loopThroughFSDoing(func) {
             var foundThing = null;
@@ -96,6 +96,10 @@ module TSOS {
             sessionStorage.setItem(tsb, data.join(""));
         }
 
+        private enforceDataLength(text) {
+            return text.substr(0, this.metaBytes + this.dataBytes);
+        }
+
         //
         // Getters
         //
@@ -134,9 +138,9 @@ module TSOS {
             }
         }
 
-        //public getMasterBootRecord(): string {
-        //    return this.getItem("000");
-        //}
+        public getMasterBootRecord(): string {
+            return this.getItem("000");
+        }
 
         public getNextFreeDirectoryEntry(): string {
             return this.loopThroughFSDoing(function(tsb) {
@@ -205,6 +209,9 @@ module TSOS {
                 }
 
                 var finalData = Utils.asciiStrToCharHexStr(dataArray.join(""));
+                // todo: aaaaaa
+                finalData = this.enforceDataLength(finalData);
+                // todo: aaaaaa
                 this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
 
@@ -239,6 +246,9 @@ module TSOS {
             }
 
             var realFinalData = Utils.asciiStrToCharHexStr(finalData);
+            // todo: aaaaaa
+            realFinalData = this.enforceDataLength(finalData);
+            // todo: aaaaaa
             this.setItem(myTSB, realFinalData);
             this.setIsUsedByte(myTSB, "1");
 

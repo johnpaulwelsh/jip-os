@@ -16,13 +16,14 @@ var TSOS;
             this.sectors = sectors;
             this.blocks = blocks;
         }
-        //public getDirectorySize(): number {
-        //    return this.sectors * this.blocks;
-        //}
-        //
-        //public getDataSize(): number {
-        //    return (this.tracks-1) * this.sectors * this.blocks;
-        //}
+        FileSystem.prototype.getDirectorySize = function () {
+            return this.sectors * this.blocks;
+        };
+
+        FileSystem.prototype.getDataSize = function () {
+            return (this.tracks - 1) * this.sectors * this.blocks;
+        };
+
         FileSystem.prototype.loopThroughFSDoing = function (func) {
             var foundThing = null;
 
@@ -86,6 +87,10 @@ var TSOS;
             sessionStorage.setItem(tsb, data.join(""));
         };
 
+        FileSystem.prototype.enforceDataLength = function (text) {
+            return text.substr(0, this.metaBytes + this.dataBytes);
+        };
+
         //
         // Getters
         //
@@ -123,9 +128,10 @@ var TSOS;
             }
         };
 
-        //public getMasterBootRecord(): string {
-        //    return this.getItem("000");
-        //}
+        FileSystem.prototype.getMasterBootRecord = function () {
+            return this.getItem("000");
+        };
+
         FileSystem.prototype.getNextFreeDirectoryEntry = function () {
             return this.loopThroughFSDoing(function (tsb) {
                 if (_FileSystem.isDirectoryNotMBR(tsb) && _FileSystem.isNotUsed(tsb)) {
@@ -186,6 +192,11 @@ var TSOS;
                 }
 
                 var finalData = TSOS.Utils.asciiStrToCharHexStr(dataArray.join(""));
+
+                // todo: aaaaaa
+                finalData = this.enforceDataLength(finalData);
+
+                // todo: aaaaaa
                 this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
             } else {
@@ -214,6 +225,11 @@ var TSOS;
             }
 
             var realFinalData = TSOS.Utils.asciiStrToCharHexStr(finalData);
+
+            // todo: aaaaaa
+            realFinalData = this.enforceDataLength(finalData);
+
+            // todo: aaaaaa
             this.setItem(myTSB, realFinalData);
             this.setIsUsedByte(myTSB, "1");
 

@@ -17,7 +17,6 @@ module TSOS {
         }
 
         public contextSwitch(): void {
-            debugger;
             switch (this.Mode) {
                 case ROUND_ROBIN:
                     this.doRoundRobinCS();
@@ -72,7 +71,6 @@ module TSOS {
             if (_ReadyQueue.getSize() > 1) {
                 this.readyToCompleted();
                 this.setUpNextPCBInOrder();
-
             }
             // otherwise, do nothing and let it all end.
         }
@@ -87,6 +85,9 @@ module TSOS {
         }
 
         private setUpNextPCBInOrder(): void {
+
+            // TODO: dingo
+
             _CurrPCB = _ReadyQueue.peek();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";
