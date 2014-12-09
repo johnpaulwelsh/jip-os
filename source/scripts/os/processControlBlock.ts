@@ -29,20 +29,19 @@ module TSOS {
             this.Yreg     = 0;
             this.Zflag    = 0;
 
-            if (mb != "fs") {
-                this.MemBlock = mb;
-                this.BaseReg  = mb * 256;
-                this.LimitReg = this.BaseReg + 255;
-                this.location = "Memory";
-            } else {
-                this.MemBlock = -1;
-                this.BaseReg = -1;
+            this.MemBlock = mb;
+            this.BaseReg  = mb * 256;
+            this.LimitReg = this.BaseReg + 255;
+            this.location = "Memory";
+
+            if (mb > SEGMENT_COUNT) {
+                this.BaseReg  = -1;
                 this.LimitReg = -1;
                 this.location = "File System";
             }
 
-            this.Priority = (priority != undefined) ? priority : 0;
-            this.State    = "New";
+            this.Priority   = (priority != undefined) ? priority : 0;
+            this.State      = "New";
             this.isFinished = false;
         }
 
@@ -50,7 +49,7 @@ module TSOS {
             return this.MemBlock;
         }
 
-        public setSwapFileName(name) {
+        public setSwapFileName(name): void {
             this.swapFileName = name;
             this.location = "File System";
         }

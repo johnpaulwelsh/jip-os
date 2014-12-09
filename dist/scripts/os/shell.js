@@ -360,7 +360,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             // Get rid of all the quotes and leading/trailing whitespace.
             text = TSOS.Utils.trim(text.replace(/"/g, "").replace(/'/g, ""));
 
-            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text]));
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text, false]));
         };
 
         Shell.prototype.shellFSDelete = function (args) {
@@ -398,30 +398,20 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
         Shell.prototype.shellLoad = function (args) {
             _ProgInput = TSOS.Control.getProgramInput();
-            var regex = new RegExp("^[A-Fa-f0-9]{2}$");
 
             // If we have any hex codes to check (ensuring the first one isn't blank,
             // which happens when you split the text from an empty textarea)...
             if (_ProgInput.length > 0 && _ProgInput[0] != "") {
-                var allValid = true;
-
-                for (var i = 0; i < _ProgInput.length; i++) {
-                    var hex = _ProgInput[i];
-
-                    // ...checking whether the regex for a valid hex code matches.
-                    if (!(regex.test(hex))) {
-                        allValid = false;
-                        break;
-                    }
-                }
+                var regex = new RegExp("^[A-Fa-f0-9]{2}$");
+                var allValid = TSOS.Utils.validateProgInput(regex);
 
                 // If the code is valid...
                 if (allValid) {
-                    // If we still have space in real memory...
-                    if (_MemMan.nextFreeBlock !== -1) {
-                        // Make a new PCB (with priority, if supplied)...
-                        var pcb = (args.length > 0) ? new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock, args[0]) : new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock);
+                    // Make a new PCB (with priority, if supplied)...
+                    var pcb = (args.length > 0) ? new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock, args[0]) : new TSOS.ProcessControlBlock(_MemMan.nextFreeBlock);
 
+                    // If we still have space in real memory...
+                    if (_MemMan.nextFreeBlock < SEGMENT_COUNT) {
                         // ...put it in the Resident Queue...
                         _ResidentQueue.enqueue(pcb);
 
@@ -433,29 +423,25 @@ spell certain doom for the small band of rebels struggling to restore freedom to
 
                         // ...put the program into memory...
                         _MemMan.fillMemoryWithProgram(pcb.MemBlock, _ProgInput);
-
-                        // ...and print the PID.
-                        _StdOut.putText("PID = " + pcb.PID);
-                        // If we don't, we have to use a swap file in the file system.
+                        // If we don't, we have to use a swap file in the file system...
                     } else {
-                        // Make a new PCB (with priority, if supplied)...
-                        var pcb = (args.length > 0) ? new TSOS.ProcessControlBlock("fs", args[0]) : new TSOS.ProcessControlBlock("fs");
-
                         // ...tell the pcb that it's stuff is in the swap file...
                         pcb.setSwapFileName(_krnFileSystemDriver.getSwapFileName(pcb.PID));
 
                         // ...put it in the Resident Queue...
-                        _ResidentQueue.enqueue(pcb);
-
+                        //_ResidentQueue.enqueue(pcb);
                         // ...create the swap file...
                         _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, pcb.swapFileName]));
 
                         // ...fill the file with the program code...
-                        _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, pcb.swapFileName, _ProgInput.join("")]));
+                        var fullProgCode = TSOS.Utils.padProgCodeWithBlanks(_ProgInput).join("");
+                        _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, pcb.swapFileName, fullProgCode, true]));
 
-                        // ...and print the PID.
-                        _StdOut.putText("PID = " + pcb.PID);
+                        _StdOut.putText("Memory is full, so we made a swap file, but it has not been given a PCB.");
                     }
+
+                    // ...and print the PID.
+                    _StdOut.putText("PID = " + pcb.PID);
                 } else {
                     _StdOut.putText("Not a valid set of hex codes.");
                 }
@@ -559,17 +545,14 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             if (args.length > 0) {
                 switch (args[0]) {
                     case "rr":
-                        _Scheduler.Mode = ROUND_ROBIN;
+                        _Scheduler.changeMode(ROUND_ROBIN);
                         break;
-
                     case "fcfs":
-                        _Scheduler.Mode = FCFS;
+                        _Scheduler.changeMode(FCFS);
                         break;
-
                     case "priority":
-                        _Scheduler.Mode = PRIORITY;
+                        _Scheduler.changeMode(PRIORITY);
                         break;
-
                     default:
                         _StdOut.putText("Invalid scheduling algorithm. Choose another.");
                         break;

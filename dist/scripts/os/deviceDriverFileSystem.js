@@ -79,7 +79,7 @@ var TSOS;
         */
         DeviceDriverFileSystem.prototype.createFile = function (params) {
             var fileName = params[1];
-            _FileSystem.setBytes(true, fileName);
+            _FileSystem.setBytes(true, fileName, false);
             _StdOut.putText("File created: " + fileName);
             _StdOut.advanceLine();
             _OsShell.putPrompt();
@@ -112,10 +112,11 @@ var TSOS;
         DeviceDriverFileSystem.prototype.writeFile = function (params) {
             var fileName = params[1];
             var text = params[2];
+            var isProgCode = params[3];
             var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
             if (tsbWithName != undefined) {
                 var dataTSB = _FileSystem.getNextFreeDataEntry();
-                _FileSystem.setBytes(false, text);
+                _FileSystem.setBytes(false, text, isProgCode);
                 _FileSystem.setTSBBytes(tsbWithName, dataTSB);
                 _StdOut.putText("File written");
             } else {

@@ -40,9 +40,12 @@ module TSOS {
                 this.nextFreeBlock = newlyFreedBlock;
             } else {
                 this.nextFreeBlock++;
-                if (this.nextFreeBlock >= SEGMENT_COUNT) {
-                    this.nextFreeBlock = -1;
-                }
+                // This stuff was necessary when we only had three memory segments,
+                // but now the file system extends our usable memory so we don't need
+                // to enforce this anymore.
+                //if (this.nextFreeBlock >= SEGMENT_COUNT) {
+                //    this.nextFreeBlock = -1;
+                //}
             }
         }
 
@@ -66,6 +69,25 @@ module TSOS {
                 newCodeHex = "0" + newCodeHex;
             currBlock[loc] = newCodeHex;
             Control.updateMemTableAtLoc(blockNum, Math.floor(loc / 8), loc % 8, newCodeHex);
+        }
+
+        public getProgCodeFromFS(fileName): string {
+            var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
+            if (tsbWithName != undefined) {
+                var dataTSB = _FileSystem.getTSBBytes(tsbWithName);
+                return _FileSystem.getDataBytesWithLinksKeepHex(dataTSB).replace(/~/g, "");
+            } else {
+                _StdOut.putText("This should never happen");
+                return "god dammit";
+            }
+        }
+
+        public getProgCodeFromMem(memBlock): string {
+            var memCode = "";
+            for (var i = 0; i < SEGMENT_SIZE; i++) {
+                memCode += this.getMemoryFromLocation(memBlock, i);
+            }
+            return memCode;
         }
     }
 }

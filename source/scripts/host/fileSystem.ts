@@ -4,9 +4,10 @@
 module TSOS {
     export class FileSystem {
 
-        DATA_FILL:     string = "~";
-        TSB_FILL:      string = "*";
-        TSB_FILL_FULL: string = "***";
+        DATA_FILL:      string = "~";
+        TSB_FILL:       string = "*";
+        TSB_FILL_FULL:  string = "***";
+        PROG_DATA_FILL: string = "00";
 
         DATA_BEGIN: number = 4;
 
@@ -120,7 +121,7 @@ module TSOS {
             data[1] = this.TSB_FILL;
             data[2] = this.TSB_FILL;
             data[3] = this.TSB_FILL;
-            for (var i = 4; i < this.dataBytes; i++) {
+            for (var i = 4; i < (this.metaBytes + this.dataBytes); i++) {
                 data[i] = this.DATA_FILL;
             }
 
@@ -163,6 +164,10 @@ module TSOS {
             return Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
         }
 
+        public getDataBytesKeepHex(tsb): string {
+            return this.getItem(tsb).substr(4, this.dataBytes);
+        }
+
         /*
          * Gets the data bytes for an entry, and possibly strings it together
          * with the data bytes from the next linked entries, if the link exists.
@@ -172,6 +177,16 @@ module TSOS {
             var nextTSB = this.getTSBBytes(tsb);
             if (nextTSB != this.TSB_FILL_FULL) {
                 return firstPiece + this.getDataBytesWithLinks(nextTSB);
+            } else {
+                return firstPiece;
+            }
+        }
+
+        public getDataBytesWithLinksKeepHex(tsb): string {
+            var firstPiece = this.getDataBytesKeepHex(tsb);
+            var nextTSB = this.getTSBBytes(tsb);
+            if (nextTSB != this.TSB_FILL_FULL) {
+                return firstPiece + this.getDataBytesWithLinksKeepHex(nextTSB);
             } else {
                 return firstPiece;
             }
@@ -253,7 +268,7 @@ module TSOS {
          * enforce that it doesn't have dangling DATA_FILL characters, and
          * sets the meta bytes before finally finishing.
          */
-        public setBytes(isDirectory, bytes, tsb?) {
+        public setBytes(isDirectory, bytes, isProgCode, tsb?) {
             var byteArray = bytes.split("");
 
             // If we don't need to do any linking...
@@ -272,12 +287,18 @@ module TSOS {
                     dataArray[s] = byteArray[s - this.DATA_BEGIN];
                 }
 
-                var finalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(dataArray.join("")));
+                var finalData;
+                if (isProgCode) {
+                    finalData = this.enforceDataLength(dataArray.join(""));
+                } else {
+                    finalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(dataArray.join("")));
+                }
+
                 this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
 
             } else {
-                this.setBytesWithLinks(isDirectory, byteArray, tsb);
+                this.setBytesWithLinks(isDirectory, byteArray, isProgCode, tsb);
             }
         }
 
@@ -294,7 +315,7 @@ module TSOS {
          * of Don't Repeat Yourself (DRY). Or upset that I made it so against the philosophy
          * of Don't Repeat Yourself (DRY).
          */
-        public setBytesWithLinks(isDirectory, byteArray, tsb?) {
+        public setBytesWithLinks(isDirectory, byteArray, isProgCode, tsb?) {
             var myTSB = (tsb != undefined) ?
                         tsb :
                             ((isDirectory) ?
@@ -318,7 +339,13 @@ module TSOS {
                 }
             }
 
-            var realFinalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(finalData));
+            var realFinalData;
+            if (isProgCode) {
+                realFinalData = this.enforceDataLength(finalData);
+            } else {
+                realFinalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(finalData));
+            }
+
             this.setItem(myTSB, realFinalData);
             this.setIsUsedByte(myTSB, "1");
 
@@ -331,7 +358,7 @@ module TSOS {
                 this.setTSBBytes(myTSB, newTSB);
                 this.setIsUsedByte(newTSB, "1");
 
-                this.setBytesWithLinks(isDirectory, byteArray, newTSB);
+                this.setBytesWithLinks(isDirectory, byteArray, isProgCode, newTSB);
             }
         }
 
@@ -342,7 +369,7 @@ module TSOS {
             var mbrTSB = "000";
             this.setIsUsedByte(mbrTSB, "1");
             this.setTSBBytesBlank(mbrTSB);
-            this.setBytes(true, APP_NAME, mbrTSB);
+            this.setBytes(true, APP_NAME, false, mbrTSB);
         }
 
         //
@@ -359,22 +386,10 @@ module TSOS {
 
         public setDataBytesBlank(tsb) {
             var data = this.getItem(tsb).split("");
-            for (var i = 4; i < this.dataBytes; i++) {
+            for (var i = 4; i < (this.metaBytes + this.dataBytes); i++) {
                 data[i] = this.DATA_FILL;
             }
             this.setItem(tsb, data.join(""));
-        }
-
-        /*
-         * Uses the above and below functions to set an entry blank, but
-         * follows the chain of linked entries if it needs to.
-         */
-        public setDataBytesWithLinksBlank(tsb) {
-            var linkTSB = this.getTSBBytes(tsb);
-            if (linkTSB != this.TSB_FILL_FULL) {
-                this.setDataBytesWithLinksBlank(linkTSB);
-            }
-            this.setFullBlank(tsb);
         }
 
         /*
@@ -384,6 +399,18 @@ module TSOS {
             this.setIsUsedByte(tsb, "0");
             this.setTSBBytesBlank(tsb);
             this.setDataBytesBlank(tsb);
+        }
+
+        /*
+         * Uses the above functions to set an entry blank, but
+         * follows the chain of linked entries if it needs to.
+         */
+        public setDataBytesWithLinksBlank(tsb) {
+            var linkTSB = this.getTSBBytes(tsb);
+            if (linkTSB != this.TSB_FILL_FULL) {
+                this.setDataBytesWithLinksBlank(linkTSB);
+            }
+            this.setFullBlank(tsb);
         }
     }
 }

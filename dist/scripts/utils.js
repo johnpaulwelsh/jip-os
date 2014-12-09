@@ -71,6 +71,19 @@ var TSOS;
             return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
         };
 
+        Utils.validateProgInput = function (regex) {
+            for (var i = 0; i < _ProgInput.length; i++) {
+                var hex = _ProgInput[i];
+
+                // ...checking whether the regex for a valid hex code matches.
+                if (!(regex.test(hex))) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
         Utils.hexStrToDecNum = function (hexStr) {
             return parseInt(hexStr, 16);
         };
@@ -79,18 +92,15 @@ var TSOS;
             return decNum.toString(16);
         };
 
+        /*
+        * Splits the string into pairs of hex characters, and maps
+        * a function to each of the pairs that translates it into
+        * a decimal char code. This is then translated into its
+        * corresponding ascii character (except for DATA_FILL characters,
+        * which are left alone).
+        */
         Utils.charHexStrToAsciiStr = function (hexStr) {
-            var strArray = [];
-            var i = 0;
-            while (i < hexStr.length) {
-                if (hexStr.charAt(i) == _FileSystem.DATA_FILL) {
-                    strArray.push(hexStr.substr(i, 1));
-                    i += 1;
-                } else {
-                    strArray.push(hexStr.substr(i, 2));
-                    i += 2;
-                }
-            }
+            var strArray = this.splitByTwos(hexStr);
 
             strArray = strArray.map(function (hex) {
                 var decCharCode = Utils.hexStrToDecNum(hex);
@@ -104,6 +114,11 @@ var TSOS;
             return strArray.join("");
         };
 
+        /*
+        * Maps a function to every character in the ascii input string,
+        * which translates the given character into hex (unless it's a
+        * DATA_FILL character, which are left alone).
+        */
         Utils.asciiStrToCharHexStr = function (asciiStr) {
             var strArray = asciiStr.split("");
             strArray = strArray.map(function (ascii) {
@@ -123,13 +138,14 @@ var TSOS;
             return strArray.join("");
         };
 
-        // The regular isNaN function will trigger as false if our opcode has a digit as its
-        // first character, and those opcodes that do all have a 'D' in them as the second character.
-        // We override isNaN so that when it comes across '6D' or '8D', it knows it isn't a number.
-        // We also have a situation where 00 can be a number (for memory) or a string (for the system
-        // call). So we also want to give back 00 as a string by default, and then parseInt on it once
-        // we know it isn't an opcode. We also parseInt on the outside, to make sure that 00 is a number
-        // exactly when we need it to be.
+        /* The regular isNaN function will trigger as false if our opcode has a digit as its
+        * first character, and those opcodes that do all have a 'D' in them as the second character.
+        * We override isNaN so that when it comes across '6D' or '8D', it knows it isn't a number.
+        * We also have a situation where 00 can be a number (for memory) or a string (for the system
+        * call). So we also want to give back 00 as a string by default, and then parseInt on it once
+        * we know it isn't an opcode. We also parseInt on the outside, to make sure that 00 is a number
+        * exactly when we need it to be.
+        */
         Utils.isNaNOverride = function (val) {
             return (val[1] === "D" || val === "00" || isNaN(val));
         };
@@ -140,6 +156,32 @@ var TSOS;
 
         Utils.contains = function (str, subStr) {
             return (str.indexOf(subStr) > -1);
+        };
+
+        Utils.padProgCodeWithBlanks = function (codeArray) {
+            for (var i = codeArray.length; i < 255; i++) {
+                codeArray.push("00");
+            }
+            return codeArray;
+        };
+
+        /*
+        * Splits a string into pairs of characters. Useful for getting
+        * program hex code out of a file.
+        */
+        Utils.splitByTwos = function (str) {
+            var strArray = [];
+            var i = 0;
+            while (i < str.length) {
+                if (str.charAt(i) == _FileSystem.DATA_FILL) {
+                    strArray.push(str.substr(i, 1));
+                    i += 1;
+                } else {
+                    strArray.push(str.substr(i, 2));
+                    i += 2;
+                }
+            }
+            return strArray;
         };
         return Utils;
     })();
