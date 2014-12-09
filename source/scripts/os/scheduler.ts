@@ -105,6 +105,22 @@ module TSOS {
             _CPU.updateCPUWithPCBContents();
         }
 
+        private moveFromFileToMem(fileName, memBlock): void {
+            var fsCodeArray = Utils.splitByTwos(_MemMan.getProgCodeFromFS(fileName));
+            _MemMan.fillMemoryWithProgram(memBlock, fsCodeArray);
+        }
+
+        private moveFromMemToFile(pcb): void {
+            // TODO: finish this
+            var memCode = "";
+
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                [DISK_CREATE, pcb.swapFileName]));
+
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                [DISK_WRITE, pcb.swapFileName, _ProgInput.join(""), true]));
+        }
+
         public changeMode(newMode): void {
             this.Mode = newMode;
         }

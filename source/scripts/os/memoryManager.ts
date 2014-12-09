@@ -70,5 +70,16 @@ module TSOS {
             currBlock[loc] = newCodeHex;
             Control.updateMemTableAtLoc(blockNum, Math.floor(loc / 8), loc % 8, newCodeHex);
         }
+
+        public getProgCodeFromFS(fileName): string {
+            var tsbWithName = _FileSystem.getDirectoryWithName(fileName);
+            if (tsbWithName != undefined) {
+                var dataTSB = _FileSystem.getTSBBytes(tsbWithName);
+                return _FileSystem.getDataBytesWithLinksKeepHex(dataTSB).replace(/~/g, "");
+            } else {
+                _StdOut.putText("This should never happen");
+                return "god dammit";
+            }
+        }
     }
 }

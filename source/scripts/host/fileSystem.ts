@@ -4,9 +4,10 @@
 module TSOS {
     export class FileSystem {
 
-        DATA_FILL:     string = "~";
-        TSB_FILL:      string = "*";
-        TSB_FILL_FULL: string = "***";
+        DATA_FILL:      string = "~";
+        TSB_FILL:       string = "*";
+        TSB_FILL_FULL:  string = "***";
+        PROG_DATA_FILL: string = "00";
 
         DATA_BEGIN: number = 4;
 
@@ -120,7 +121,7 @@ module TSOS {
             data[1] = this.TSB_FILL;
             data[2] = this.TSB_FILL;
             data[3] = this.TSB_FILL;
-            for (var i = 4; i < this.dataBytes; i++) {
+            for (var i = 4; i < (this.metaBytes + this.dataBytes); i++) {
                 data[i] = this.DATA_FILL;
             }
 
@@ -340,9 +341,9 @@ module TSOS {
 
             var realFinalData;
             if (isProgCode) {
-                realFinalData = this.enforceDataLength(dataArray.join(""));
+                realFinalData = this.enforceDataLength(finalData);
             } else {
-                realFinalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(dataArray.join("")));
+                realFinalData = this.enforceDataLength(Utils.asciiStrToCharHexStr(finalData));
             }
 
             this.setItem(myTSB, realFinalData);
@@ -385,22 +386,10 @@ module TSOS {
 
         public setDataBytesBlank(tsb) {
             var data = this.getItem(tsb).split("");
-            for (var i = 4; i < this.dataBytes; i++) {
+            for (var i = 4; i < (this.metaBytes + this.dataBytes); i++) {
                 data[i] = this.DATA_FILL;
             }
             this.setItem(tsb, data.join(""));
-        }
-
-        /*
-         * Uses the above and below functions to set an entry blank, but
-         * follows the chain of linked entries if it needs to.
-         */
-        public setDataBytesWithLinksBlank(tsb) {
-            var linkTSB = this.getTSBBytes(tsb);
-            if (linkTSB != this.TSB_FILL_FULL) {
-                this.setDataBytesWithLinksBlank(linkTSB);
-            }
-            this.setFullBlank(tsb);
         }
 
         /*
@@ -410,6 +399,18 @@ module TSOS {
             this.setIsUsedByte(tsb, "0");
             this.setTSBBytesBlank(tsb);
             this.setDataBytesBlank(tsb);
+        }
+
+        /*
+         * Uses the above functions to set an entry blank, but
+         * follows the chain of linked entries if it needs to.
+         */
+        public setDataBytesWithLinksBlank(tsb) {
+            var linkTSB = this.getTSBBytes(tsb);
+            if (linkTSB != this.TSB_FILL_FULL) {
+                this.setDataBytesWithLinksBlank(linkTSB);
+            }
+            this.setFullBlank(tsb);
         }
     }
 }

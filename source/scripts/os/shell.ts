@@ -490,10 +490,12 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         _ResidentQueue.enqueue(pcb);
                         // ...create the swap file...
                         _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
-                                                                    [DISK_CREATE, pcb.swapFileName]));
+                            [DISK_CREATE, pcb.swapFileName]));
                         // ...fill the file with the program code...
+                        var fullProgCode = Utils.padProgCodeWithBlanks(_ProgInput).join("");
                         _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
-                                                                    [DISK_WRITE, pcb.swapFileName, _ProgInput.join(""), true]));
+                            [DISK_WRITE, pcb.swapFileName, fullProgCode, true]));
+
                     }
                     // ...and print the PID.
                     _StdOut.putText("PID = " + pcb.PID);
@@ -608,10 +610,10 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         _Scheduler.changeMode(ROUND_ROBIN);
                         break;
                     case "fcfs":
-                        _Scheduler.changeMode(ROUND_ROBIN);
+                        _Scheduler.changeMode(FCFS);
                         break;
                     case "priority":
-                        _Scheduler.changeMode(ROUND_ROBIN);
+                        _Scheduler.changeMode(PRIORITY);
                         break;
                     default:
                         _StdOut.putText("Invalid scheduling algorithm. Choose another.");

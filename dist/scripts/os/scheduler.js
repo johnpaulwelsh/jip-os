@@ -92,6 +92,20 @@ var TSOS;
             _CPU.updateCPUWithPCBContents();
         };
 
+        Scheduler.prototype.moveFromFileToMem = function (fileName, memBlock) {
+            var fsCodeArray = TSOS.Utils.splitByTwos(_MemMan.getProgCodeFromFS(fileName));
+            _MemMan.fillMemoryWithProgram(memBlock, fsCodeArray);
+        };
+
+        Scheduler.prototype.moveFromMemToFile = function (pcb) {
+            // TODO: finish this
+            var memCode = "";
+
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, pcb.swapFileName]));
+
+            _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, pcb.swapFileName, _ProgInput.join(""), true]));
+        };
+
         Scheduler.prototype.changeMode = function (newMode) {
             this.Mode = newMode;
         };
