@@ -4,21 +4,37 @@
 var TSOS;
 (function (TSOS) {
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(mb) {
+        function ProcessControlBlock(mb, priority) {
             this.PID = _PID++;
             this.PC = 0;
             this.Accum = 0;
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
-            this.MemBlock = mb;
-            this.BaseReg = mb * 256;
-            this.LimitReg = this.BaseReg + 255;
+
+            if (mb != "fs") {
+                this.MemBlock = mb;
+                this.BaseReg = mb * 256;
+                this.LimitReg = this.BaseReg + 255;
+                this.location = "Memory";
+            } else {
+                this.MemBlock = -1;
+                this.BaseReg = -1;
+                this.LimitReg = -1;
+                this.location = "File System";
+            }
+
+            this.Priority = (priority != undefined) ? priority : 0;
             this.State = "New";
             this.isFinished = false;
         }
         ProcessControlBlock.prototype.getMemBlock = function () {
             return this.MemBlock;
+        };
+
+        ProcessControlBlock.prototype.setSwapFileName = function (name) {
+            this.swapFileName = name;
+            this.location = "File System";
         };
 
         ProcessControlBlock.prototype.printPCB = function () {

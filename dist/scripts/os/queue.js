@@ -33,7 +33,26 @@ var TSOS;
         };
 
         Queue.prototype.peek = function () {
-            var x = this.q[0];
+            return this.q[0];
+        };
+
+        Queue.prototype.findLowestPriority = function () {
+            var pri = 1000;
+
+            for (var i = 0; i < this.q.length; i++) {
+                var x = this.q[i].Priority;
+                if (parseInt(this.q[i].Priority) < pri) {
+                    pri = parseInt(this.q[i].Priority);
+                }
+            }
+
+            for (var j = 0; j < this.q.length; j++) {
+                if (parseInt(this.q[j].Priority) == pri) {
+                    return this.q[j];
+                }
+            }
+
+            // As a failsafe, just give back the first thing in the Ready Queue.
             return this.q[0];
         };
 
@@ -66,7 +85,7 @@ var TSOS;
 
         Queue.prototype.toString = function () {
             var retVal = "";
-            for (var i in this.q) {
+            for (var i = 0; i < this.q.length; i++) {
                 retVal += "[" + this.q[i] + "] ";
             }
             return retVal;

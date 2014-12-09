@@ -3,7 +3,9 @@
  */
 
 module TSOS {
+
     export class Scheduler {
+
         Mode: number;
         Quantum: number;
         CycleCount: number;
@@ -65,11 +67,38 @@ module TSOS {
         }
 
         public doFCFSCS(): void {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBInOrder();
+            }
+            // otherwise, do nothing and let it all end.
         }
 
         public doPriorityCS(): void {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBPriority();
+                _Kernel.krnTrace("Priority context switch: running program's PID = " + _CurrPCB.PID);
+            }
+        }
+
+        private setUpNextPCBInOrder(): void {
+
+            // TODO: dingo
+
+            _CurrPCB = _ReadyQueue.peek();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
+        }
+
+        private setUpNextPCBPriority(): void {
+            _CurrPCB = _ReadyQueue.findLowestPriority();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
         }
 
         public changeMode(newMode): void {
@@ -118,6 +147,20 @@ module TSOS {
             _StdOut.putText(fullStr);
         }
 
+        public printMode(): string {
+            switch (this.Mode) {
+                case ROUND_ROBIN:
+                    return "Round Robin";
+                    break;
+                case FCFS:
+                    return "First Come, First Served";
+                    break;
+                case PRIORITY:
+                    return "Priority";
+                    break;
+            }
+        }
+
         public residentToReady(PID): void {
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
@@ -132,12 +175,12 @@ module TSOS {
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
-            _ReadyQueue.peek().State = "Running";
             Control.updateReadyQueueTable();
         }
 
-        public readyToCompleted(): void {
-            var pcb = _ReadyQueue.dequeue();
+        public readyToCompleted(priorityPCB?): void {
+            var pcb = (priorityPCB != undefined) ? _ReadyQueue.findAndRemovePCB(priorityPCB.PID)
+                                                 : _ReadyQueue.dequeue();
             pcb.State = "Terminated";
             _CompletedQueue.enqueue(pcb);
             Control.updateReadyQueueTable();

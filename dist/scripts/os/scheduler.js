@@ -58,11 +58,36 @@ var TSOS;
         };
 
         Scheduler.prototype.doFCFSCS = function () {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBInOrder();
+            }
+            // otherwise, do nothing and let it all end.
         };
 
         Scheduler.prototype.doPriorityCS = function () {
-            // TODO: iProject 4
+            // If the Ready Queue has more than one PCB in it...
+            if (_ReadyQueue.getSize() > 1) {
+                this.readyToCompleted();
+                this.setUpNextPCBPriority();
+                _Kernel.krnTrace("Priority context switch: running program's PID = " + _CurrPCB.PID);
+            }
+        };
+
+        Scheduler.prototype.setUpNextPCBInOrder = function () {
+            // TODO: dingo
+            _CurrPCB = _ReadyQueue.peek();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
+        };
+
+        Scheduler.prototype.setUpNextPCBPriority = function () {
+            _CurrPCB = _ReadyQueue.findLowestPriority();
+            _CurrBlockOfMem = _CurrPCB.MemBlock;
+            _CurrPCB.State = "Running";
+            _CPU.updateCPUWithPCBContents();
         };
 
         Scheduler.prototype.changeMode = function (newMode) {
@@ -109,6 +134,20 @@ var TSOS;
             _StdOut.putText(fullStr);
         };
 
+        Scheduler.prototype.printMode = function () {
+            switch (this.Mode) {
+                case ROUND_ROBIN:
+                    return "Round Robin";
+                    break;
+                case FCFS:
+                    return "First Come, First Served";
+                    break;
+                case PRIORITY:
+                    return "Priority";
+                    break;
+            }
+        };
+
         Scheduler.prototype.residentToReady = function (PID) {
             var pcb = _ResidentQueue.findAndRemovePCB(PID);
             pcb.State = "Ready";
@@ -123,12 +162,11 @@ var TSOS;
                 pcb.State = "Ready";
                 _ReadyQueue.enqueue(pcb);
             }
-            _ReadyQueue.peek().State = "Running";
             TSOS.Control.updateReadyQueueTable();
         };
 
-        Scheduler.prototype.readyToCompleted = function () {
-            var pcb = _ReadyQueue.dequeue();
+        Scheduler.prototype.readyToCompleted = function (priorityPCB) {
+            var pcb = (priorityPCB != undefined) ? _ReadyQueue.findAndRemovePCB(priorityPCB.PID) : _ReadyQueue.dequeue();
             pcb.State = "Terminated";
             _CompletedQueue.enqueue(pcb);
             TSOS.Control.updateReadyQueueTable();

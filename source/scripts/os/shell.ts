@@ -5,7 +5,9 @@
    ------------ */
 
 module TSOS {
+
     export class Shell {
+
         // Properties
         public promptStr = ">";
         public commandList = [];
@@ -49,6 +51,48 @@ module TSOS {
             sc = new ShellCommand(this.shellDate,
                                   "date",
                                   "- Displays the current date and time.");
+            this.commandList[this.commandList.length] = sc;
+
+            // create
+            sc = new ShellCommand(this.shellFSCreate,
+                                  "create",
+                                  "<filename> - Creates an empty file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // read
+            sc = new ShellCommand(this.shellFSRead,
+                                  "read",
+                                  "<filename> - Reads out the contents of the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // write
+            sc = new ShellCommand(this.shellFSWrite,
+                                  "write",
+                                  "<filename, text> - Writes to the file <filename> the given <text>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // delete
+            sc = new ShellCommand(this.shellFSDelete,
+                                  "delete",
+                                  "<filename> - Deletes the file called <filename>.");
+            this.commandList[this.commandList.length] = sc;
+
+            // format
+            sc = new ShellCommand(this.shellFSFormat,
+                                  "format",
+                                  "- Formats the file system.");
+            this.commandList[this.commandList.length] = sc;
+
+            // ls
+            sc = new ShellCommand(this.shellFSList,
+                "ls",
+                "- Lists the contents of the file system.");
+            this.commandList[this.commandList.length] = sc;
+
+            // getschedule
+            sc = new ShellCommand(this.shellGetSchedule,
+                                  "getschedule",
+                                  "- Displays the current CPU scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
 
             // help
@@ -111,22 +155,28 @@ module TSOS {
                                   "- Runs all programs that have been loaded into memory.");
             this.commandList[this.commandList.length] = sc;
 
+            // shellSetSchedule <algorithm>
+            sc = new ShellCommand(this.shellSetSchedule,
+                                  "setschedule",
+                                  "<algorithm> - Sets the CPU scheduling algorithm to either Round Robin (rr), First Come First Served (fcfs), or Priority (priority).");
+            this.commandList[this.commandList.length] = sc;
+
             // shutdown
             sc = new ShellCommand(this.shellShutdown,
                                   "shutdown",
                                   "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
-            // trace <on | off>
-            sc = new ShellCommand(this.shellTrace,
-                                  "trace",
-                                  "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
-
             // status <string>
             sc = new ShellCommand(this.shellStatus,
                                   "status",
                                   "<string> - Displays a user-provided status to the console and status bar.");
+            this.commandList[this.commandList.length] = sc;
+
+            // trace <on | off>
+            sc = new ShellCommand(this.shellTrace,
+                                  "trace",
+                                  "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
 
             // ver
@@ -341,6 +391,52 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             _StdOut.putText("Time and date, from TD Bank: " + Utils.getDateAndTime());
         }
 
+        public shellFSCreate(args) {
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_CREATE, fileName]));
+        }
+
+        public shellFSRead(args) {
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_READ, fileName]));
+        }
+
+        /*
+         * Since arguments come in split on spaces, we join back together
+         * the text that comes after the first argument (which is the filename).
+         * Then we trim off the leading and trailing whitespace, as well as the
+         * quote marks. Finally we queue an interrupt for writing to disk.
+         */
+        public shellFSWrite(args) {
+            var fileName = args[0];
+            var text = "";
+            for (var i = 1; i < args.length; i++) {
+                text += " " + args[i];
+            }
+
+            // Get rid of all the quotes and leading/trailing whitespace.
+            text = Utils.trim(text.replace(/"/g, "").replace(/'/g, ""));
+
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_WRITE, fileName, text]));
+        }
+
+        public shellFSDelete(args) {
+            var fileName = args[0];
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_DELETE, fileName]));
+        }
+
+        public shellFSFormat() {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_FORMAT]));
+        }
+
+        public shellFSList() {
+            _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ, [DISK_LIST]));
+        }
+
+        public shellGetSchedule() {
+            _StdOut.putText("Current scheduling algorithm: " + _Scheduler.printMode());
+        }
+
         public shellHelp() {
             _StdOut.putText("Commands:");
             for (var i = 0; i < _OsShell.commandList.length; i++) {
@@ -357,7 +453,7 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             }
         }
 
-        public shellLoad() {
+        public shellLoad(args) {
             _ProgInput = Control.getProgramInput();
             var regex = new RegExp("^[A-Fa-f0-9]{2}$");
 
@@ -380,10 +476,11 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 // If the code is valid...
                 if (allValid) {
 
-                    // If we still have space in memory...
+                    // If we still have space in real memory...
                     if (_MemMan.nextFreeBlock !== -1) {
-                        // Make a new PCB...
-                        var pcb = new ProcessControlBlock(_MemMan.nextFreeBlock);
+                        // Make a new PCB (with priority, if supplied)...
+                        var pcb = (args.length > 0) ? new ProcessControlBlock(_MemMan.nextFreeBlock, args[0])
+                                                    : new ProcessControlBlock(_MemMan.nextFreeBlock);
                         // ...put it in the Resident Queue...
                         _ResidentQueue.enqueue(pcb);
                         // ...clear out the block of memory where the program will go into...
@@ -395,8 +492,25 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                         // ...and print the PID.
                         _StdOut.putText("PID = " + pcb.PID);
 
+                    // If we don't, we have to use a swap file in the file system.
                     } else {
-                        _StdOut.putText("Memory is full.");
+
+                        // Make a new PCB (with priority, if supplied)...
+                        var pcb = (args.length > 0) ? new ProcessControlBlock("fs", args[0])
+                                                    : new ProcessControlBlock("fs");
+
+                        // ...tell the pcb that it's stuff is in the swap file...
+                        pcb.setSwapFileName(_krnFileSystemDriver.getSwapFileName(pcb.PID));
+                        // ...put it in the Resident Queue...
+                        _ResidentQueue.enqueue(pcb);
+                        // ...create the swap file...
+                        _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                                                                    [DISK_CREATE, pcb.swapFileName]));
+                        // ...fill the file with the program code...
+                        _KernelInterruptQueue.enqueue(new Interrupt(FILE_SYSTEM_IRQ,
+                                                                    [DISK_WRITE, pcb.swapFileName, _ProgInput.join("")]));
+                        // ...and print the PID.
+                        _StdOut.putText("PID = " + pcb.PID);
                     }
 
                 } else {
@@ -487,12 +601,44 @@ spell certain doom for the small band of rebels struggling to restore freedom to
                 // ...sets the CPU to isExecuting...
                 _CPU.isExecuting = true;
                 // ...and sets the currently running PID (and memory block)
-                // to the first program in the queue.
-                _CurrPCB = _ReadyQueue.peek();
+                // to the first program in the queue (for RR and FCFS, or
+                // the one with the lowest priority).
+                if (_Scheduler.Mode == PRIORITY)
+                    _CurrPCB = _ReadyQueue.findLowestPriority();
+                else
+                    _CurrPCB = _ReadyQueue.peek();
+
                 _CurrBlockOfMem = _CurrPCB.getMemBlock();
+                _CurrPCB.State = "Running";
 
             } else {
                 _StdOut.putText("No programs in the Resident Queue.");
+            }
+        }
+
+        public shellSetSchedule(args) {
+            if (args.length > 0) {
+
+                switch (args[0]) {
+                    case "rr":
+                        _Scheduler.Mode = ROUND_ROBIN;
+                        break;
+
+                    case "fcfs":
+                        _Scheduler.Mode = FCFS;
+                        break;
+
+                    case "priority":
+                        _Scheduler.Mode = PRIORITY;
+                        break;
+
+                    default:
+                        _StdOut.putText("Invalid scheduling algorithm. Choose another.");
+                        break;
+                }
+
+            } else {
+                _StdOut.putText("Usage: setschedule <algorithm>  Please supply a scheduling algorithm [rr, fcfs, priority].");
             }
         }
 

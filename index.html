@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <meta name="author"             content="Alan G. Labouseur and John Paul Welsh" />
+    <meta name="author"             content="Alan G. Labouseur, Bob Nisco, and John Paul Welsh" />
     <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
     <title>
         jip-os - a browser-based virtual Operating System in TypeScript
@@ -15,6 +15,7 @@
     <script type="text/javascript" src="dist/scripts/host/control.js"></script>
     <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
     <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/fileSystem.js"></script>
     <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
 
     <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
@@ -23,6 +24,8 @@
     <script type="text/javascript" src="dist/scripts/os/console.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
     <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriverFileSystem.js"></script>
+
     <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
     <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
     <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
@@ -49,9 +52,7 @@
 <!-- A9 A9 A2 01 EC 13 00 AC 0B 00 8D 14 00 EE 0B 00 D0 F5 00 00 -->
 
 <div id="divMain" style="width:100%;">
-
-
-    <div id="divButtonBar" style="margin:4px;">
+    <div id="divButtonBar" class="pageDivs" style="margin:4px;">
         <input type="button"
                id = "btnStartOS"
                name="brnStartOS"
@@ -117,88 +118,104 @@
         </label>
     </div>
 
-    <div id="divConsole" style="margin:4px; width:500px; height:630px; float:left;">
-        <canvas id="display"
-                width="500px"
-                height="630px"
-                tabindex="6">
-        </canvas>
+    <div id="divColumn1">
+        <div id="divConsole" class="pageDivs" style="margin:4px; width:500px; height:630px;">
+            <canvas id="display"
+                    width="500px"
+                    height="630px"
+                    tabindex="6">
+            </canvas>
+        </div>
+
+        <div id="divFileSystem" class="pageDivs" style="margin:4px; width:500px; height:500px; overflow-y: auto;">
+            <label>
+                File System
+                <br>
+                <table id="tableFileSystem" style="background-color: #909993;">
+                </table>
+            </label>
+        </div>
     </div>
 
-    <div id="divLog" style="margin-left:520px;">
-        <label>
-            Host Log
-            <br>
-            <textarea name="taHostLog"
-                      id  ="taHostLog"
-                      rows="26"
-                      cols="48"
-                      style="background-color: #909993;">
-            </textarea>
-        </label>
+    <div id="divColumn2">
+        <div id="divLog" class="pageDivs">
+            <label>
+                Host Log
+                <br>
+                <textarea name="taHostLog"
+                          id  ="taHostLog"
+                          rows="26"
+                          cols="48"
+                          style="background-color: #909993;">
+                </textarea>
+            </label>
+        </div>
+
+        <div id="divUserProgramInput" class="pageDivs">
+            <label>
+                User Program Input
+                <br>
+                <textarea name="taProgramInput"
+                          id  ="taProgramInput"
+                          rows="8"
+                          cols="48"
+                          style="background-color: #909993;">
+                </textarea>
+            </label>
+        </div>
     </div>
 
-    <div id="divUserProgramInput" style="margin-left:520px;">
-        <label>
-            User Program Input
-            <br>
-            <textarea name="taProgramInput"
-                      id  ="taProgramInput"
-                      rows="8"
-                      cols="48"
-                      style="background-color: #909993;">
-            </textarea>
-        </label>
-    </div>
+    <div id="divColumn3">
+        <div id="divMemoryDisplay" class="pageDivs" style="height: 320px; width: 230px; overflow-y: auto;">
+            <label>
+                Memory (Scrollable)
+                <br>
+                <table id="tableMemory" style="background-color: #909993;">
+                </table>
+            </label>
+        </div>
 
-    <div id="divMemoryDisplay" style="height: 320px; width: 230px; overflow-y: auto; margin-left: 800px; margin-top: -500px;">
-        <label>
-            Memory (Scrollable)
-            <br>
-            <table id="tableMemory" style="background-color: #909993;">
-            </table>
-        </label>
-    </div>
+        <div id="divCPUComponentsDisplay" class="pageDivs" style="width: 250px;">
+            <label>
+                CPU Information
+                <br>
+                <table id="tableCPUComponents" style="background-color: #909993;">
+                    <tr style="text-align: center;">
+                        <th>PC</th>
+                        <th>Accum</th>
+                        <th>X-Reg</th>
+                        <th>Y-Reg</th>
+                        <th>Z-Flag</th>
+                    </tr>
+                    <tr style="text-align: center;">
+                        <td id="tdPC"></td>
+                        <td id="tdAccum"></td>
+                        <td id="tdXReg"></td>
+                        <td id="tdYReg"></td>
+                        <td id="tdZFlag"></td>
+                    </tr>
+                </table>
+            </label>
+        </div>
 
-    <div id="divCPUComponentsDisplay" style="width: 250px; margin-left: 800px; margin-top: 20px;">
-        <label>
-            CPU Information
-            <br>
-            <table id="tableCPUComponents" style="background-color: #909993;">
-                <tr style="text-align: center;">
-                    <th>PC</th>
-                    <th>Accum</th>
-                    <th>X-Reg</th>
-                    <th>Y-Reg</th>
-                    <th>Z-Flag</th>
-                </tr>
-                <tr style="text-align: center;">
-                    <td id="tdPC"></td>
-                    <td id="tdAccum"></td>
-                    <td id="tdXReg"></td>
-                    <td id="tdYReg"></td>
-                    <td id="tdZFlag"></td>
-                </tr>
-            </table>
-        </label>
-    </div>
-
-    <div id="divReadyQueueDisplay" style="width: 350px; margin-left: 800px; margin-top: 20px;">
-        <label>
-            Ready Queue
-            <br>
-            <table id="tableReadyQueue" style="background-color: #909993;">
-                <tr>
-                    <th>PID</th>
-                    <th>PC</th>
-                    <th>Accum</th>
-                    <th>X-Reg</th>
-                    <th>Y-Reg</th>
-                    <th>Z-Flag</th>
-                    <th>State</th>
-                </tr>
-            </table>
-        </label>
+        <div id="divReadyQueueDisplay" class="pageDivs" style="width: 430px;">
+            <label>
+                Ready Queue
+                <br>
+                <table id="tableReadyQueue" style="background-color: #909993;">
+                    <tr>
+                        <th>PID</th>
+                        <th>PC</th>
+                        <th>Accum</th>
+                        <th>X-Reg</th>
+                        <th>Y-Reg</th>
+                        <th>Z-Flag</th>
+                        <th>State</th>
+                        <th>Priority</th>
+                    </tr>
+                </table>
+            </label>
+        </div>
     </div>
 </div>
 

@@ -23,6 +23,7 @@ var PROG_SYSCALL_IRQ = 2;
 var PROG_INVALID_OPCODE_IRQ = 3;
 var MEMORY_VIOLATION_IRQ = 4;
 var CONTEXT_SWITCH_IRQ = 5;
+var FILE_SYSTEM_IRQ = 6;
 
 // Scheduling alrogithms
 var ROUND_ROBIN = 0;
@@ -68,6 +69,7 @@ var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver = null;
+var _krnFileSystemDriver = null;
 
 var _hardwareClockID = null;
 
@@ -108,6 +110,19 @@ var _IsSingleStep = false;
 
 // For line wrap...
 var _StringCutoffLength = 40;
+
+// For file system...
+var DISK_CREATE = 0;
+var DISK_READ = 1;
+var DISK_WRITE = 2;
+var DISK_DELETE = 3;
+var DISK_FORMAT = 4;
+var DISK_LIST = 5;
+var _FileSystemTable = null;
+var _FileSystem = null;
+var FS_NUM_TRACKS = 4;
+var FS_NUM_SECTORS = 8;
+var FS_NUM_BLOCKS = 8;
 
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();

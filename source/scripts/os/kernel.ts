@@ -37,6 +37,12 @@ module TSOS {
             _krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
             this.krnTrace(_krnKeyboardDriver.status);
 
+            // Load the File System Device Driver
+            this.krnTrace("Loading the file system device driver");
+            _krnFileSystemDriver = new DeviceDriverFileSystem();
+            _krnFileSystemDriver.driverEntry();
+            this.krnTrace(_krnFileSystemDriver.status);
+
             //
             // ... more?
             //
@@ -142,6 +148,9 @@ module TSOS {
                     break;
                 case CONTEXT_SWITCH_IRQ:
                     _Scheduler.contextSwitch();
+                    break;
+                case FILE_SYSTEM_IRQ:
+                    _krnFileSystemDriver.isr(params);
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

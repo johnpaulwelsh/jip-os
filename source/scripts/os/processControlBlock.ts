@@ -3,35 +3,56 @@
  */
 
 module TSOS {
-    export class ProcessControlBlock {
-        PID: number;
-        PC: number;
-        Accum: number;
-        Xreg: number;
-        Yreg: number;
-        Zflag: number;
-        BaseReg: number;
-        LimitReg: number;
-        MemBlock: number;
-        State: string;
-        isFinished: boolean;
 
-        constructor(mb) {
+    export class ProcessControlBlock {
+
+        PID:          number;
+        PC:           number;
+        Accum:        number;
+        Xreg:         number;
+        Yreg:         number;
+        Zflag:        number;
+        BaseReg:      number;
+        LimitReg:     number;
+        MemBlock:     number;
+        State:        string;
+        Priority:     number;
+        isFinished:   boolean;
+        swapFileName: string;
+        location:     string;
+
+        constructor(mb, priority?) {
             this.PID      = _PID++;
             this.PC       = 0;
             this.Accum    = 0;
             this.Xreg     = 0;
             this.Yreg     = 0;
             this.Zflag    = 0;
-            this.MemBlock = mb;
-            this.BaseReg  = mb * 256;
-            this.LimitReg = this.BaseReg + 255;
+
+            if (mb != "fs") {
+                this.MemBlock = mb;
+                this.BaseReg  = mb * 256;
+                this.LimitReg = this.BaseReg + 255;
+                this.location = "Memory";
+            } else {
+                this.MemBlock = -1;
+                this.BaseReg = -1;
+                this.LimitReg = -1;
+                this.location = "File System";
+            }
+
+            this.Priority = (priority != undefined) ? priority : 0;
             this.State    = "New";
             this.isFinished = false;
         }
 
         public getMemBlock(): number {
             return this.MemBlock;
+        }
+
+        public setSwapFileName(name) {
+            this.swapFileName = name;
+            this.location = "File System";
         }
 
         public printPCB(): void {

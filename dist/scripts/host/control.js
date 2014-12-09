@@ -197,7 +197,7 @@ var TSOS;
 
             // Clip the top off of the image, by the height of one line of text, and draw it back to the canvas.
             var clipY = _DefaultFontSize + _FontHeightMargin;
-            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 500, 0, 0, 500, 500); // width, height
+            _DrawingContext.drawImage(currCanvasContent, 0, clipY, 500, 630, 0, 0, 500, 630); // width, height
         };
 
         // Sets all the CPU elements to 0.
@@ -303,7 +303,58 @@ var TSOS;
                 var cellState = document.createElement("td");
                 row.appendChild(cellState);
                 cellState.innerHTML = pcb.State;
+
+                var cellPriority = document.createElement("td");
+                row.appendChild(cellPriority);
+                cellPriority.innerHTML = pcb.Priority;
             }
+        };
+
+        Control.createFileSystemTable = function () {
+            _FileSystemTable = document.getElementById("tableFileSystem");
+
+            for (var t = 0; t < _FileSystem.tracks; t++) {
+                for (var s = 0; s < _FileSystem.sectors; s++) {
+                    for (var b = 0; b < _FileSystem.blocks; b++) {
+                        var tsb = TSOS.Utils.tsbStr(t, s, b);
+
+                        var row = document.createElement("tr");
+                        _FileSystemTable.appendChild(row);
+
+                        var data = this.buildEmptyEntry();
+
+                        var keyCell = document.createElement("td");
+                        row.appendChild(keyCell);
+                        keyCell.innerHTML = tsb;
+
+                        var spacer = document.createElement("td");
+                        row.appendChild(spacer);
+                        spacer.innerHTML = "&nbsp;";
+
+                        var valueCell = document.createElement("td");
+                        row.appendChild(valueCell);
+                        valueCell.innerHTML = data;
+
+                        // This allows you to getElementById and access any row instantly.
+                        valueCell.id = tsb;
+                    }
+                }
+            }
+        };
+
+        Control.buildEmptyEntry = function () {
+            var data = "0";
+            data += _FileSystem.TSB_FILL + _FileSystem.TSB_FILL + _FileSystem.TSB_FILL;
+
+            for (var c = 0; c < _FileSystem.dataBytes; c++) {
+                data += _FileSystem.DATA_FILL;
+            }
+
+            return data;
+        };
+
+        Control.updateFileSystemTable = function (tsbID, newBytes) {
+            document.getElementById(tsbID).innerHTML = newBytes;
         };
         return Control;
     })();

@@ -101,23 +101,40 @@ module TSOS {
 
             // Increment the program counter when the program is still executing,
             // and when we are switching to another program after one just completed.
-            if (this.isExecuting && command != "00" && command != 0)
+            if (this.isExecuting && command != "00" && command != 0) {
                 this.PC++;
+            }
 
             // This could become nulled if we already moved the PCB to the Completed Queue.
-            if (_CurrPCB != null)
+            if (_CurrPCB != null) {
                 this.updatePCBWithCurrentCPU();
+            }
 
             Control.updateReadyQueueTable();
             this.updateCPUElements();
 
-            _Scheduler.CycleCount++;
+            if (_Scheduler.Mode == ROUND_ROBIN) {
+                _Scheduler.CycleCount++;
+            }
 
-            // If we have run this program for the amount of cycles that the quantum tells us
-            // (or the running program finishes early), schedule an interrupt for a context switch.
             if (_CurrPCB != null) {
-                if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished)
-                    _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+
+                // If we have run this program for the amount of cycles that the quantum tells us
+                // (or the running program finishes early), schedule an interrupt for a context switch.
+                if (_Scheduler.Mode == ROUND_ROBIN) {
+
+                    if (_Scheduler.CycleCount >= _Scheduler.Quantum || _CurrPCB.isFinished) {
+                        _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+                    }
+
+                // For the other two scheduling algorithms, just move on when a program completes.
+                } else {
+
+                    if (_CurrPCB.isFinished) {
+                        _KernelInterruptQueue.enqueue(new Interrupt(CONTEXT_SWITCH_IRQ, [0]));
+                    }
+                }
+
             }
         }
 
@@ -137,7 +154,6 @@ module TSOS {
                 return -1;
             }
         }
-
 
         // The values at the next two positions in memory, swapped and combined, is a memory location
         // represented in hex. This returns that location as a decimal number.
@@ -366,22 +382,31 @@ module TSOS {
             this.updatePCBWithCurrentCPU();
             //_CurrPCB.printPCB();
 
-            _Scheduler.readyToCompleted();
+            if (_Scheduler.Mode == PRIORITY) {
+                _Scheduler.readyToCompleted(_CurrPCB);
+            } else {
+                _Scheduler.readyToCompleted();
+            }
 
             // Free up this space in memory because the current program
             // is done running, so we can load into that spot now.
             _MemMan.updateNextFreeBlock(_CurrBlockOfMem);
 
             if (!_ReadyQueue.isEmpty()) {
-                _CurrPCB = _ReadyQueue.peek();
+
+                _CurrPCB = (_Scheduler.Mode == PRIORITY) ? _ReadyQueue.findLowestPriority()
+                                                         : _ReadyQueue.peek();
                 _CurrBlockOfMem = _CurrPCB.MemBlock;
+                _CurrPCB.State = "Running";
                 this.updateCPUWithPCBContents();
                 _Scheduler.CycleCount = 0;
 
             } else {
+
                 _CurrPCB = null;
                 _CurrBlockOfMem = -1;
                 this.isExecuting = false;
+
             }
         }
 
