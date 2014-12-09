@@ -71,6 +71,19 @@ var TSOS;
             return hours + ":" + mins + ":" + secs + " " + month + "/" + day + "/" + year;
         };
 
+        Utils.validateProgInput = function (regex) {
+            for (var i = 0; i < _ProgInput.length; i++) {
+                var hex = _ProgInput[i];
+
+                // ...checking whether the regex for a valid hex code matches.
+                if (!(regex.test(hex))) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
         Utils.hexStrToDecNum = function (hexStr) {
             return parseInt(hexStr, 16);
         };

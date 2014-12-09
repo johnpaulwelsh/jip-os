@@ -86,6 +86,7 @@ module TSOS {
 
         private setUpNextPCBInOrder(): void {
 
+            // TODO: use getDataBytesWithLinksKeepHex()
             // TODO: dingo
 
             _CurrPCB = _ReadyQueue.peek();
@@ -95,6 +96,9 @@ module TSOS {
         }
 
         private setUpNextPCBPriority(): void {
+
+            // TODO: dingo
+
             _CurrPCB = _ReadyQueue.findLowestPriority();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";
@@ -110,7 +114,6 @@ module TSOS {
         }
 
         public killProcess(pid): void {
-
             // If the one getting killed is currently on the CPU, do a context switch first.
             if (_CurrPCB.PID == pid)
                 this.contextSwitch();

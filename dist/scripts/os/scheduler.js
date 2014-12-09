@@ -76,6 +76,7 @@ var TSOS;
         };
 
         Scheduler.prototype.setUpNextPCBInOrder = function () {
+            // TODO: use getDataBytesWithLinksKeepHex()
             // TODO: dingo
             _CurrPCB = _ReadyQueue.peek();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
@@ -84,6 +85,7 @@ var TSOS;
         };
 
         Scheduler.prototype.setUpNextPCBPriority = function () {
+            // TODO: dingo
             _CurrPCB = _ReadyQueue.findLowestPriority();
             _CurrBlockOfMem = _CurrPCB.MemBlock;
             _CurrPCB.State = "Running";

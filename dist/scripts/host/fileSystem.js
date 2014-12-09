@@ -153,6 +153,10 @@ var TSOS;
             return TSOS.Utils.charHexStrToAsciiStr(this.getItem(tsb).substr(4, this.dataBytes));
         };
 
+        FileSystem.prototype.getDataBytesKeepHex = function (tsb) {
+            return this.getItem(tsb).substr(4, this.dataBytes);
+        };
+
         /*
         * Gets the data bytes for an entry, and possibly strings it together
         * with the data bytes from the next linked entries, if the link exists.
@@ -162,6 +166,16 @@ var TSOS;
             var nextTSB = this.getTSBBytes(tsb);
             if (nextTSB != this.TSB_FILL_FULL) {
                 return firstPiece + this.getDataBytesWithLinks(nextTSB);
+            } else {
+                return firstPiece;
+            }
+        };
+
+        FileSystem.prototype.getDataBytesWithLinksKeepHex = function (tsb) {
+            var firstPiece = this.getDataBytesKeepHex(tsb);
+            var nextTSB = this.getTSBBytes(tsb);
+            if (nextTSB != this.TSB_FILL_FULL) {
+                return firstPiece + this.getDataBytesWithLinksKeepHex(nextTSB);
             } else {
                 return firstPiece;
             }
@@ -242,7 +256,7 @@ var TSOS;
         * enforce that it doesn't have dangling DATA_FILL characters, and
         * sets the meta bytes before finally finishing.
         */
-        FileSystem.prototype.setBytes = function (isDirectory, bytes, tsb) {
+        FileSystem.prototype.setBytes = function (isDirectory, bytes, isProgCode, tsb) {
             var byteArray = bytes.split("");
 
             // If we don't need to do any linking...
@@ -255,11 +269,17 @@ var TSOS;
                     dataArray[s] = byteArray[s - this.DATA_BEGIN];
                 }
 
-                var finalData = this.enforceDataLength(TSOS.Utils.asciiStrToCharHexStr(dataArray.join("")));
+                var finalData;
+                if (isProgCode) {
+                    finalData = this.enforceDataLength(dataArray.join(""));
+                } else {
+                    finalData = this.enforceDataLength(TSOS.Utils.asciiStrToCharHexStr(dataArray.join("")));
+                }
+
                 this.setItem(myTSB, finalData);
                 this.setIsUsedByte(myTSB, "1");
             } else {
-                this.setBytesWithLinks(isDirectory, byteArray, tsb);
+                this.setBytesWithLinks(isDirectory, byteArray, isProgCode, tsb);
             }
         };
 
@@ -276,7 +296,7 @@ var TSOS;
         * of Don't Repeat Yourself (DRY). Or upset that I made it so against the philosophy
         * of Don't Repeat Yourself (DRY).
         */
-        FileSystem.prototype.setBytesWithLinks = function (isDirectory, byteArray, tsb) {
+        FileSystem.prototype.setBytesWithLinks = function (isDirectory, byteArray, isProgCode, tsb) {
             var myTSB = (tsb != undefined) ? tsb : ((isDirectory) ? this.getNextFreeDirectoryEntry() : this.getNextFreeDataEntry());
 
             var dataArray = this.getItem(myTSB).split("");
@@ -296,7 +316,13 @@ var TSOS;
                 }
             }
 
-            var realFinalData = this.enforceDataLength(TSOS.Utils.asciiStrToCharHexStr(finalData));
+            var realFinalData;
+            if (isProgCode) {
+                realFinalData = this.enforceDataLength(dataArray.join(""));
+            } else {
+                realFinalData = this.enforceDataLength(TSOS.Utils.asciiStrToCharHexStr(dataArray.join("")));
+            }
+
             this.setItem(myTSB, realFinalData);
             this.setIsUsedByte(myTSB, "1");
 
@@ -307,7 +333,7 @@ var TSOS;
                 this.setTSBBytes(myTSB, newTSB);
                 this.setIsUsedByte(newTSB, "1");
 
-                this.setBytesWithLinks(isDirectory, byteArray, newTSB);
+                this.setBytesWithLinks(isDirectory, byteArray, isProgCode, newTSB);
             }
         };
 
@@ -318,7 +344,7 @@ var TSOS;
             var mbrTSB = "000";
             this.setIsUsedByte(mbrTSB, "1");
             this.setTSBBytesBlank(mbrTSB);
-            this.setBytes(true, APP_NAME, mbrTSB);
+            this.setBytes(true, APP_NAME, false, mbrTSB);
         };
 
         //
