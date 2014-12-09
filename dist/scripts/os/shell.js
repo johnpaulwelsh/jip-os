@@ -344,6 +344,12 @@ spell certain doom for the small band of rebels struggling to restore freedom to
             _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FILE_SYSTEM_IRQ, [DISK_READ, fileName]));
         };
 
+        /*
+        * Since arguments come in split on spaces, we join back together
+        * the text that comes after the first argument (which is the filename).
+        * Then we trim off the leading and trailing whitespace, as well as the
+        * quote marks. Finally we queue an interrupt for writing to disk.
+        */
         Shell.prototype.shellFSWrite = function (args) {
             var fileName = args[0];
             var text = "";
